@@ -52,22 +52,22 @@ open class InsetTableViewCell: UITableViewCell {
         }
     }
 
-    open func initWithPositionAndShadow(isFirst: Bool = false, isLast: Bool = false, elevation: Float = 0) {
+    open func initWithPositionAndShadow(isFirst: Bool = false, isLast: Bool = false, elevation: Float = 0, radius: CGFloat = 10) {
         if isLast && isFirst {
             separator?.isHidden = true
             topConstraint?.constant = 8
             bottomConstraint?.constant = 8
-            contentInsetView.roundCorners(corners: [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner], radius: 10)
+            contentInsetView.roundCorners(corners: [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner], radius: radius)
         } else if isFirst {
             separator?.isHidden = false
             topConstraint?.constant = 8
             bottomConstraint?.constant = 0
-            contentInsetView.roundCorners(corners: [.layerMaxXMinYCorner, .layerMinXMinYCorner], radius: 10)
+            contentInsetView.roundCorners(corners: [.layerMaxXMinYCorner, .layerMinXMinYCorner], radius: radius)
         } else if isLast {
             separator?.isHidden = true
             topConstraint?.constant = 0
             bottomConstraint?.constant = 8
-            contentInsetView.roundCorners(corners: [.layerMaxXMaxYCorner, .layerMinXMaxYCorner], radius: 10)
+            contentInsetView.roundCorners(corners: [.layerMaxXMaxYCorner, .layerMinXMaxYCorner], radius: radius)
         } else {
             separator?.isHidden = false
             topConstraint?.constant = 0

@@ -27,4 +27,9 @@ extension UIColor {
             blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
             alpha: 1)
     }
+
+    public class func backgroundColor(with id: Int) -> UIColor {
+        let colorIndex = id % 9
+        return UIColor(named: "organisationColor\(colorIndex)", in: Bundle.module, compatibleWith: nil) ?? .darkGray
+    }
 }

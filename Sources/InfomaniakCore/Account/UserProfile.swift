@@ -6,7 +6,8 @@
 //  Copyright © 2020 Infomaniak. All rights reserved.
 //
 
-import Foundation
+import UIKit
+import Kingfisher
 
 public class UserProfile: Codable {
 
@@ -57,7 +58,6 @@ public class UserProfile: Codable {
     public var isPhoneValid: Bool {
         return phoneNumber?.phone == phoneReminderValidate && phoneReminderValidate != nil
     }
-
     public var securityLevel: Int {
         var level = 0
         if isEmailValid {
@@ -73,6 +73,18 @@ public class UserProfile: Codable {
             level += 1
         }
         return level
+    }
+    public func getAvatar(completion: @escaping (UIImage) -> Void) {
+        if let avatar = avatar, let url = URL(string: avatar) {
+            KingfisherManager.shared.retrieveImage(with: url) { (result) in
+                if let avatarImage = try? result.get().image {
+                    completion(avatarImage)
+                }
+            }
+        } else {
+            let backgroundColor = UIColor.backgroundColor(with: id)
+            completion(UIImage.getPlaceholder(with: displayName, backgroundColor: backgroundColor))
+        }
     }
 
     enum CodingKeys: String, CodingKey {

@@ -187,4 +187,17 @@ public extension UIImage {
 
         return image!
     }
+
+    public class func getPlaceholder(with name: String, frame: CGRect? = nil, fontSize: CGFloat = 14, foregroundColor: UIColor = .white, backgroundColor: UIColor) -> UIImage {
+        let initals = name.initials
+        let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: fontSize), .foregroundColor: foregroundColor]
+        let initalsSize = initals.size(withAttributes: attributes)
+        let bounds = frame ?? CGRect(x: 0, y: 0, width: 40, height: 40)
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: bounds.size.width, height: bounds.size.height))
+        return renderer.image { (context) in
+            backgroundColor.setFill()
+            context.fill(renderer.format.bounds)
+            (initals as NSString).draw(in: CGRect(x: bounds.midX - initalsSize.width / 2, y: bounds.midY - initalsSize.height / 2, width: initalsSize.width, height: initalsSize.height), withAttributes: attributes)
+        }
+    }
 }

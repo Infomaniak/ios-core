@@ -188,7 +188,7 @@ public extension UIImage {
         return image!
     }
 
-    public class func getPlaceholder(with name: String, frame: CGRect? = nil, fontSize: CGFloat = 14, foregroundColor: UIColor = .white, backgroundColor: UIColor) -> UIImage {
+    class func getPlaceholder(with name: String, frame: CGRect? = nil, fontSize: CGFloat = 14, foregroundColor: UIColor = .white, backgroundColor: UIColor) -> UIImage {
         let initals = name.initials
         let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: fontSize), .foregroundColor: foregroundColor]
         let initalsSize = initals.size(withAttributes: attributes)

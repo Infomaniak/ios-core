@@ -10,6 +10,7 @@ import UIKit
 import Foundation
 import Alamofire
 import InfomaniakLogin
+import Sentry
 
 public protocol RefreshTokenDelegate {
     func didUpdateToken(newToken: ApiToken, oldToken: ApiToken)
@@ -47,7 +48,7 @@ open class ApiFetcher {
         case .failure(let error):
             if let data = response.data {
                 if response.response!.statusCode == 500 {
-                    //TODO : Tell bugsnag if it's a server error
+                    SentrySDK.capture(error: error)
                 }
                 if let apiError = try? decoder.decode(ApiResponse<EmptyResponse>.self, from: data),
                     let error = apiError.error {

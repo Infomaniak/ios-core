@@ -18,12 +18,13 @@ let package = Package(
             .package(url: "https://github.com/Alamofire/Alamofire", from: "5.2.2"),
             .package(name: "InfomaniakLogin", url: "git@github.com:Infomaniak/ios-login.git", from: "1.3.0"),
             .package(url: "https://github.com/immortal79/LocalizeKit", from: "1.0.1"),
-            .package(url: "https://github.com/onevcat/Kingfisher", .upToNextMajor(from: "5.15.6"))
+            .package(url: "https://github.com/onevcat/Kingfisher", .upToNextMajor(from: "5.15.6")),
+            .package(name: "Sentry", url: "https://github.com/getsentry/sentry-cocoa", from: "6.2.1")
         ],
         targets: [
             .target(
                     name: "InfomaniakCore",
-                    dependencies: ["Alamofire", "InfomaniakLogin", "Kingfisher", "LocalizeKit"]),
+                    dependencies: ["Alamofire", "InfomaniakLogin", "Kingfisher", "LocalizeKit", "Sentry"]),
             .testTarget(
                     name: "InfomaniakCoreTests",
                     dependencies: ["InfomaniakCore"]),

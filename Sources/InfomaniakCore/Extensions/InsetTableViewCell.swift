@@ -52,7 +52,7 @@ open class InsetTableViewCell: UITableViewCell {
         }
     }
 
-    open func initWithPositionAndShadow(isFirst: Bool = false, isLast: Bool = false, elevation: Float = 0, radius: CGFloat = 10) {
+    open func initWithPositionAndShadow(isFirst: Bool = false, isLast: Bool = false, elevation: Double = 1, radius: CGFloat = 10) {
         if isLast && isFirst {
             separator?.isHidden = true
             topConstraint?.constant = 8
@@ -74,7 +74,7 @@ open class InsetTableViewCell: UITableViewCell {
             bottomConstraint?.constant = 0
             contentInsetView.roundCorners(corners: [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner], radius: 0)
         }
-        contentInsetView.addShadow()
+        contentInsetView.addShadow(elevation: elevation)
     }
 
 }

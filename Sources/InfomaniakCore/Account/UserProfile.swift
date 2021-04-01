@@ -9,7 +9,30 @@
 import UIKit
 import Kingfisher
 
-public class UserProfile: Codable {
+public protocol InfomaniakUser {
+    var id: Int { get }
+    var email: String { get }
+    var displayName: String { get }
+    var avatar: String { get }
+
+    func getAvatar(size: CGSize, completion: @escaping (UIImage) -> Void)
+}
+public extension InfomaniakUser {
+    func getAvatar(size: CGSize = CGSize(width: 40, height: 40), completion: @escaping (UIImage) -> Void) {
+        if let url = URL(string: avatar) {
+            KingfisherManager.shared.retrieveImage(with: url) { (result) in
+                if let avatarImage = try? result.get().image {
+                    completion(avatarImage)
+                }
+            }
+        } else {
+            let backgroundColor = UIColor.backgroundColor(from: id)
+            completion(UIImage.getInitialsPlaceholder(with: displayName, size: size, backgroundColor: backgroundColor))
+        }
+    }
+}
+
+public class UserProfile: Codable, InfomaniakUser {
 
     public let id: Int
     public let userId: Int
@@ -33,7 +56,7 @@ public class UserProfile: Codable {
     public let validatedAt: Date?
     public let lastLoginAt: Date?
     public let administrationLastlogin: Date?
-    public let avatar: String?
+    private let _avatar: String?
     public let phones: [Phone]?
     public let phoneReminderValidate: String?
     public let emails: [Email]?
@@ -74,17 +97,9 @@ public class UserProfile: Codable {
         }
         return level
     }
-    public func getAvatar(completion: @escaping (UIImage) -> Void) {
-        if let avatar = avatar, let url = URL(string: avatar) {
-            KingfisherManager.shared.retrieveImage(with: url) { (result) in
-                if let avatarImage = try? result.get().image {
-                    completion(avatarImage)
-                }
-            }
-        } else {
-            let backgroundColor = UIColor.backgroundColor(with: id)
-            completion(UIImage.getPlaceholder(with: displayName, backgroundColor: backgroundColor))
-        }
+    public var avatar: String {
+        get { return _avatar ?? "" }
+        set { }
     }
 
     enum CodingKeys: String, CodingKey {
@@ -111,7 +126,7 @@ public class UserProfile: Codable {
         case validatedAt = "validated_at"
         case lastLoginAt = "last_login_at"
         case administrationLastlogin = "administration_last_login_at"
-        case avatar
+        case _avatar = "avatar"
         case phones
         case emails
     }

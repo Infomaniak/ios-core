@@ -188,16 +188,17 @@ public extension UIImage {
         return image!
     }
 
-    class func getPlaceholder(with name: String, frame: CGRect? = nil, fontSize: CGFloat = 14, foregroundColor: UIColor = .white, backgroundColor: UIColor) -> UIImage {
+    class func getInitialsPlaceholder(with name: String, size: CGSize = CGSize(width: 40, height: 40), foregroundColor: UIColor = .white, backgroundColor: UIColor) -> UIImage {
         let initals = name.initials
-        let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: fontSize), .foregroundColor: foregroundColor]
+        let defaultFontRatio: CGFloat = 14.0 / 40.0
+        let frame = CGRect(origin: .zero, size: size)
+        let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: frame.size.width * defaultFontRatio), .foregroundColor: foregroundColor]
         let initalsSize = initals.size(withAttributes: attributes)
-        let bounds = frame ?? CGRect(x: 0, y: 0, width: 40, height: 40)
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: bounds.size.width, height: bounds.size.height))
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: frame.size.width, height: frame.size.height))
         return renderer.image { (context) in
             backgroundColor.setFill()
             context.fill(renderer.format.bounds)
-            (initals as NSString).draw(in: CGRect(x: bounds.midX - initalsSize.width / 2, y: bounds.midY - initalsSize.height / 2, width: initalsSize.width, height: initalsSize.height), withAttributes: attributes)
+            (initals as NSString).draw(in: CGRect(x: frame.midX - initalsSize.width / 2, y: frame.midY - initalsSize.height / 2, width: initalsSize.width, height: initalsSize.height), withAttributes: attributes)
         }
     }
 }

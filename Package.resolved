@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/Alamofire/Alamofire",
         "state": {
           "branch": null,
-          "revision": "becd9a729a37bdbef5bc39dc3c702b99f9e3d046",
-          "version": "5.2.2"
+          "revision": "4d19ad82f80cc71ff829b941ded114c56f4f604c",
+          "version": "5.4.2"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "git@github.com:Infomaniak/ios-login.git",
         "state": {
           "branch": null,
-          "revision": "851efe63de7ee211a9e87cc1c3c063b7015665f0",
-          "version": "1.4.0"
+          "revision": "070e452beb501363973d25396fe8ba54007cc76e",
+          "version": "1.5.2"
         }
       },
       {

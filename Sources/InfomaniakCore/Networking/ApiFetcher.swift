@@ -22,11 +22,14 @@ open class ApiFetcher {
     public let apiURL = "https://api.infomaniak.com/1/"
 
     public var authenticatedSession: Session!
-    public let decoder = JSONDecoder()
+    public static var decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        return decoder
+    }()
     var refreshTokenDelegate: RefreshTokenDelegate!
 
     public init() {
-        decoder.dateDecodingStrategy = .secondsSince1970
     }
 
     public func setToken(_ token: ApiToken, delegate: RefreshTokenDelegate) {
@@ -36,7 +39,6 @@ open class ApiFetcher {
 
         let retrier = NetworkRequestRetrier()
         let interceptor = Interceptor(adapters: [], retriers: [retrier], interceptors: [authenticationInterceptor])
-        decoder.dateDecodingStrategy = .secondsSince1970
         authenticatedSession = Session(interceptor: interceptor)
     }
 
@@ -50,7 +52,7 @@ open class ApiFetcher {
                 if response.response!.statusCode == 500 {
                     SentrySDK.capture(error: error)
                 }
-                if let apiError = try? decoder.decode(ApiResponse<EmptyResponse>.self, from: data),
+                if let apiError = try? ApiFetcher.decoder.decode(ApiResponse<EmptyResponse>.self, from: data),
                     let error = apiError.error {
                     completion(nil, error)
                 } else {
@@ -64,13 +66,13 @@ open class ApiFetcher {
     }
 
     public func getUserOrganisationAccounts(completion: @escaping (ApiResponse<[OrganisationAccount]>?, Error?) -> Void) {
-        authenticatedSession.request("\(apiURL)account?with=logo&order_by=name").validate().responseDecodable(of: ApiResponse<[OrganisationAccount]>.self, decoder: decoder) { response in
+        authenticatedSession.request("\(apiURL)account?with=logo&order_by=name").validate().responseDecodable(of: ApiResponse<[OrganisationAccount]>.self, decoder: ApiFetcher.decoder) { response in
             self.handleResponse(response: response, completion: completion)
         }
     }
 
     public func getUserForAccount(completion: @escaping (ApiResponse<UserProfile>?, Error?) -> Void) {
-        authenticatedSession.request("\(apiURL)profile?with=avatar,phones,emails").validate().responseDecodable(of: ApiResponse<UserProfile>.self, decoder: decoder) { response in
+        authenticatedSession.request("\(apiURL)profile?with=avatar,phones,emails").validate().responseDecodable(of: ApiResponse<UserProfile>.self, decoder: ApiFetcher.decoder) { response in
             self.handleResponse(response: response, completion: completion)
         }
     }

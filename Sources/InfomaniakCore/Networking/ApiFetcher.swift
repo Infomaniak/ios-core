@@ -35,16 +35,36 @@ open class ApiFetcher {
             authenticationInterceptor.credential = newValue
         }
     }
-    
+
     private weak var refreshTokenDelegate: RefreshTokenDelegate?
     private var authenticationInterceptor: AuthenticationInterceptor<OAuthAuthenticator>!
 
     public init() {
     }
 
+    /**
+        Creates a new authenticated session for the given token.
+        The delegate is called back every time the token is refreshed.
+     
+        An [OAuthAuthenticator](x-source-tag://OAuthAuthenticator) is created to handle token refresh.
+     
+        - Parameter token: The token used to authenticate requests.
+        - Parameter delegate: The delegate called on token refresh.
+     */
     public func setToken(_ token: ApiToken, delegate: RefreshTokenDelegate) {
-        self.refreshTokenDelegate = delegate
         let authenticator = OAuthAuthenticator(refreshTokenDelegate: delegate)
+        setToken(token, authenticator: authenticator)
+    }
+
+    /**
+        Creates a new authenticated session for the given token.
+        The delegate is called back every time the token is refreshed.
+     
+        - Parameter token: The token used to authenticate requests.
+        - Parameter authenticator: The custom authenticator used to refresh the token.
+     */
+    public func setToken(_ token: ApiToken, authenticator: OAuthAuthenticator) {
+        self.refreshTokenDelegate = authenticator.refreshTokenDelegate
         authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
 
         let retrier = NetworkRequestRetrier()
@@ -88,7 +108,7 @@ open class ApiFetcher {
     }
 
 }
-
+/// - Tag: OAuthAuthenticator
 open class OAuthAuthenticator: Authenticator {
 
     public typealias Credential = ApiToken
@@ -99,11 +119,11 @@ open class OAuthAuthenticator: Authenticator {
         self.refreshTokenDelegate = refreshTokenDelegate
     }
 
-    public func apply(_ credential: Credential, to urlRequest: inout URLRequest) {
+    open func apply(_ credential: Credential, to urlRequest: inout URLRequest) {
         urlRequest.headers.add(.authorization(bearerToken: credential.accessToken))
     }
 
-    public func refresh(_ credential: Credential, for session: Session, completion: @escaping (Result<Credential, Error>) -> Void) {
+    open func refresh(_ credential: Credential, for session: Session, completion: @escaping (Result<Credential, Error>) -> Void) {
         InfomaniakLogin.refreshToken(token: credential) { (token, error) in
             //New token has been fetched correctly
             if let token = token {
@@ -125,11 +145,11 @@ open class OAuthAuthenticator: Authenticator {
         }
     }
 
-    public func didRequest(_ urlRequest: URLRequest, with response: HTTPURLResponse, failDueToAuthenticationError error: Error) -> Bool {
+    open func didRequest(_ urlRequest: URLRequest, with response: HTTPURLResponse, failDueToAuthenticationError error: Error) -> Bool {
         return response.statusCode == 401
     }
 
-    public func isRequest(_ urlRequest: URLRequest, authenticatedWith credential: ApiToken) -> Bool {
+    open func isRequest(_ urlRequest: URLRequest, authenticatedWith credential: ApiToken) -> Bool {
         return urlRequest.headers["Authorization"] == credential.accessToken
     }
 }

@@ -27,7 +27,17 @@ open class ApiFetcher {
         decoder.dateDecodingStrategy = .secondsSince1970
         return decoder
     }()
+    public var currentToken: ApiToken? {
+        get {
+            return authenticationInterceptor.credential
+        }
+        set {
+            authenticationInterceptor.credential = newValue
+        }
+    }
+    
     private weak var refreshTokenDelegate: RefreshTokenDelegate?
+    private var authenticationInterceptor: AuthenticationInterceptor<OAuthAuthenticator>!
 
     public init() {
     }
@@ -35,7 +45,7 @@ open class ApiFetcher {
     public func setToken(_ token: ApiToken, delegate: RefreshTokenDelegate) {
         self.refreshTokenDelegate = delegate
         let authenticator = OAuthAuthenticator(refreshTokenDelegate: delegate)
-        let authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
+        authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
 
         let retrier = NetworkRequestRetrier()
         let interceptor = Interceptor(adapters: [], retriers: [retrier], interceptors: [authenticationInterceptor])

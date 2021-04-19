@@ -50,6 +50,7 @@ open class ApiFetcher {
     private var authenticationInterceptor: AuthenticationInterceptor<OAuthAuthenticator>!
 
     public init() {
+        //Allow overriding
     }
 
     /**
@@ -86,22 +87,17 @@ open class ApiFetcher {
         switch response.result {
         case .success(let result):
             completion(result, nil)
-            break
         case .failure(let error):
             if let data = response.data {
                 if response.response!.statusCode == 500 {
                     SentrySDK.capture(error: error)
                 }
-                if let apiError = try? ApiFetcher.decoder.decode(ApiResponse<EmptyResponse>.self, from: data),
-                    let error = apiError.error {
-                    completion(nil, error)
-                } else {
-                    completion(nil, error)
-                }
+
+                let apiError = try? ApiFetcher.decoder.decode(ApiResponse<EmptyResponse>.self, from: data).error
+                completion(nil, apiError ?? error)
             } else {
                 completion(nil, error)
             }
-            break
         }
     }
 

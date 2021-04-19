@@ -34,12 +34,7 @@ public class OrganisationAccount: Codable, Equatable {
     public let logo: String?
     public var initials: String {
         get {
-            let words = name.split(separator: " ")
-            var initials = String(words[0].first!).capitalized
-            if words.count > 1 {
-                initials = initials + String(words[1].first!).capitalized
-            }
-            return initials
+            return name.initials
         }
     }
     public var backgroundColor: UIColor {

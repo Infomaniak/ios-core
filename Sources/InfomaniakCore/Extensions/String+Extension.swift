@@ -25,11 +25,11 @@ public extension String {
         guard words.count > 0, let firstLetter = words[0].first else {
             return ""
         }
-        var initials = String(firstLetter).capitalized
+        var returnedInitials = String(firstLetter).capitalized
         if words.count > 1, let secondLetter = words[1].first {
-            initials = initials + String(secondLetter).capitalized
+            returnedInitials = returnedInitials + String(secondLetter).capitalized
         }
-        return initials
+        return returnedInitials
     }
 
 }

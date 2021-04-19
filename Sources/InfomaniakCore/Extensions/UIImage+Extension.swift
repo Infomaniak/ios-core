@@ -21,7 +21,7 @@ import UIKit
 public class ImageUtil {
     internal typealias ImageOrientation = UIImage.Orientation
 
-    public static func CGImageWithCorrectOrientation(_ image: UIImage) -> CGImage {
+    public static func cgImageWithCorrectOrientation(_ image: UIImage) -> CGImage {
 
         if (image.imageOrientation == ImageOrientation.up) {
             return image.cgImage!
@@ -33,15 +33,12 @@ public class ImageUtil {
         case .right, .rightMirrored:
             transform = transform.translatedBy(x: 0, y: image.size.height)
             transform = transform.rotated(by: .pi / -2.0)
-            break
         case .left, .leftMirrored:
             transform = transform.translatedBy(x: image.size.width, y: 0)
             transform = transform.rotated(by: .pi / 2.0)
-            break
         case .down, .downMirrored:
             transform = transform.translatedBy(x: image.size.width, y: image.size.height)
             transform = transform.rotated(by: .pi)
-            break
         default:
             break
         }
@@ -50,11 +47,9 @@ public class ImageUtil {
         case .rightMirrored, .leftMirrored:
             transform = transform.translatedBy(x: image.size.height, y: 0)
             transform = transform.scaledBy(x: -1, y: 1)
-            break
         case .downMirrored, .upMirrored:
             transform = transform.translatedBy(x: image.size.width, y: 0)
             transform = transform.scaledBy(x: -1, y: 1)
-            break
         default:
             break
         }
@@ -67,11 +62,9 @@ public class ImageUtil {
              .right, .rightMirrored:
             contextWidth = (image.cgImage?.height)!
             contextHeight = (image.cgImage?.width)!
-            break
         default:
             contextWidth = (image.cgImage?.width)!
             contextHeight = (image.cgImage?.height)!
-            break
         }
 
         let context: CGContext = CGContext(data: nil, width: contextWidth, height: contextHeight,
@@ -130,7 +123,7 @@ public class ImageUtil {
 
 public extension UIImage {
     func resizeImage(size: CGSize) -> UIImage {
-        let imgRef = ImageUtil.CGImageWithCorrectOrientation(self)
+        let imgRef = ImageUtil.cgImageWithCorrectOrientation(self)
         let originalWidth = CGFloat(imgRef.width)
         let originalHeight = CGFloat(imgRef.height)
         let widthRatio = size.width / originalWidth
@@ -150,7 +143,7 @@ public extension UIImage {
 
     func maskImageWithRoundedRect(cornerRadius: CGFloat, borderWidth: CGFloat = 0, borderColor: UIColor? = UIColor.white) -> UIImage {
 
-        let imgRef = ImageUtil.CGImageWithCorrectOrientation(self)
+        let imgRef = ImageUtil.cgImageWithCorrectOrientation(self)
         let size = CGSize(width: CGFloat(imgRef.width) / self.scale, height: CGFloat(imgRef.height) / self.scale)
 
         return ImageUtil.drawImageWithClosure(size: size, scale: self.scale) { (size: CGSize, context: CGContext) -> UIImage? in

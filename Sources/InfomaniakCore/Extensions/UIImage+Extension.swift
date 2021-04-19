@@ -1,10 +1,20 @@
-//
-//  UIImage+Extension.swift
-//  InfomaniakCore
-//
-//  Created by Philippe Weidmann on 03.07.20.
-//  Copyright © 2020 Infomaniak. All rights reserved.
-//
+/*
+Infomaniak Core - iOS
+Copyright (C) 2021 Infomaniak Network SA
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 import UIKit
 
@@ -189,16 +199,16 @@ public extension UIImage {
     }
 
     class func getInitialsPlaceholder(with name: String, size: CGSize = CGSize(width: 40, height: 40), foregroundColor: UIColor = .white, backgroundColor: UIColor) -> UIImage {
-        let initals = name.initials
+        let initials = name.initials
         let defaultFontRatio: CGFloat = 14.0 / 40.0
         let frame = CGRect(origin: .zero, size: size)
         let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: frame.size.width * defaultFontRatio), .foregroundColor: foregroundColor]
-        let initalsSize = initals.size(withAttributes: attributes)
+        let initialsSize = initials.size(withAttributes: attributes)
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: frame.size.width, height: frame.size.height))
         return renderer.image { (context) in
             backgroundColor.setFill()
             context.fill(renderer.format.bounds)
-            (initals as NSString).draw(in: CGRect(x: frame.midX - initalsSize.width / 2, y: frame.midY - initalsSize.height / 2, width: initalsSize.width, height: initalsSize.height), withAttributes: attributes)
+            (initials as NSString).draw(in: CGRect(x: frame.midX - initialsSize.width / 2, y: frame.midY - initialsSize.height / 2, width: initialsSize.width, height: initialsSize.height), withAttributes: attributes)
         }
     }
 }

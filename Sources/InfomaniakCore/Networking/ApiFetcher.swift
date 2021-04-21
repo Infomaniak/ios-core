@@ -83,7 +83,7 @@ open class ApiFetcher {
         authenticatedSession = Session(interceptor: interceptor)
     }
 
-    public func handleResponse<Type>(response: DataResponse<Type, AFError>, completion: @escaping (Type?, Error?) -> Void) {
+    open func handleResponse<Type>(response: DataResponse<Type, AFError>, completion: @escaping (Type?, Error?) -> Void) {
         switch response.result {
         case .success(let result):
             completion(result, nil)

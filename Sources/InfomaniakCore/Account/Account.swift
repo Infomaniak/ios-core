@@ -31,6 +31,10 @@ open class Account: Equatable, Codable {
         }
     }
 
+    public var isConnected: Bool {
+        return token != nil
+    }
+
     public var userId: Int!
     public var user: UserProfile!
 

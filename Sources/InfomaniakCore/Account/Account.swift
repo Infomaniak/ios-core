@@ -27,7 +27,9 @@ open class Account: Equatable, Codable {
 
     public var token: ApiToken! {
         didSet {
-            userId = token.userId
+            if let token = token {
+                userId = token.userId
+            }
         }
     }
 
@@ -35,7 +37,7 @@ open class Account: Equatable, Codable {
         return token != nil
     }
 
-    public var userId: Int!
+    public var userId: Int
     public var user: UserProfile!
 
     public init(apiToken: ApiToken) {

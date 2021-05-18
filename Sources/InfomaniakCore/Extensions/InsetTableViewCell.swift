@@ -62,7 +62,7 @@ open class InsetTableViewCell: UITableViewCell {
         }
     }
 
-    open func initWithPositionAndShadow(isFirst: Bool = false, isLast: Bool = false, elevation: Double = 0, radius: CGFloat = 10) {
+    open func initWithPositionAndShadow(isFirst: Bool = false, isLast: Bool = false, elevation: Double = 0, radius: CGFloat = 6) {
         if isLast && isFirst {
             separator?.isHidden = true
             topConstraint?.constant = 8

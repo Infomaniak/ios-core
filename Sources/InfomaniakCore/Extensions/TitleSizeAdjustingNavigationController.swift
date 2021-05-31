@@ -62,4 +62,9 @@ open class TitleSizeAdjustingNavigationController: UINavigationController {
         }
         return result
     }
+
+    open override var childForStatusBarStyle: UIViewController? {
+        return topViewController
+    }
+
 }

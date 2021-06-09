@@ -153,7 +153,8 @@ open class OAuthAuthenticator: Authenticator {
     }
 
     open func isRequest(_ urlRequest: URLRequest, authenticatedWith credential: ApiToken) -> Bool {
-        return urlRequest.headers["Authorization"] == credential.accessToken
+        let bearerToken = HTTPHeader.authorization(bearerToken: credential.accessToken).value
+        return urlRequest.headers["Authorization"] == bearerToken
     }
 }
 

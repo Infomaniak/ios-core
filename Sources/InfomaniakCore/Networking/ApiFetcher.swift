@@ -22,7 +22,7 @@ import Alamofire
 import InfomaniakLogin
 import Sentry
 
-public protocol RefreshTokenDelegate: class {
+public protocol RefreshTokenDelegate: AnyObject {
     func didUpdateToken(newToken: ApiToken, oldToken: ApiToken)
     func didFailRefreshToken(_ token: ApiToken)
 }
@@ -137,12 +137,9 @@ open class OAuthAuthenticator: Authenticator {
                 completion(.success(token))
             } else {
                 //Couldn't refresh the token, API says it's invalid
-                if error != nil && (error! as NSError).domain == "invalid_grant" {
+                if let error = error as NSError?, error.domain == "invalid_grant" {
                     self.refreshTokenDelegate?.didFailRefreshToken(credential)
-                    DispatchQueue.main.async {
-                        completion(.failure(error!))
-                        (UIApplication.shared.delegate as? RefreshTokenDelegate)?.didFailRefreshToken(credential)
-                    }
+                    completion(.failure(error))
                 } else {
                     //Couldn't refresh the token, keep the old token and fetch it later. Maybe because of bad network ?
                     completion(.success(credential))

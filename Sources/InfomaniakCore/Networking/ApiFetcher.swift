@@ -119,7 +119,7 @@ open class OAuthAuthenticator: Authenticator {
 
     public typealias Credential = ApiToken
 
-    weak var refreshTokenDelegate: RefreshTokenDelegate?
+    public weak var refreshTokenDelegate: RefreshTokenDelegate?
 
     public init(refreshTokenDelegate: RefreshTokenDelegate) {
         self.refreshTokenDelegate = refreshTokenDelegate

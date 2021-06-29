@@ -51,21 +51,12 @@ public class UserProfile: Codable, InfomaniakUser {
     public let firstname: String
     public let lastname: String
     public let displayName: String
-    public let dateLastChangedPassword: Int?
-    public let otp: Bool
     public let sms: Bool
     public let smsPhone: String?
-    public let yubikey: Bool
-    public let infomaniakApplication: Bool
     public let doubleAuth: Bool
-    public let remainingRescueCode: Int
-    public let securityAssistant: Int
     public let securityCheck: Bool
     public let emailValidate: String?
     public let emailReminderValidate: String?
-    public let validatedAt: Date?
-    public let lastLoginAt: Date?
-    public let administrationLastlogin: Date?
     private let _avatar: String?
     public let phones: [Phone]?
     public let phoneReminderValidate: String?
@@ -120,22 +111,13 @@ public class UserProfile: Codable, InfomaniakUser {
         case firstname
         case lastname
         case displayName = "display_name"
-        case dateLastChangedPassword = "date_last_change_password"
-        case otp
         case sms
         case smsPhone = "sms_phone"
-        case yubikey
-        case infomaniakApplication = "infomaniak_application"
         case doubleAuth = "double_auth"
-        case remainingRescueCode = "remaining_rescue_code"
-        case securityAssistant = "security_assistant"
         case securityCheck = "security_check"
         case emailValidate = "email_validate"
         case emailReminderValidate = "email_reminder_validate"
         case phoneReminderValidate = "phone_reminder_validate"
-        case validatedAt = "validated_at"
-        case lastLoginAt = "last_login_at"
-        case administrationLastlogin = "administration_last_login_at"
         case _avatar = "avatar"
         case phones
         case emails

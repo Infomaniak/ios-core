@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/Alamofire/Alamofire",
         "state": {
           "branch": null,
-          "revision": "4d19ad82f80cc71ff829b941ded114c56f4f604c",
-          "version": "5.4.2"
+          "revision": "f96b619bcb2383b43d898402283924b80e2c4bae",
+          "version": "5.4.3"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/Infomaniak/ios-login.git",
         "state": {
           "branch": null,
-          "revision": "070e452beb501363973d25396fe8ba54007cc76e",
-          "version": "1.5.2"
+          "revision": "9ac704e603cb9b11654f78e65ae2031dc584c341",
+          "version": "1.5.7"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/onevcat/Kingfisher",
         "state": {
           "branch": null,
-          "revision": "1a0c2df04b31ed7aa318354f3583faea24f006fc",
-          "version": "5.15.8"
+          "revision": "d06df9adf50ed8cde5786d935836a5f445f780ba",
+          "version": "6.3.1"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/getsentry/sentry-cocoa",
         "state": {
           "branch": null,
-          "revision": "946cbb6daccedf40d652a12138f78e96f660e1ad",
-          "version": "6.2.1"
+          "revision": "97bb9a45bc1ea8390528b5fd1ce135c0ab7f174e",
+          "version": "7.2.9"
         }
       }
     ]

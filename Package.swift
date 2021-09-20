@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
         name: "InfomaniakCore",
         platforms: [
-            .iOS(.v11),
+            .iOS(.v12),
         ],
         products: [
             // Products define the executables and libraries produced by a package, and make them visible to other packages.
@@ -18,7 +18,7 @@ let package = Package(
             .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.2.2")),
             .package(name: "InfomaniakLogin", url: "https://github.com/Infomaniak/ios-login.git", .upToNextMajor(from: "1.4.0")),
             .package(url: "https://github.com/immortal79/LocalizeKit", .upToNextMajor(from: "1.0.1")),
-            .package(url: "https://github.com/onevcat/Kingfisher", .upToNextMajor(from: "6.3.1")),
+            .package(url: "https://github.com/onevcat/Kingfisher", .upToNextMajor(from: "7.0.0-beta.4")),
             .package(name: "Sentry", url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "7.2.9"))
         ],
         targets: [

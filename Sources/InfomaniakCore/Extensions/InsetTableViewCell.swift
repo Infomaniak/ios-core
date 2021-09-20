@@ -1,38 +1,37 @@
 /*
-Infomaniak Core - iOS
-Copyright (C) 2021 Infomaniak Network SA
+ Infomaniak Core - iOS
+ Copyright (C) 2021 Infomaniak Network SA
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 import UIKit
 
 open class InsetTableViewCell: UITableViewCell {
+    @IBOutlet open weak var titleLabel: UILabel!
+    @IBOutlet open weak var accessoryImageView: UIImageView!
+    @IBOutlet open weak var topConstraint: NSLayoutConstraint?
+    @IBOutlet open weak var bottomConstraint: NSLayoutConstraint?
+    @IBOutlet open weak var contentInsetView: UIView!
+    @IBOutlet open weak var separator: UIView?
 
-    @IBOutlet weak open var titleLabel: UILabel!
-    @IBOutlet weak open var accessoryImageView: UIImageView!
-    @IBOutlet weak open var topConstraint: NSLayoutConstraint?
-    @IBOutlet weak open var bottomConstraint: NSLayoutConstraint?
-    @IBOutlet weak open var contentInsetView: UIView!
-    @IBOutlet weak open var separator: UIView?
-
-    open override func awakeFromNib() {
+    override open func awakeFromNib() {
         super.awakeFromNib()
         selectedBackgroundView = UIView()
     }
 
-    open override func setSelected(_ selected: Bool, animated: Bool) {
+    override open func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         if selectionStyle != .none {
             if animated {
@@ -47,7 +46,7 @@ open class InsetTableViewCell: UITableViewCell {
         }
     }
 
-    open override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+    override open func setHighlighted(_ highlighted: Bool, animated: Bool) {
         super.setHighlighted(highlighted, animated: animated)
         if selectionStyle != .none {
             if animated {
@@ -86,5 +85,4 @@ open class InsetTableViewCell: UITableViewCell {
         }
         contentInsetView.addShadow(elevation: elevation)
     }
-
 }

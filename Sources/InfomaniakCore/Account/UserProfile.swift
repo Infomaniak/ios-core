@@ -1,23 +1,23 @@
 /*
-Infomaniak Core - iOS
-Copyright (C) 2021 Infomaniak Network SA
+ Infomaniak Core - iOS
+ Copyright (C) 2021 Infomaniak Network SA
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-import UIKit
 import Kingfisher
+import UIKit
 
 public protocol InfomaniakUser {
     var id: Int { get }
@@ -27,10 +27,11 @@ public protocol InfomaniakUser {
 
     func getAvatar(size: CGSize, completion: @escaping (UIImage) -> Void)
 }
+
 public extension InfomaniakUser {
     func getAvatar(size: CGSize = CGSize(width: 40, height: 40), completion: @escaping (UIImage) -> Void) {
         if let url = URL(string: avatar) {
-            KingfisherManager.shared.retrieveImage(with: url) { (result) in
+            KingfisherManager.shared.retrieveImage(with: url) { result in
                 if let avatarImage = try? result.get().image {
                     completion(avatarImage)
                 }
@@ -43,7 +44,6 @@ public extension InfomaniakUser {
 }
 
 public class UserProfile: Codable, InfomaniakUser {
-
     public let id: Int
     public let userId: Int
     public let login: String
@@ -62,26 +62,25 @@ public class UserProfile: Codable, InfomaniakUser {
     public let phoneReminderValidate: String?
     public let emails: [Email]?
     public var backupEmail: Email? {
-        return emails?.first(where: { (email) -> Bool in
-            return email.reminder
-        })
+        return emails?.first(where: \.reminder)
     }
+
     public var phoneNumber: Phone? {
-        get {
-            return phones?.first(where: { (phone) -> Bool in
-                return phone.reminder
-            })
-        }
+        return phones?.first(where: \.reminder)
     }
+
     public var isEmailValid: Bool {
         return email == emailValidate && emailValidate != nil
     }
+
     public var isBackupEmailValid: Bool {
         return backupEmail?.email == emailReminderValidate && emailReminderValidate != nil
     }
+
     public var isPhoneValid: Bool {
         return phoneNumber?.phone == phoneReminderValidate && phoneReminderValidate != nil
     }
+
     public var securityLevel: Int {
         var level = 0
         if isEmailValid {
@@ -98,9 +97,9 @@ public class UserProfile: Codable, InfomaniakUser {
         }
         return level
     }
+
     public var avatar: String {
         get { return _avatar ?? "" }
-        set { }
     }
 
     enum CodingKeys: String, CodingKey {
@@ -124,14 +123,12 @@ public class UserProfile: Codable, InfomaniakUser {
     }
 }
 
-
 public class Phone: Codable {
     public let id: Int
     public let phone: String
     public let reminder: Bool
     public let checked: Bool
 }
-
 
 public class Email: Codable {
     public let id: Int

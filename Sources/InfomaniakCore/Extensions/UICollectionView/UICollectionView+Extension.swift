@@ -66,4 +66,8 @@ public extension UICollectionView {
     func dequeueReusableSupplementaryView<ViewClass: UICollectionReusableView>(ofKind: UICollectionViewSupplementaryViewKind, view: ViewClass.Type, for indexPath: IndexPath) -> ViewClass {
         return dequeueReusableSupplementaryView(ofKind: ofKind.rawValue, withReuseIdentifier: String(describing: view.self), for: indexPath) as! ViewClass
     }
+
+    func dequeueReusableSupplementaryView<ViewClass: UICollectionReusableView>(ofKind: String, view: ViewClass.Type, for indexPath: IndexPath) -> ViewClass {
+        return dequeueReusableSupplementaryView(ofKind: ofKind, withReuseIdentifier: String(describing: view.self), for: indexPath) as! ViewClass
+    }
 }

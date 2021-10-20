@@ -18,8 +18,8 @@
 
 import UIKit
 
-class WrapperCollectionViewCell: UICollectionViewCell {
-    func initWith<CellClass: UITableViewCell>(cell: CellClass.Type) -> CellClass {
+open class WrapperCollectionViewCell: UICollectionViewCell {
+    open func initWith<CellClass: UITableViewCell>(cell: CellClass.Type) -> CellClass {
         let cellView = Bundle.main.loadNibNamed(String(describing: cell), owner: nil, options: nil)![0] as! CellClass
         let cellContentView = cellView.contentView
         contentView.addSubview(cellContentView)

@@ -18,13 +18,13 @@
 
 import UIKit
 
-class InsetCollectionViewCell: UICollectionViewCell {
+open class InsetCollectionViewCell: UICollectionViewCell {
     @IBOutlet open weak var topConstraint: NSLayoutConstraint?
     @IBOutlet open weak var bottomConstraint: NSLayoutConstraint?
     @IBOutlet open weak var contentInsetView: UIView!
     @IBOutlet open weak var separator: UIView?
 
-    override func awakeFromNib() {
+    override open func awakeFromNib() {
         super.awakeFromNib()
         selectedBackgroundView = UIView()
     }

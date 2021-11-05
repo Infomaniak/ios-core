@@ -138,26 +138,24 @@ public extension UIImage {
         return ImageUtil.drawImage(resizedImage!, in: CGRect(x: 0, y: 0, width: size.width, height: size.height)) ?? UIImage()
     }
 
-    func maskImageWithRoundedRect(cornerRadius: CGFloat, borderWidth: CGFloat = 0, borderColor: UIColor? = UIColor.white) -> UIImage {
-        let imgRef = ImageUtil.cgImageWithCorrectOrientation(self)
-        let size = CGSize(width: CGFloat(imgRef.width) / self.scale, height: CGFloat(imgRef.height) / self.scale)
-
-        return ImageUtil.drawImage(size: size, scale: self.scale) { (size: CGSize, context: CGContext) -> UIImage? in
+    func maskImageWithRoundedRect(cornerRadius: CGFloat, borderWidth: CGFloat = 0, borderColor: UIColor? = nil) -> UIImage {
+        return ImageUtil.drawImage(size: size, scale: UIScreen.main.scale) { (size: CGSize, context: CGContext) -> UIImage? in
 
             let rect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
 
             UIBezierPath(roundedRect: rect, cornerRadius: cornerRadius).addClip()
             self.draw(in: rect)
 
-            if borderWidth > 0 && borderColor != nil {
-                context.setStrokeColor(borderColor!.cgColor)
+            if borderWidth > 0,
+               let borderColor = borderColor {
+                context.setStrokeColor(borderColor.cgColor)
                 context.setLineWidth(borderWidth)
 
                 let borderRect = CGRect(x: 0, y: 0,
                                         width: size.width, height: size.height)
 
                 let borderPath = UIBezierPath(roundedRect: borderRect, cornerRadius: cornerRadius)
-                borderPath.lineWidth = borderWidth * 2
+                borderPath.lineWidth = borderWidth
                 borderPath.stroke()
             }
 

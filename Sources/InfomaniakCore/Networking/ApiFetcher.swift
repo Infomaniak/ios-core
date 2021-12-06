@@ -89,8 +89,12 @@ open class ApiFetcher {
             completion(result, nil)
         case .failure(let error):
             if let data = response.data {
-                if response.response!.statusCode == 500 {
-                    SentrySDK.capture(error: error)
+                if let response = response.response,
+                   response.statusCode == 500 {
+                    SentrySDK.capture(error: error) { scope in
+                        let body = String(data: data, encoding: .utf8) ?? "Couldn't convert body to data"
+                        scope.setContext(value: ["Headers": response.allHeaderFields, "Body": body], key: "Server error infos")
+                    }
                 }
 
                 let apiError = try? ApiFetcher.decoder.decode(ApiResponse<EmptyResponse>.self, from: data).error

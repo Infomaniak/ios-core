@@ -22,3 +22,10 @@ open class ApiError: Codable, Error {
     public var code: String
     public var description: String
 }
+
+extension ApiError: CustomNSError {
+    public static var errorDomain = "com.infomaniak.ApiError"
+    public var errorUserInfo: [String: Any] {
+        return ["code": code, "description": description]
+    }
+}

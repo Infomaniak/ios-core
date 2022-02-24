@@ -32,7 +32,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 public enum InfomaniakCoreAsset {
     public static let backgroundCardView = InfomaniakCoreColor(name: "backgroundCardView")
     public static let backgroundCardViewSelected = InfomaniakCoreColor(name: "backgroundCardViewSelected")
-
+    public static let titleColor = InfomaniakCoreColor(name: "titleColor")
+    public static let primaryTextColor = InfomaniakCoreColor(name: "primaryTextColor")
+    public static let infomaniakColor = InfomaniakCoreColor(name: "infomaniakColor")
 }
 // swiftlint:enable identifier_name line_length nesting type_body_length type_name
 

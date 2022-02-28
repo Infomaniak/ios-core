@@ -75,7 +75,9 @@ public class IKWindowProvider {
 
     private weak var mainRollbackWindow: UIWindow?
 
-    private init() {}
+    private init() {
+        // Empty to use as singleton
+    }
 
     func setupWindowAndRootVC() -> UIViewController {
         let entryViewController: UIViewController
@@ -106,10 +108,10 @@ public class IKWindowProvider {
         snackBar?.dismiss()
         // Create new snackbar
         let vc = setupWindowAndRootVC()
-        let snackBar = IKSnackBar(contextView: vc.view, message: message, duration: duration)
+        let newSnackBar = IKSnackBar(contextView: vc.view, message: message, duration: duration)
         entryWindow.isHidden = false
-        self.snackBar = snackBar
-        return snackBar
+        self.snackBar = newSnackBar
+        return newSnackBar
     }
 
     func displayRollbackWindowIfNeeded() {
@@ -169,14 +171,14 @@ public class IKSnackBar: SnackBar {
     override public var style: SnackBarStyle {
         let textStyle = TextStyle.subtitle2
         let buttonStyle = TextStyle.action
-        var style = SnackBarStyle()
-        style.padding = 24
-        style.background = .gray // change color
-        style.textColor = textStyle.color
-        style.actionTextColor = buttonStyle.color
-        style.actionTextColorAlpha = 1
-        style.actionFont = buttonStyle.font
-        return style
+        var snackBarStyle = SnackBarStyle()
+        snackBarStyle.padding = 24
+        snackBarStyle.background = .gray // change color
+        snackBarStyle.textColor = textStyle.color
+        snackBarStyle.actionTextColor = buttonStyle.color
+        snackBarStyle.actionTextColorAlpha = 1
+        snackBarStyle.actionFont = buttonStyle.font
+        return snackBarStyle
     }
 
     public static func make(message: String, duration: Duration) -> Self? {

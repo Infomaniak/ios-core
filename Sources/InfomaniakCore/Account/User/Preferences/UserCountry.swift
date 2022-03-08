@@ -23,11 +23,4 @@ public struct UserCountry: Codable {
     public var name: String
     public var shortName: String
     public var isEnabled: Bool
-
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case shortName = "short_name"
-        case isEnabled = "is_enabled"
-    }
 }

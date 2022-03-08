@@ -30,35 +30,21 @@ public class UserProfile: Codable, InfomaniakUser {
     public var phones: [UserPhone]
     public var emails: [UserEmail]
 
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case displayName = "display_name"
-        case firstName = "first_name"
-        case lastName = "last_name"
-        case email
-        case avatar
-        case login
-        case sessions
-        case preferences
-        case phones
-        case emails
-    }
-
     private enum OldCodingKeys: String, CodingKey {
         case id
-        case userId = "user_id"
+        case userId
         case login
         case email
         case firstname
         case lastname
-        case displayName = "display_name"
+        case displayName
         case sms
-        case smsPhone = "sms_phone"
-        case doubleAuth = "double_auth"
-        case securityCheck = "security_check"
-        case emailValidate = "email_validate"
-        case emailReminderValidate = "email_reminder_validate"
-        case phoneReminderValidate = "phone_reminder_validate"
+        case smsPhone
+        case doubleAuth
+        case securityCheck
+        case emailValidate
+        case emailReminderValidate
+        case phoneReminderValidate
         case avatar
         case phones
         case emails

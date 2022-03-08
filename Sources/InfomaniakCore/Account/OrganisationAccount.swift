@@ -44,21 +44,6 @@ public class OrganisationAccount: Codable, Equatable {
         return UIColor(named: "organisationColor\(colorIndex)")!
     }
 
-    enum CodingKeys: String, CodingKey {
-        case id
-        case billingMailing = "billing_mailing"
-        case noAccess = "no_access"
-        case billing
-        case legalEntityType = "legal_entity_type"
-        case name
-        case mailing
-        case createdAt = "created_at"
-        case website
-        case type
-        case workspaceOnly = "workspace_only"
-        case logo
-    }
-
     public static func == (lhs: OrganisationAccount, rhs: OrganisationAccount) -> Bool {
         return lhs.id == rhs.id
     }

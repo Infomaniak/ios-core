@@ -23,11 +23,4 @@ public struct UserConnection: Codable {
     public var unsuccessfulRateLimit: Int
     public var unsuccessfulNotification: Bool
     public var successfulNotification: Bool
-
-    private enum CodingKeys: String, CodingKey {
-        case unsuccessfulLimit = "unsuccessful_limit"
-        case unsuccessfulRateLimit = "unsuccessful_rate_limit"
-        case unsuccessfulNotification = "unsuccessful_notification"
-        case successfulNotification = "successful_notification"
-    }
 }

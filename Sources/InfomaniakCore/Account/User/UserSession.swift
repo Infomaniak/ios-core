@@ -25,13 +25,4 @@ public struct UserSession: Codable {
     public var location: String
     public var ip: String
     public var userAgent: String
-
-    private enum CodingKeys: String, CodingKey {
-        case browser
-        case lastAccessedAt = "last_accessed_at"
-        case device
-        case location
-        case ip
-        case userAgent = "user_agent"
-    }
 }

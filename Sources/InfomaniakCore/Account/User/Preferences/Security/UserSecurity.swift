@@ -34,18 +34,4 @@ public struct UserSecurity: Codable {
     /// Double auth method
     public var doubleAuthMethod: String
     public var authDevices: [UserAuthDevice]?
-
-    private enum CodingKeys: String, CodingKey {
-        case otp
-        case sms
-        case smsPhone = "sms_phone"
-        case yubikey
-        case infomaniakApplication = "infomaniak_application"
-        case doubleAuth = "double_auth"
-        case remainingRescueCode = "remaining_rescue_code"
-        case lastLoginAt = "last_login_at"
-        case dateLastChangedPassword = "date_last_changed_password"
-        case doubleAuthMethod = "double_auth_method"
-        case authDevices = "auth_devices"
-    }
 }

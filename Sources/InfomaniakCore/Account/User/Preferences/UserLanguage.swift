@@ -24,12 +24,4 @@ public struct UserLanguage: Codable {
     public var shortName: String
     public var locale: String
     public var shortLocale: String
-
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case shortName = "short_name"
-        case locale
-        case shortLocale = "short_locale"
-    }
 }

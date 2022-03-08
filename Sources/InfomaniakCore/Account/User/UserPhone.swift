@@ -25,13 +25,4 @@ public struct UserPhone: Codable {
     public var reminder: Bool
     public var checked: Bool
     public var type: String
-
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case phone
-        case createdAt = "created_at"
-        case reminder
-        case checked
-        case type
-    }
 }

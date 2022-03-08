@@ -31,16 +31,4 @@ public struct UserAuthDevice: Codable {
     public var updatedAt: Date
     /// Date User auth device has been deleted
     public var deletedAt: Date
-
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case lastConnexion = "last_connexion"
-        case userAgent = "user_agent"
-        case userIp = "user_ip"
-        case device
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-        case deletedAt = "deleted_at"
-    }
 }

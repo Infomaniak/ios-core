@@ -46,6 +46,7 @@ open class ApiFetcher {
     public static var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .secondsSince1970
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }()
 

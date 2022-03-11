@@ -28,7 +28,10 @@ public class ReachabilityListener {
         case cellular
     }
 
-    private var eventQueue = DispatchQueue(label: "com.infomaniak.network", autoreleaseFrequency: .workItem)
+    private var eventQueue = DispatchQueue(
+        label: "\(Bundle.main.bundleIdentifier ?? "com.infomaniak.core").network-listener",
+        autoreleaseFrequency: .workItem
+    )
     private var networkMonitor: NWPathMonitor
     private var didChangeNetworkStatus = [UUID: (NetworkStatus) -> Void]()
     public private(set) var currentStatus: NetworkStatus

@@ -25,7 +25,7 @@ public enum ApiResult: String, Codable {
 
 public class EmptyResponse: Codable {}
 
-open class ApiResponse<ResponseContent: Codable>: Codable {
+open class ApiResponse<ResponseContent: Decodable>: Decodable {
     public let result: ApiResult
     public let data: ResponseContent?
     public let error: ApiError?
@@ -33,6 +33,7 @@ open class ApiResponse<ResponseContent: Codable>: Codable {
     public let pages: Int?
     public let page: Int?
     public let itemsPerPage: Int?
+    public let responseAt: Int?
 
     enum CodingKeys: String, CodingKey {
         case result
@@ -42,5 +43,6 @@ open class ApiResponse<ResponseContent: Codable>: Codable {
         case pages
         case page
         case itemsPerPage = "items_per_page"
+        case responseAt = "response_at"
     }
 }

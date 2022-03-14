@@ -175,6 +175,7 @@ public class IKSnackBar: SnackBar {
         snackBarStyle.padding = 24
         snackBarStyle.background = InfomaniakCoreAsset.backgroundCardView.color
         snackBarStyle.textColor = textStyle.color
+        snackBarStyle.font = textStyle.font
         snackBarStyle.actionTextColor = buttonStyle.color
         snackBarStyle.actionTextColorAlpha = 1
         snackBarStyle.actionFont = buttonStyle.font

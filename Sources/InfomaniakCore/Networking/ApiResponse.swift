@@ -23,8 +23,6 @@ public enum ApiResult: String, Codable {
     case error
 }
 
-public class EmptyResponse: Codable {}
-
 open class ApiResponse<ResponseContent: Decodable>: Decodable {
     public let result: ApiResult
     public let data: ResponseContent?

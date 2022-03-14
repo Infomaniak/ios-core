@@ -97,7 +97,7 @@ open class ApiFetcher {
                     }
                 }
 
-                let apiError = try? ApiFetcher.decoder.decode(ApiResponse<EmptyResponse>.self, from: data).error
+                let apiError = try? ApiFetcher.decoder.decode(ApiResponse<Empty>.self, from: data).error
                 completion(nil, apiError ?? error)
             } else {
                 completion(nil, error)

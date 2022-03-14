@@ -173,7 +173,7 @@ public class IKSnackBar: SnackBar {
         let buttonStyle = TextStyle.action
         var snackBarStyle = SnackBarStyle()
         snackBarStyle.padding = 24
-        snackBarStyle.background = .gray // change color
+        snackBarStyle.background = InfomaniakCoreAsset.backgroundCardView.color
         snackBarStyle.textColor = textStyle.color
         snackBarStyle.actionTextColor = buttonStyle.color
         snackBarStyle.actionTextColorAlpha = 1

@@ -25,7 +25,7 @@ public enum ApiEnvironment {
 
     public static let current = ApiEnvironment.prod
 
-    var host: String {
+    public var host: String {
         switch self {
         case .prod:
             return "infomaniak.com"
@@ -34,7 +34,7 @@ public enum ApiEnvironment {
         }
     }
 
-    var apiHost: String {
+    public var apiHost: String {
         return "api.\(host)"
     }
 
@@ -44,9 +44,9 @@ public enum ApiEnvironment {
 }
 
 public struct Endpoint {
-    let path: String
-    let queryItems: [URLQueryItem]?
-    let apiEnvironment: ApiEnvironment
+    public let path: String
+    public let queryItems: [URLQueryItem]?
+    public let apiEnvironment: ApiEnvironment
 
     public var url: URL {
         var components = URLComponents()
@@ -61,13 +61,13 @@ public struct Endpoint {
         return url
     }
 
-    init(path: String, queryItems: [URLQueryItem]? = nil, apiEnvironment: ApiEnvironment = .current) {
+    public init(path: String, queryItems: [URLQueryItem]? = nil, apiEnvironment: ApiEnvironment = .current) {
         self.path = path
         self.queryItems = queryItems
         self.apiEnvironment = apiEnvironment
     }
 
-    func appending(path: String, queryItems: [URLQueryItem]? = nil) -> Endpoint {
+    public func appending(path: String, queryItems: [URLQueryItem]? = nil) -> Endpoint {
         return Endpoint(path: self.path + path, queryItems: queryItems, apiEnvironment: apiEnvironment)
     }
 }

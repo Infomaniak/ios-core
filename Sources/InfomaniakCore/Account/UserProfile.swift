@@ -52,11 +52,11 @@ public class UserProfile: Codable, InfomaniakUser {
     public var avatar: String
     public var login: String
     public var sessions: [UserSession]?
-    public var preferences: UserPreferences
-    public var phones: [UserPhone]
-    public var emails: [UserEmail]
+    public var preferences: UserPreferences?
+    public var phones: [UserPhone]?
+    public var emails: [UserEmail]?
 
-    enum CodingKeys: String, CodingKey {
+    private enum CodingKeys: String, CodingKey {
         case id
         case displayName = "display_name"
         case firstName = "first_name"
@@ -68,6 +68,54 @@ public class UserProfile: Codable, InfomaniakUser {
         case preferences
         case phones
         case emails
+    }
+
+    private enum OldCodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case login
+        case email
+        case firstname
+        case lastname
+        case displayName = "display_name"
+        case sms
+        case smsPhone = "sms_phone"
+        case doubleAuth = "double_auth"
+        case securityCheck = "security_check"
+        case emailValidate = "email_validate"
+        case emailReminderValidate = "email_reminder_validate"
+        case phoneReminderValidate = "phone_reminder_validate"
+        case avatar
+        case phones
+        case emails
+    }
+
+    public required init(from decoder: Decoder) throws {
+        // Custom decoder to allow decoding old model (for account decoding)
+        do {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decode(Int.self, forKey: .id)
+            displayName = try container.decode(String.self, forKey: .displayName)
+            firstName = try container.decode(String.self, forKey: .firstName)
+            lastName = try container.decode(String.self, forKey: .lastName)
+            email = try container.decode(String.self, forKey: .email)
+            avatar = try container.decode(String.self, forKey: .avatar)
+            login = try container.decode(String.self, forKey: .login)
+            sessions = try container.decodeIfPresent([UserSession].self, forKey: .sessions)
+            preferences = try container.decode(UserPreferences.self, forKey: .preferences)
+            phones = try container.decode([UserPhone].self, forKey: .phones)
+            emails = try container.decode([UserEmail].self, forKey: .emails)
+        } catch DecodingError.keyNotFound {
+            // Try old coding keys
+            let container = try decoder.container(keyedBy: OldCodingKeys.self)
+            id = try container.decode(Int.self, forKey: .id)
+            displayName = try container.decode(String.self, forKey: .displayName)
+            firstName = try container.decode(String.self, forKey: .firstname)
+            lastName = try container.decode(String.self, forKey: .lastname)
+            email = try container.decode(String.self, forKey: .email)
+            avatar = try container.decodeIfPresent(String.self, forKey: .avatar) ?? ""
+            login = try container.decode(String.self, forKey: .login)
+        }
     }
 }
 

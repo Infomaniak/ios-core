@@ -28,8 +28,6 @@ public protocol RefreshTokenDelegate: AnyObject {
 }
 
 open class ApiFetcher {
-    public let apiURL = "https://api.infomaniak.com/1/"
-
     public var authenticatedSession: Session!
     public static var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -83,38 +81,36 @@ open class ApiFetcher {
         authenticatedSession = Session(interceptor: interceptor)
     }
 
-    open func handleResponse<Type>(response: DataResponse<Type, AFError>, completion: @escaping (Type?, Error?) -> Void) {
-        switch response.result {
-        case .success(let result):
-            completion(result, nil)
-        case .failure(let error):
-            if let data = response.data {
-                if let response = response.response,
-                   response.statusCode == 500 {
-                    SentrySDK.capture(error: error) { scope in
-                        let body = String(data: data, encoding: .utf8) ?? "Couldn't convert body to data"
-                        scope.setContext(value: ["Headers": response.allHeaderFields, "Body": body], key: "Server error infos")
-                    }
-                }
+    // MARK: - Request helpers
 
-                let apiError = try? ApiFetcher.decoder.decode(ApiResponse<Empty>.self, from: data).error
-                completion(nil, apiError ?? error)
-            } else {
-                completion(nil, error)
-            }
+    open func authenticatedRequest(_ endpoint: Endpoint, method: HTTPMethod = .get, parameters: Parameters? = nil) -> DataRequest {
+        return authenticatedSession
+            .request(endpoint.url, method: method, parameters: parameters, encoding: JSONEncoding.default)
+    }
+
+    open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint, method: HTTPMethod = .get, parameters: Parameters? = nil) -> DataRequest {
+        return authenticatedSession
+            .request(endpoint.url, method: method, parameters: parameters, encoder: JSONParameterEncoder.convertToSnakeCase)
+    }
+
+    open func perform<T: Decodable>(request: DataRequest) async throws -> (data: T, responseAt: Int?) {
+        let response = await request.serializingDecodable(ApiResponse<T>.self, automaticallyCancelling: true, decoder: ApiFetcher.decoder).response
+        let json = try response.result.get()
+        if let result = json.data {
+            return (result, json.responseAt)
+        } else if let apiError = json.error {
+            throw InfomaniakError.apiError(apiError)
+        } else {
+            throw InfomaniakError.serverError(statusCode: response.response?.statusCode ?? -1)
         }
     }
 
-    public func getUserOrganisationAccounts(completion: @escaping (ApiResponse<[OrganisationAccount]>?, Error?) -> Void) {
-        authenticatedSession.request("\(apiURL)account?with=logo&order_by=name").validate().responseDecodable(of: ApiResponse<[OrganisationAccount]>.self, decoder: ApiFetcher.decoder) { response in
-            self.handleResponse(response: response, completion: completion)
-        }
+    public func userOrganisations() async throws -> [OrganisationAccount] {
+        try await perform(request: authenticatedRequest(.organisationAccounts)).data
     }
 
-    public func getUserForAccount(completion: @escaping (ApiResponse<UserProfile>?, Error?) -> Void) {
-        authenticatedSession.request("\(apiURL)profile?with=avatar,phones,emails").validate().responseDecodable(of: ApiResponse<UserProfile>.self, decoder: ApiFetcher.decoder) { response in
-            self.handleResponse(response: response, completion: completion)
-        }
+    public func userProfile() async throws -> UserProfile {
+        try await perform(request: authenticatedRequest(.profile)).data
     }
 }
 

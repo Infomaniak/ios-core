@@ -16,21 +16,17 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import Alamofire
 import Foundation
 
-public enum InfomaniakError: Error {
-    case apiError(ApiError)
-    case serverError(statusCode: Int)
-}
-
-open class ApiError: Codable, Error {
-    public var code: String
-    public var description: String
-}
-
-extension ApiError: CustomNSError {
-    public static var errorDomain = "com.infomaniak.ApiError"
-    public var errorUserInfo: [String: Any] {
-        return ["code": code, "description": description]
+public extension JSONParameterEncoder {
+    static var convertToSnakeCase: JSONParameterEncoder {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        encoder.dateEncodingStrategy = .custom { date, encoder in
+            var container = encoder.singleValueContainer()
+            try container.encode(Int(date.timeIntervalSince1970))
+        }
+        return JSONParameterEncoder(encoder: encoder)
     }
 }

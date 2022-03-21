@@ -19,7 +19,7 @@
 import UIKit
 
 public extension UIButton {
-    func setLoading(_ loading: Bool, style: UIActivityIndicatorView.Style = .white) {
+    func setLoading(_ loading: Bool, style: UIActivityIndicatorView.Style = .medium) {
         self.isEnabled = !loading
         if loading {
             self.setTitle("", for: .disabled)

@@ -44,95 +44,142 @@ public extension InfomaniakUser {
 }
 
 public class UserProfile: Codable, InfomaniakUser {
-    public let id: Int
-    public let userId: Int
-    public let login: String
-    public let email: String
-    public let firstname: String
-    public let lastname: String
-    public let displayName: String
-    public let sms: Bool
-    public let smsPhone: String?
-    public let doubleAuth: Bool
-    public let securityCheck: Bool
-    public let emailValidate: String?
-    public let emailReminderValidate: String?
-    private let _avatar: String?
-    public let phones: [Phone]?
-    public let phoneReminderValidate: String?
-    public let emails: [Email]?
-    public var backupEmail: Email? {
-        return emails?.first(where: \.reminder)
-    }
-
-    public var phoneNumber: Phone? {
-        return phones?.first(where: \.reminder)
-    }
-
-    public var isEmailValid: Bool {
-        return email == emailValidate && emailValidate != nil
-    }
-
-    public var isBackupEmailValid: Bool {
-        return backupEmail?.email == emailReminderValidate && emailReminderValidate != nil
-    }
-
-    public var isPhoneValid: Bool {
-        return phoneNumber?.phone == phoneReminderValidate && phoneReminderValidate != nil
-    }
-
-    public var securityLevel: Int {
-        var level = 0
-        if isEmailValid {
-            level += 1
-        }
-        if isBackupEmailValid {
-            level += 1
-        }
-        if isPhoneValid {
-            level += 1
-        }
-        if doubleAuth {
-            level += 1
-        }
-        return level
-    }
-
-    public var avatar: String {
-        get { return _avatar ?? "" }
-    }
+    public var id: Int
+    public var displayName: String
+    public var firstName: String
+    public var lastName: String
+    public var email: String
+    public var avatar: String
+    public var login: String
+    public var sessions: [UserSession]?
+    public var preferences: UserPreferences
+    public var phones: [UserPhone]
+    public var emails: [UserEmail]
 
     enum CodingKeys: String, CodingKey {
         case id
-        case userId = "user_id"
-        case login
-        case email
-        case firstname
-        case lastname
         case displayName = "display_name"
-        case sms
-        case smsPhone = "sms_phone"
-        case doubleAuth = "double_auth"
-        case securityCheck = "security_check"
-        case emailValidate = "email_validate"
-        case emailReminderValidate = "email_reminder_validate"
-        case phoneReminderValidate = "phone_reminder_validate"
-        case _avatar = "avatar"
+        case firstName = "first_name"
+        case lastName = "last_name"
+        case email
+        case avatar
+        case login
+        case sessions
+        case preferences
         case phones
         case emails
     }
 }
 
-public class Phone: Codable {
-    public let id: Int
-    public let phone: String
-    public let reminder: Bool
-    public let checked: Bool
+public struct UserSession: Codable {
+    public var browser: String
+    public var lastAccessedAt: Date
+    public var device: String
+    public var location: String
+    public var ip: String
+    public var userAgent: String
+
+    private enum CodingKeys: String, CodingKey {
+        case browser
+        case lastAccessedAt = "last_accessed_at"
+        case device
+        case location
+        case ip
+        case userAgent = "user_agent"
+    }
 }
 
-public class Email: Codable {
-    public let id: Int
-    public let email: String
-    public let reminder: Bool
-    public let contact: Bool
+public struct UserPreferences: Codable {
+    public var security: String?
+    // public var account: String?
+    public var connection: UserConnection?
+    public var language: UserLanguage?
+    public var country: UserCountry?
+    public var timezone: UserTimezone?
+}
+
+public struct UserConnection: Codable {
+    public var unsuccessfulLimit: Bool
+    public var unsuccessfulRateLimit: Int
+    public var unsuccessfulNotification: Bool
+    public var successfulNotification: Bool
+
+    private enum CodingKeys: String, CodingKey {
+        case unsuccessfulLimit = "unsuccessful_limit"
+        case unsuccessfulRateLimit = "unsuccessful_rate_limit"
+        case unsuccessfulNotification = "unsuccessful_notification"
+        case successfulNotification = "successful_notification"
+    }
+}
+
+public struct UserLanguage: Codable {
+    public var id: Int
+    public var name: String
+    public var shortName: String
+    public var locale: String
+    public var shortLocale: String
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case shortName = "short_name"
+        case locale
+        case shortLocale = "short_locale"
+    }
+}
+
+public struct UserCountry: Codable {
+    public var id: Int
+    public var name: String
+    public var shortName: String
+    public var isEnabled: Bool
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case shortName = "short_name"
+        case isEnabled = "is_enabled"
+    }
+}
+
+public struct UserTimezone: Codable {
+    public var id: Int
+    public var name: String
+    public var gmt: String
+}
+
+public struct UserPhone: Codable {
+    public var id: Int
+    public var phone: String
+    public var createdAt: Date
+    public var reminder: Bool
+    public var checked: Bool
+    public var type: String
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case phone
+        case createdAt = "created_at"
+        case reminder
+        case checked
+        case type
+    }
+}
+
+public struct UserEmail: Codable {
+    public var id: Int
+    public var email: String
+    public var createdAt: Date
+    public var reminder: Bool
+    public var checked: Bool
+    public var type: String
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case email
+        case createdAt = "created_at"
+        case reminder
+        case checked
+        case type
+    }
 }

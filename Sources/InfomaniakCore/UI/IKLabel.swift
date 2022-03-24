@@ -50,7 +50,7 @@ public struct TextStyle: RawRepresentable {
     )
     public static let body1 = TextStyle(
         font: UIFont.systemFont(ofSize: UIFontMetrics.default.scaledValue(for: 14), weight: .regular),
-        color: .black,
+        color: KDriveResourcesAsset.titleColor.color,
         rawValue: "body1"
     )
     public static let body2 = TextStyle(

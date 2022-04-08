@@ -51,10 +51,10 @@ public class UserProfile: Codable, InfomaniakUser {
     public var email: String
     public var avatar: String
     public var login: String
-    public var sessions: [UserSession]?
-    public var preferences: UserPreferences?
-    public var phones: [UserPhone]?
-    public var emails: [UserEmail]?
+    public var sessions: [UserSession]
+    public var preferences: UserPreferences
+    public var phones: [UserPhone]
+    public var emails: [UserEmail]
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -101,10 +101,10 @@ public class UserProfile: Codable, InfomaniakUser {
             email = try container.decode(String.self, forKey: .email)
             avatar = try container.decode(String.self, forKey: .avatar)
             login = try container.decode(String.self, forKey: .login)
-            sessions = try container.decodeIfPresent([UserSession].self, forKey: .sessions)
-            preferences = try container.decode(UserPreferences.self, forKey: .preferences)
-            phones = try container.decode([UserPhone].self, forKey: .phones)
-            emails = try container.decode([UserEmail].self, forKey: .emails)
+            sessions = try container.decodeIfPresent([UserSession].self, forKey: .sessions) ?? []
+            preferences = try container.decodeIfPresent(UserPreferences.self, forKey: .preferences) ?? UserPreferences()
+            phones = try container.decodeIfPresent([UserPhone].self, forKey: .phones) ?? []
+            emails = try container.decodeIfPresent([UserEmail].self, forKey: .emails) ?? []
         } catch DecodingError.keyNotFound {
             // Try old coding keys
             let container = try decoder.container(keyedBy: OldCodingKeys.self)
@@ -115,6 +115,10 @@ public class UserProfile: Codable, InfomaniakUser {
             email = try container.decode(String.self, forKey: .email)
             avatar = try container.decodeIfPresent(String.self, forKey: .avatar) ?? ""
             login = try container.decode(String.self, forKey: .login)
+            sessions = []
+            preferences = UserPreferences()
+            phones = []
+            emails = []
         }
     }
 }

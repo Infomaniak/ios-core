@@ -19,7 +19,8 @@
 import Foundation
 
 public struct UserPreferences: Codable {
-    public var security: String?
+    /// Only returned with the `security` parameter
+    public var security: UserSecurity?
     // public var account: String?
     public var connection: UserConnection?
     public var language: UserLanguage?

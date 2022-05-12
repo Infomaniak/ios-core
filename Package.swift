@@ -21,6 +21,7 @@ let package = Package(
         .package(url: "https://github.com/immortal79/LocalizeKit", .upToNextMajor(from: "1.0.1")),
         .package(url: "https://github.com/onevcat/Kingfisher", .upToNextMajor(from: "7.0.0")),
         .package(name: "Sentry", url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "7.2.9")),
+        .package(url: "https://github.com/realm/realm-swift", .upToNextMajor(from: "10.0.0")),
         .package(url: "https://github.com/PhilippeWeidmann/SnackBar.swift", .upToNextMajor(from: "0.1.2"))
     ],
     targets: [
@@ -32,6 +33,7 @@ let package = Package(
                 "Kingfisher",
                 "LocalizeKit",
                 "Sentry",
+                .product(name: "RealmSwift", package: "realm-swift"),
                 .product(name: "SnackBar", package: "SnackBar.swift")
             ]
         ),

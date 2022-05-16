@@ -22,7 +22,7 @@ public protocol AccountUpdateDelegate {
     func didUpdateCurrentAccount(_ account: Account)
 }
 
-open class Account: Equatable, Codable {
+open class Account: Equatable, Codable, Identifiable {
     public var token: ApiToken! {
         didSet {
             if let token = token {

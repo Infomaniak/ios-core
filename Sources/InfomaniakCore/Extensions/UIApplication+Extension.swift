@@ -18,13 +18,14 @@
 
 import UIKit
 
-extension UIApplication {
+public extension UIApplication {
     var keyWindow: UIWindow? {
-        let allScenes = connectedScenes.compactMap { $0 as? UIWindowScene }
         // We want to have at least one foreground scene but we prefer active scenes rather than inactive ones
-        let foregroundScenes = allScenes.filter { $0.activationState == .foregroundActive } + allScenes
-            .filter { $0.activationState == .foregroundInactive }
-        let firstForegroundWindow = foregroundScenes.flatMap(\.windows).first(where: \.isKeyWindow)
-        return firstForegroundWindow
+        let foregroundScenes = Array(connectedScenes).filter { $0.activationState == .foregroundActive }
+            + Array(connectedScenes).filter { $0.activationState == .foregroundInactive }
+        return foregroundScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow)
     }
 }

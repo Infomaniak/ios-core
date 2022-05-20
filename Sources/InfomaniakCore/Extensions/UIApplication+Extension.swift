@@ -19,7 +19,7 @@
 import UIKit
 
 public extension UIApplication {
-    var keyWindow: UIWindow? {
+    var mainSceneKeyWindow: UIWindow? {
         // We want to have at least one foreground scene but we prefer active scenes rather than inactive ones
         let foregroundScenes = Array(connectedScenes).filter { $0.activationState == .foregroundActive }
             + Array(connectedScenes).filter { $0.activationState == .foregroundInactive }

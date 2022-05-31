@@ -85,7 +85,7 @@ public class IKWindowProvider {
             entryViewController = IKRootViewController()
             entryWindow = IKWindow(with: entryViewController)
             entryWindow.isHidden = false
-            mainRollbackWindow = UIApplication.shared.keyWindow
+            mainRollbackWindow = UIApplication.shared.mainSceneKeyWindow
             // Adjust insets based on presented view controller under
             if let topViewInsets = mainRollbackWindow?.rootViewController?.displayedViewController.view.safeAreaInsets {
                 let safeAreaInsets = entryViewController.view.safeAreaInsets
@@ -126,7 +126,7 @@ public class IKWindowProvider {
         if let mainRollbackWindow = mainRollbackWindow {
             mainRollbackWindow.makeKeyAndVisible()
         } else {
-            UIApplication.shared.keyWindow?.makeKeyAndVisible()
+            UIApplication.shared.mainSceneKeyWindow?.makeKeyAndVisible()
         }
     }
 }

@@ -89,9 +89,9 @@ open class ApiFetcher {
             .request(endpoint.url, method: method, parameters: parameters, encoding: encoding, headers: headers)
     }
 
-    open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint, method: HTTPMethod = .get, parameters: Parameters? = nil) -> DataRequest {
+    open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint, method: HTTPMethod = .get, parameters: Parameters? = nil, headers: HTTPHeaders? = nil) -> DataRequest {
         return authenticatedSession
-            .request(endpoint.url, method: method, parameters: parameters, encoder: JSONParameterEncoder.convertToSnakeCase)
+            .request(endpoint.url, method: method, parameters: parameters, encoder: JSONParameterEncoder.convertToSnakeCase, headers: headers)
     }
 
     open func perform<T: Decodable>(request: DataRequest,
@@ -113,8 +113,8 @@ open class ApiFetcher {
         try await perform(request: authenticatedRequest(.organisationAccounts)).data
     }
 
-    public func userProfile() async throws -> UserProfile {
-        try await perform(request: authenticatedRequest(.profile)).data
+    public func userProfile(dateFormat: DateFormat = .json) async throws -> UserProfile {
+        try await perform(request: authenticatedRequest(.profile, headers: ["X-Date-Format": dateFormat.rawValue])).data
     }
 }
 

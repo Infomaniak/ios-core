@@ -18,11 +18,6 @@
 
 import Foundation
 
-public struct UserEmail: Codable {
-    public var id: Int
-    public var email: String
-    public var createdAt: Date
-    public var reminder: Bool
-    public var checked: Bool
-    public var type: String
+public enum DateFormat: String {
+    case iso8601, json
 }

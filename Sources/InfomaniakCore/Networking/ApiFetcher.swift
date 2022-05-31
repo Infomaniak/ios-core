@@ -199,8 +199,8 @@ open class ApiFetcher {
         try await perform(request: authenticatedRequest(.organisationAccounts))
     }
 
-    public func userProfile(ignoreDefaultAvatar: Bool = false) async throws -> UserProfile {
-        try await perform(request: authenticatedRequest(.profile(ignoreDefaultAvatar: ignoreDefaultAvatar)))
+    public func userProfile(ignoreDefaultAvatar: Bool = false, dateFormat: DateFormat = .json) async throws -> UserProfile {
+        try await perform(request: authenticatedRequest(.profile(ignoreDefaultAvatar: ignoreDefaultAvatar), headers: ["X-Date-Format": dateFormat.rawValue]))
     }
 }
 

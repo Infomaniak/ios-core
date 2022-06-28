@@ -18,23 +18,23 @@
 
 import LocalAuthentication
 
-struct AppLockHelper {
-    static var shared = AppLockHelper()
+public struct AppLockHelper {
+    public static var shared = AppLockHelper()
 
     private var lastAppLock: Double = 0
     private let appUnlockTime: Double = 10 * 60 // 10 minutes
 
     private init() {}
 
-    var isAppLocked: Bool {
+    public var isAppLocked: Bool {
         return lastAppLock + appUnlockTime < Date().timeIntervalSince1970
     }
 
-    mutating func setTime() {
+    public mutating func setTime() {
         lastAppLock = Date().timeIntervalSince1970
     }
 
-    func evaluatePolicy(reason: String) async throws -> Bool {
+    public func evaluatePolicy(reason: String) async throws -> Bool {
         let context = LAContext()
         guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) else { return false }
         return try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)

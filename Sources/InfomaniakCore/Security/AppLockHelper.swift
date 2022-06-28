@@ -34,9 +34,9 @@ struct AppLockHelper {
         lastAppLock = Date().timeIntervalSince1970
     }
 
-    func evaluatePolicy(reason: String) async throws {
+    func evaluatePolicy(reason: String) async throws -> Bool {
         let context = LAContext()
-        guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) else { return }
-        try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)
+        guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) else { return false }
+        return try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)
     }
 }

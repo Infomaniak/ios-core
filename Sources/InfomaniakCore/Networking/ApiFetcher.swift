@@ -110,8 +110,8 @@ open class ApiFetcher {
         try await perform(request: authenticatedRequest(.organisationAccounts)).data
     }
 
-    public func userProfile(dateFormat: DateFormat = .json) async throws -> UserProfile {
-        try await perform(request: authenticatedRequest(.profile, headers: ["X-Date-Format": dateFormat.rawValue])).data
+    public func userProfile(dateFormat: DateFormat = .json, emails: Bool = true, phones: Bool = true, security: Bool = false) async throws -> UserProfile {
+        try await perform(request: authenticatedRequest(.profile(emails: emails, phones: phones, security: security), headers: ["X-Date-Format": dateFormat.rawValue])).data
     }
 }
 

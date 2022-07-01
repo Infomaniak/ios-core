@@ -30,7 +30,7 @@ public struct UserSecurity: Codable {
     public var remainingRescueCode: Int
     /// Date User Profile has been logged
     public var lastLoginAt: Date
-    public var dateLastChangedPassword: Int
+    public var dateLastChangedPassword: Date
     /// Double auth method
     public var doubleAuthMethod: String
     public var authDevices: [UserAuthDevice]?

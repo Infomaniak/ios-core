@@ -20,7 +20,7 @@ import Foundation
 
 public struct UserAuthDevice: Codable {
     public var id: Int
-    public var name: Int
+    public var name: String
     public var lastConnexion: Date
     public var userAgent: String
     public var userIp: String

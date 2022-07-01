@@ -85,8 +85,18 @@ public extension Endpoint {
         return Endpoint(path: "/2")
     }
 
-    static var profile: Endpoint {
-        return .baseV2.appending(path: "/profile", queryItems: [URLQueryItem(name: "with", value: "emails,phones")])
+    static func profile(emails: Bool, phones: Bool, security: Bool) -> Endpoint {
+        var withValues = [String]()
+        if emails {
+            withValues.append("emails")
+        }
+        if phones {
+            withValues.append("phones")
+        }
+        if security {
+            withValues.append("security")
+        }
+        return .baseV2.appending(path: "/profile", queryItems: [URLQueryItem(name: "with", value: withValues.joined(separator: ","))])
     }
 
     static var organisationAccounts: Endpoint {

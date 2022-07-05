@@ -103,12 +103,12 @@ public class IKWindowProvider {
         return entryViewController
     }
 
-    func displaySnackBar(message: String, duration: IKSnackBar.Duration, style: SnackBarStyle) -> IKSnackBar {
+    func displaySnackBar(message: String, duration: IKSnackBar.Duration, style: SnackBarStyle, elevation: Double) -> IKSnackBar {
         // Remove old snackbar
         snackBar?.dismiss()
         // Create new snackbar
         let vc = setupWindowAndRootVC()
-        let newSnackBar = IKSnackBar(contextView: vc.view, message: message, duration: duration, style: style)
+        let newSnackBar = IKSnackBar(contextView: vc.view, message: message, duration: duration, style: style, elevation: elevation)
         entryWindow.isHidden = false
         snackBar = newSnackBar
         return newSnackBar
@@ -158,9 +158,13 @@ public class IKSnackBar: SnackBar {
         }
     }
 
-    required init(contextView: UIView, message: String, duration: Duration, style: SnackBarStyle = .infomaniakStyle) {
+    required init(contextView: UIView, message: String, duration: Duration, style: SnackBarStyle, elevation: Double) {
         super.init(contextView: contextView, message: message, duration: duration, style: style)
-        addShadow(elevation: 6)
+        addShadow(elevation: elevation)
+    }
+
+    required init(contextView: UIView, message: String, duration: SnackBar.Duration, style: SnackBarStyle = SnackBarStyle()) {
+        super.init(contextView: contextView, message: message, duration: duration, style: style)
     }
 
     @available(*, unavailable)
@@ -168,8 +172,8 @@ public class IKSnackBar: SnackBar {
         fatalError("init(coder:) has not been implemented")
     }
 
-    public static func make(message: String, duration: Duration, style: SnackBarStyle = .infomaniakStyle) -> Self? {
-        return IKWindowProvider.shared.displaySnackBar(message: message, duration: duration, style: style) as? Self
+    public static func make(message: String, duration: Duration, style: SnackBarStyle = .infomaniakStyle, elevation: Double = 6) -> Self? {
+        return IKWindowProvider.shared.displaySnackBar(message: message, duration: duration, style: style, elevation: elevation) as? Self
     }
 
     public func setAction(_ action: Action) -> SnackBarPresentable {

@@ -29,6 +29,7 @@ public class UserProfile: Codable, InfomaniakUser {
     public var preferences: UserPreferences
     public var phones: [UserPhone]
     public var emails: [UserEmail]
+    public var isStaff: Bool?
 
     private enum OldCodingKeys: String, CodingKey {
         case id
@@ -65,6 +66,7 @@ public class UserProfile: Codable, InfomaniakUser {
             preferences = try container.decodeIfPresent(UserPreferences.self, forKey: .preferences) ?? UserPreferences()
             phones = try container.decodeIfPresent([UserPhone].self, forKey: .phones) ?? []
             emails = try container.decodeIfPresent([UserEmail].self, forKey: .emails) ?? []
+            isStaff = try container.decodeIfPresent(Bool.self, forKey: .isStaff)
         } catch DecodingError.keyNotFound {
             // Try old coding keys
             let container = try decoder.container(keyedBy: OldCodingKeys.self)

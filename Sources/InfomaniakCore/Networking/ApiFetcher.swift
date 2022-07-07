@@ -107,9 +107,16 @@ open class ApiFetcher {
 
     open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint,
                                                           method: HTTPMethod = .get,
-                                                          parameters: Parameters? = nil) -> DataRequest {
+                                                          parameters: Parameters? = nil,
+                                                          headers: HTTPHeaders? = nil) -> DataRequest {
         return authenticatedSession
-            .request(endpoint.url, method: method, parameters: parameters, encoder: JSONParameterEncoder.convertToSnakeCase, headers: headers)
+            .request(
+                endpoint.url,
+                method: method,
+                parameters: parameters,
+                encoder: JSONParameterEncoder.convertToSnakeCase,
+                headers: headers
+            )
     }
 
     open func perform<T: Decodable>(request: DataRequest,

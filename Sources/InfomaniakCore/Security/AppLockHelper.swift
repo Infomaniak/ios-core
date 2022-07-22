@@ -22,7 +22,7 @@ public struct AppLockHelper {
     public static var shared = AppLockHelper()
 
     private var lastAppLock: Double = 0
-    private let appUnlockTime: Double = 10 * 60 // 10 minutes
+    private let appUnlockTime: Double = 60 // 1 minute
 
     private init() {}
 

@@ -108,7 +108,6 @@ public class IKWindowProvider {
         snackBar?.dismiss()
         // Create new snackbar
         let vc = setupWindowAndRootVC()
-        let newSnackBar = IKSnackBar(contextView: vc.view, message: message, duration: duration)
         let newSnackBar = IKSnackBar(contextView: vc.view, message: message, duration: duration, style: style, elevation: elevation)
         entryWindow.isHidden = false
         self.snackBar = newSnackBar
@@ -199,17 +198,5 @@ public extension SnackBarStyle {
         snackBarStyle.actionTextColorAlpha = 1
         snackBarStyle.actionFont = buttonStyle.font
         return snackBarStyle
-    }
-
-    public static func make(message: String, duration: Duration) -> Self? {
-        return IKWindowProvider.shared.displaySnackBar(message: message, duration: duration) as? Self
-    }
-
-    public func setAction(_ action: Action) -> SnackBarPresentable {
-        return setAction(with: action.title, action: action.action)
-    }
-
-    deinit {
-        IKWindowProvider.shared.displayRollbackWindowIfNeeded()
     }
 }

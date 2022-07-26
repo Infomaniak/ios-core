@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/Alamofire/Alamofire",
         "state": {
           "branch": null,
-          "revision": "354dda32d89fc8cd4f5c46487f64957d355f53d8",
-          "version": "5.6.1"
+          "revision": "8dd85aee02e39dd280c75eef88ffdb86eed4b07b",
+          "version": "5.6.2"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/onevcat/Kingfisher",
         "state": {
           "branch": null,
-          "revision": "59eb199fdb8dd47733624e8b0277822d0232579e",
-          "version": "7.2.2"
+          "revision": "2235a22ca249199cb736237f4bb9cc12b6ed416a",
+          "version": "7.3.0"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/realm/realm-core",
         "state": {
           "branch": null,
-          "revision": "472d325a2e844fcb48c400db74e6b9646f92ca93",
-          "version": "11.15.0"
+          "revision": "55a48c287b5e3a8ca129c257ec7e3b92bcb2a05f",
+          "version": "12.3.0"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/realm/realm-swift",
         "state": {
           "branch": null,
-          "revision": "41fe221e2209ad31bee35593513d957dc3e6e458",
-          "version": "10.25.2"
+          "revision": "fd279e0a94b46c5bd65b17e36817a4365c7a5482",
+          "version": "10.28.2"
         }
       },
       {
@@ -60,8 +60,8 @@
         "repositoryURL": "https://github.com/getsentry/sentry-cocoa",
         "state": {
           "branch": null,
-          "revision": "afa4cd596e5cf97a797fb9b5c3afeea4add2c7a3",
-          "version": "7.15.0"
+          "revision": "206f9a8aa154592ed38f50f53fa7001d7d7270c8",
+          "version": "7.22.0"
         }
       },
       {
@@ -69,8 +69,8 @@
         "repositoryURL": "https://github.com/PhilippeWeidmann/SnackBar.swift",
         "state": {
           "branch": null,
-          "revision": "8d61e42b2e4a73ea04728c25b10150f6ecc995b6",
-          "version": "0.1.4"
+          "revision": "9e2f25bad90a7fb4f5764814c47a8448ba5df58d",
+          "version": "0.1.5"
         }
       },
       {

@@ -103,12 +103,12 @@ public class IKWindowProvider {
         return entryViewController
     }
 
-    func displaySnackBar(message: String, duration: IKSnackBar.Duration) -> IKSnackBar {
+    func displaySnackBar(message: String, duration: IKSnackBar.Duration, style: SnackBarStyle, elevation: Double) -> IKSnackBar {
         // Remove old snackbar
         snackBar?.dismiss()
         // Create new snackbar
         let vc = setupWindowAndRootVC()
-        let newSnackBar = IKSnackBar(contextView: vc.view, message: message, duration: duration)
+        let newSnackBar = IKSnackBar(contextView: vc.view, message: message, duration: duration, style: style, elevation: elevation)
         entryWindow.isHidden = false
         self.snackBar = newSnackBar
         return newSnackBar
@@ -158,9 +158,13 @@ public class IKSnackBar: SnackBar {
         }
     }
 
-    required init(contextView: UIView, message: String, duration: Duration) {
-        super.init(contextView: contextView, message: message, duration: duration)
-        addShadow(elevation: 6)
+    required init(contextView: UIView, message: String, duration: Duration, style: SnackBarStyle, elevation: Double) {
+        super.init(contextView: contextView, message: message, duration: duration, style: style)
+        addShadow(elevation: elevation)
+    }
+
+    required init(contextView: UIView, message: String, duration: SnackBar.Duration, style: SnackBarStyle = SnackBarStyle()) {
+        super.init(contextView: contextView, message: message, duration: duration, style: style)
     }
 
     @available(*, unavailable)
@@ -168,7 +172,21 @@ public class IKSnackBar: SnackBar {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override public var style: SnackBarStyle {
+    public static func make(message: String, duration: Duration, style: SnackBarStyle = .infomaniakStyle, elevation: Double = 6) -> Self? {
+        return IKWindowProvider.shared.displaySnackBar(message: message, duration: duration, style: style, elevation: elevation) as? Self
+    }
+
+    public func setAction(_ action: Action) -> SnackBarPresentable {
+        return setAction(with: action.title, action: action.action)
+    }
+
+    deinit {
+        IKWindowProvider.shared.displayRollbackWindowIfNeeded()
+    }
+}
+
+public extension SnackBarStyle {
+    static var infomaniakStyle: SnackBarStyle {
         let textStyle = TextStyle.subtitle2
         let buttonStyle = TextStyle.action
         var snackBarStyle = SnackBarStyle()
@@ -180,17 +198,5 @@ public class IKSnackBar: SnackBar {
         snackBarStyle.actionTextColorAlpha = 1
         snackBarStyle.actionFont = buttonStyle.font
         return snackBarStyle
-    }
-
-    public static func make(message: String, duration: Duration) -> Self? {
-        return IKWindowProvider.shared.displaySnackBar(message: message, duration: duration) as? Self
-    }
-
-    public func setAction(_ action: Action) -> SnackBarPresentable {
-        return setAction(with: action.title, action: action.action)
-    }
-
-    deinit {
-        IKWindowProvider.shared.displayRollbackWindowIfNeeded()
     }
 }

@@ -32,6 +32,12 @@ public class ReachabilityListener {
         label: "\(Bundle.main.bundleIdentifier ?? "com.infomaniak.core").network-listener",
         autoreleaseFrequency: .workItem
     )
+
+    private var observersQueue = DispatchQueue(
+        label: "\(Bundle.main.bundleIdentifier ?? "com.infomaniak.core").network-listener.observers",
+        attributes: .concurrent
+    )
+
     private var networkMonitor: NWPathMonitor
     private var didChangeNetworkStatus = [UUID: (NetworkStatus) -> Void]()
     public private(set) var currentStatus: NetworkStatus
@@ -54,8 +60,10 @@ public class ReachabilityListener {
             }
             if newStatus != self.currentStatus && !inBackground {
                 self.currentStatus = newStatus
-                self.didChangeNetworkStatus.values.forEach { closure in
-                    closure(self.currentStatus)
+                self.observersQueue.sync {
+                    self.didChangeNetworkStatus.values.forEach { closure in
+                        closure(self.currentStatus)
+                    }
                 }
             }
         }
@@ -82,19 +90,23 @@ public extension ReachabilityListener {
     func observeNetworkChange<T: AnyObject>(_ observer: T, using closure: @escaping (NetworkStatus) -> Void)
         -> ObservationToken {
         let key = UUID()
-        didChangeNetworkStatus[key] = { [weak self, weak observer] status in
-            // If the observer has been deallocated, we can
-            // automatically remove the observation closure.
-            guard observer != nil else {
-                self?.didChangeNetworkStatus.removeValue(forKey: key)
-                return
-            }
+        observersQueue.async(flags: .barrier) { [weak self] in
+            self?.didChangeNetworkStatus[key] = { [weak observer] status in
+                // If the observer has been deallocated, we can
+                // automatically remove the observation closure.
+                guard observer != nil else {
+                    self?.didChangeNetworkStatus.removeValue(forKey: key)
+                    return
+                }
 
-            closure(status)
+                closure(status)
+            }
         }
 
         return ObservationToken { [weak self] in
-            self?.didChangeNetworkStatus.removeValue(forKey: key)
+            self?.observersQueue.async(flags: .barrier) {
+                self?.didChangeNetworkStatus.removeValue(forKey: key)
+            }
         }
     }
 }

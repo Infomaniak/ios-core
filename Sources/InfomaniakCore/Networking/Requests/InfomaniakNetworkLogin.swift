@@ -35,7 +35,7 @@ public class InfomaniakNetworkLogin {
     private static let LOGIN_API_URL = "https://login.infomaniak.com/"
     private static let GET_TOKEN_API_URL = LOGIN_API_URL + "token"
 
-    private static let instance = InfomaniakNetworkLogin()
+    public static let instance = InfomaniakNetworkLogin()
 
     private var clientId: String!
     private var loginBaseUrl: String!

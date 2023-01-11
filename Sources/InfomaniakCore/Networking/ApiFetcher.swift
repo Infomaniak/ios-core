@@ -25,6 +25,7 @@ public protocol RefreshTokenDelegate: AnyObject {
     func didFailRefreshToken(_ token: ApiToken)
 }
 
+@available(iOS 13, *)
 open class ApiFetcher {
     public var authenticatedSession: Session!
     public static var decoder: JSONDecoder = {
@@ -49,27 +50,23 @@ open class ApiFetcher {
         // Allow overriding
     }
 
-    /**
-        Creates a new authenticated session for the given token.
-        The delegate is called back every time the token is refreshed.
-
-        An [OAuthAuthenticator](x-source-tag://OAuthAuthenticator) is created to handle token refresh.
-
-        - Parameter token: The token used to authenticate requests.
-        - Parameter delegate: The delegate called on token refresh.
-     */
+    /// Creates a new authenticated session for the given token.
+    ///
+    /// The delegate is called back every time the token is refreshed.
+    /// An [OAuthAuthenticator](x-source-tag://OAuthAuthenticator) is created to handle token refresh.
+    ///
+    /// - Parameter token: The token used to authenticate requests.
+    /// - Parameter delegate: The delegate called on token refresh.
     public func setToken(_ token: ApiToken, delegate: RefreshTokenDelegate) {
         let authenticator = OAuthAuthenticator(refreshTokenDelegate: delegate)
         setToken(token, authenticator: authenticator)
     }
 
-    /**
-        Creates a new authenticated session for the given token.
-        The delegate is called back every time the token is refreshed.
-
-        - Parameter token: The token used to authenticate requests.
-        - Parameter authenticator: The custom authenticator used to refresh the token.
-     */
+    /// Creates a new authenticated session for the given token.
+    ///
+    /// The delegate is called back every time the token is refreshed.
+    /// - Parameter token: The token used to authenticate requests.
+    /// - Parameter authenticator: The custom authenticator used to refresh the token.
     public func setToken(_ token: ApiToken, authenticator: OAuthAuthenticator) {
         refreshTokenDelegate = authenticator.refreshTokenDelegate
         authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
@@ -91,7 +88,6 @@ open class ApiFetcher {
             .request(endpoint.url, method: method, parameters: parameters, encoder: JSONParameterEncoder.convertToSnakeCase)
     }
 
-    @available(iOS 13, *)
     open func perform<T: Decodable>(request: DataRequest) async throws -> (data: T, responseAt: Int?) {
         let response = await request.serializingDecodable(ApiResponse<T>.self, automaticallyCancelling: true, decoder: ApiFetcher.decoder).response
         let json = try response.result.get()

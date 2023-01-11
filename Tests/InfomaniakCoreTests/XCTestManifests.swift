@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import XCTest
 @testable import InfomaniakCore
 
-final class ios_core_uiTests: XCTestCase {
+final class InfomaniakCoreTests: XCTestCase {
     func testExample() throws {
         // GIVEN
         let expectedCode = 1337

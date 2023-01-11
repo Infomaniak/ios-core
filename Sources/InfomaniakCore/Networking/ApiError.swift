@@ -1,6 +1,6 @@
 /*
  Infomaniak Core - iOS
- Copyright (C) 2021 Infomaniak Network SA
+ Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,17 @@ import Foundation
 public enum InfomaniakError: Error {
     case apiError(ApiError)
     case serverError(statusCode: Int)
+}
+
+/// An  api error for `InfomaniakLogin` form
+@objc public class LoginApiError: NSObject, Codable {
+    @objc public let error: String
+    @objc public let errorDescription: String?
+
+    enum CodingKeys: String, CodingKey {
+        case error
+        case errorDescription = "error_description"
+    }
 }
 
 open class ApiError: Codable, Error {

@@ -1,6 +1,6 @@
 /*
  Infomaniak Core - iOS
- Copyright (C) 2021 Infomaniak Network SA
+ Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,14 @@
 
 import Foundation
 import Network
-import UIKit
+
+#if os(macOS)
+    import AppKit
+#elseif os(iOS)
+    import UIKit
+#elseif os(tvOS) || os(watchOS)
+    import UIKit
+#endif
 
 public class ReachabilityListener {
     public enum NetworkStatus {
@@ -55,7 +62,13 @@ public class ReachabilityListener {
             var inBackground = false
             if !Bundle.main.isExtension {
                 DispatchQueue.main.sync {
+                #if os(macOS)
+                    fatalError("unimplemented")
+                #elseif os(iOS)
                     inBackground = UIApplication.shared.applicationState == .background
+                #elseif os(tvOS) || os(watchOS)
+                    inBackground = UIApplication.shared.applicationState == .background
+                #endif
                 }
             }
             if newStatus != self.currentStatus && !inBackground {

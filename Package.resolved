@@ -11,33 +11,6 @@
         }
       },
       {
-        "package": "InfomaniakLogin",
-        "repositoryURL": "https://github.com/Infomaniak/ios-login.git",
-        "state": {
-          "branch": null,
-          "revision": "b1336feaf2f71924d559364c074b7130cf357882",
-          "version": "2.1.0"
-        }
-      },
-      {
-        "package": "Kingfisher",
-        "repositoryURL": "https://github.com/onevcat/Kingfisher",
-        "state": {
-          "branch": null,
-          "revision": "2235a22ca249199cb736237f4bb9cc12b6ed416a",
-          "version": "7.3.0"
-        }
-      },
-      {
-        "package": "LocalizeKit",
-        "repositoryURL": "https://github.com/immortal79/LocalizeKit",
-        "state": {
-          "branch": null,
-          "revision": "1abb86ce614ae8d925bf82123c7360ab95827975",
-          "version": "1.0.1"
-        }
-      },
-      {
         "package": "RealmDatabase",
         "repositoryURL": "https://github.com/realm/realm-core",
         "state": {
@@ -62,24 +35,6 @@
           "branch": null,
           "revision": "206f9a8aa154592ed38f50f53fa7001d7d7270c8",
           "version": "7.22.0"
-        }
-      },
-      {
-        "package": "SnackBar",
-        "repositoryURL": "https://github.com/PhilippeWeidmann/SnackBar.swift",
-        "state": {
-          "branch": null,
-          "revision": "9e2f25bad90a7fb4f5764814c47a8448ba5df58d",
-          "version": "0.1.5"
-        }
-      },
-      {
-        "package": "SnapKit",
-        "repositoryURL": "https://github.com/SnapKit/SnapKit.git",
-        "state": {
-          "branch": null,
-          "revision": "f222cbdf325885926566172f6f5f06af95473158",
-          "version": "5.6.0"
         }
       }
     ]

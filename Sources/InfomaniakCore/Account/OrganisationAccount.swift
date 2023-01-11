@@ -1,6 +1,6 @@
 /*
  Infomaniak Core - iOS
- Copyright (C) 2021 Infomaniak Network SA
+ Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import UIKit
+import Foundation
 
 public class OrganisationAccount: Codable, Equatable {
     public let id: Int
@@ -33,15 +33,6 @@ public class OrganisationAccount: Codable, Equatable {
     public let logo: String?
     public var initials: String {
         return name.initials
-    }
-
-    public var backgroundColor: UIColor {
-        let nameAscii: [Int32] = name.replacingOccurrences(of: "/[^a-zA-Z ]+/", with: "", options: [.regularExpression]).compactMap { $0.asciiValue }.compactMap { Int32($0) }
-        let hashCode: Int32 = nameAscii.reduce(0) { a, b in
-            ((a &<< Int32(5)) &- a) &+ Int32(b)
-        }
-        let colorIndex = (abs(Int(hashCode)) &+ id) % 8
-        return UIColor(named: "organisationColor\(colorIndex)")!
     }
 
     enum CodingKeys: String, CodingKey {

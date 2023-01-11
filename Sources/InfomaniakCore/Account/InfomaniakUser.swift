@@ -1,6 +1,6 @@
 /*
  Infomaniak Core - iOS
- Copyright (C) 2021 Infomaniak Network SA
+ Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -16,29 +16,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Kingfisher
-import UIKit
+import Foundation
 
 public protocol InfomaniakUser {
     var id: Int { get }
     var email: String { get }
     var displayName: String { get }
     var avatar: String { get }
-
-    func getAvatar(size: CGSize, completion: @escaping (UIImage) -> Void)
-}
-
-public extension InfomaniakUser {
-    func getAvatar(size: CGSize = CGSize(width: 40, height: 40), completion: @escaping (UIImage) -> Void) {
-        if let url = URL(string: avatar) {
-            KingfisherManager.shared.retrieveImage(with: url) { result in
-                if let avatarImage = try? result.get().image {
-                    completion(avatarImage)
-                }
-            }
-        } else {
-            let backgroundColor = UIColor.backgroundColor(from: id)
-            completion(UIImage.getInitialsPlaceholder(with: displayName, size: size, backgroundColor: backgroundColor))
-        }
-    }
 }

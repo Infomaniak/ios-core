@@ -1,6 +1,6 @@
 /*
  Infomaniak Core - iOS
- Copyright (C) 2021 Infomaniak Network SA
+ Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -18,15 +18,14 @@
 
 import Alamofire
 import Foundation
-import InfomaniakLogin
 import Sentry
-import UIKit
 
 public protocol RefreshTokenDelegate: AnyObject {
     func didUpdateToken(newToken: ApiToken, oldToken: ApiToken)
     func didFailRefreshToken(_ token: ApiToken)
 }
 
+@available(iOS 13, *)
 open class ApiFetcher {
     public var authenticatedSession: Session!
     public static var decoder: JSONDecoder = {
@@ -51,27 +50,23 @@ open class ApiFetcher {
         // Allow overriding
     }
 
-    /**
-        Creates a new authenticated session for the given token.
-        The delegate is called back every time the token is refreshed.
-
-        An [OAuthAuthenticator](x-source-tag://OAuthAuthenticator) is created to handle token refresh.
-
-        - Parameter token: The token used to authenticate requests.
-        - Parameter delegate: The delegate called on token refresh.
-     */
+    /// Creates a new authenticated session for the given token.
+    ///
+    /// The delegate is called back every time the token is refreshed.
+    /// An [OAuthAuthenticator](x-source-tag://OAuthAuthenticator) is created to handle token refresh.
+    ///
+    /// - Parameter token: The token used to authenticate requests.
+    /// - Parameter delegate: The delegate called on token refresh.
     public func setToken(_ token: ApiToken, delegate: RefreshTokenDelegate) {
         let authenticator = OAuthAuthenticator(refreshTokenDelegate: delegate)
         setToken(token, authenticator: authenticator)
     }
 
-    /**
-        Creates a new authenticated session for the given token.
-        The delegate is called back every time the token is refreshed.
-
-        - Parameter token: The token used to authenticate requests.
-        - Parameter authenticator: The custom authenticator used to refresh the token.
-     */
+    /// Creates a new authenticated session for the given token.
+    ///
+    /// The delegate is called back every time the token is refreshed.
+    /// - Parameter token: The token used to authenticate requests.
+    /// - Parameter authenticator: The custom authenticator used to refresh the token.
     public func setToken(_ token: ApiToken, authenticator: OAuthAuthenticator) {
         refreshTokenDelegate = authenticator.refreshTokenDelegate
         authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
@@ -129,7 +124,7 @@ open class OAuthAuthenticator: Authenticator {
     }
 
     open func refresh(_ credential: Credential, for session: Session, completion: @escaping (Result<Credential, Error>) -> Void) {
-        InfomaniakLogin.refreshToken(token: credential) { token, error in
+        InfomaniakNetworkLogin.refreshToken(token: credential) { token, error in
             // New token has been fetched correctly
             if let token = token {
                 self.refreshTokenDelegate?.didUpdateToken(newToken: token, oldToken: credential)

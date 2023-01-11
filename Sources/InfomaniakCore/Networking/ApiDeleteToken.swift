@@ -1,6 +1,6 @@
 /*
  Infomaniak Core - iOS
- Copyright (C) 2021 Infomaniak Network SA
+ Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -16,16 +16,10 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import UIKit
+import Foundation
 
-public extension UIApplication {
-    var mainSceneKeyWindow: UIWindow? {
-        // We want to have at least one foreground scene but we prefer active scenes rather than inactive ones
-        let foregroundScenes = Array(connectedScenes).filter { $0.activationState == .foregroundActive }
-            + Array(connectedScenes).filter { $0.activationState == .foregroundInactive }
-        return foregroundScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-            .first(where: \.isKeyWindow)
-    }
+public class ApiDeleteToken: Codable {
+    let result: String
+    let error: String?
+    let data: Bool?
 }

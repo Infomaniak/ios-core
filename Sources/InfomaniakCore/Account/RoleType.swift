@@ -17,7 +17,6 @@
  */
 
 import Foundation
-import LocalizeKit
 
 public enum RoleType: String, Codable {
     case owner
@@ -37,6 +36,7 @@ public enum RoleType: String, Codable {
         case .client:
             key = "typeClient"
         }
-        return key.localized
+        let localized = NSLocalizedString(key, comment: "")
+        return localized
     }
 }

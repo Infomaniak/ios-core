@@ -18,9 +18,7 @@
 
 import Alamofire
 import Foundation
-import InfomaniakLogin
 import Sentry
-import UIKit
 
 public protocol RefreshTokenDelegate: AnyObject {
     func didUpdateToken(newToken: ApiToken, oldToken: ApiToken)
@@ -93,6 +91,7 @@ open class ApiFetcher {
             .request(endpoint.url, method: method, parameters: parameters, encoder: JSONParameterEncoder.convertToSnakeCase)
     }
 
+    @available(iOS 13, *)
     open func perform<T: Decodable>(request: DataRequest) async throws -> (data: T, responseAt: Int?) {
         let response = await request.serializingDecodable(ApiResponse<T>.self, automaticallyCancelling: true, decoder: ApiFetcher.decoder).response
         let json = try response.result.get()
@@ -129,7 +128,7 @@ open class OAuthAuthenticator: Authenticator {
     }
 
     open func refresh(_ credential: Credential, for session: Session, completion: @escaping (Result<Credential, Error>) -> Void) {
-        InfomaniakLogin.refreshToken(token: credential) { token, error in
+        InfomaniakNetworkLogin.refreshToken(token: credential) { token, error in
             // New token has been fetched correctly
             if let token = token {
                 self.refreshTokenDelegate?.didUpdateToken(newToken: token, oldToken: credential)

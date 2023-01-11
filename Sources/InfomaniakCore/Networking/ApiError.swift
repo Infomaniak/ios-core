@@ -23,6 +23,17 @@ public enum InfomaniakError: Error {
     case serverError(statusCode: Int)
 }
 
+/// An  api error for `InfomaniakLogin` form
+@objc public class LoginApiError: NSObject, Codable {
+    @objc public let error: String
+    @objc public let errorDescription: String?
+
+    enum CodingKeys: String, CodingKey {
+        case error
+        case errorDescription = "error_description"
+    }
+}
+
 open class ApiError: Codable, Error {
     public var code: String
     public var description: String

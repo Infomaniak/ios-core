@@ -17,3 +17,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import XCTest
+@testable import InfomaniakCore
+
+final class ios_core_uiTests: XCTestCase {
+    func testExample() throws {
+        // GIVEN
+        let expectedCode = 1337
+        let error = InfomaniakError.serverError(statusCode: expectedCode)
+        
+        // THEN
+        switch error {
+        case .serverError(statusCode: let code):
+            XCTAssertEqual(code, expectedCode)
+        case .apiError(_):
+            XCTFail("unexpected")
+        }
+    }
+}

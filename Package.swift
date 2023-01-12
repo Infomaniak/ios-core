@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.2.2")),
-        .package(name: "Sentry", url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "7.2.9")),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "7.2.9")),
         .package(url: "https://github.com/realm/realm-swift", .upToNextMajor(from: "10.0.0")),
     ],
     targets: [
@@ -25,7 +25,7 @@ let package = Package(
             name: "InfomaniakCore",
             dependencies: [
                 "Alamofire",
-                "Sentry",
+                .product(name: "Sentry", package: "sentry-cocoa"),
                 .product(name: "RealmSwift", package: "realm-swift"),
             ]
         ),

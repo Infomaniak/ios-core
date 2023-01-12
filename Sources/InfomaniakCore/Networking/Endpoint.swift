@@ -62,7 +62,10 @@ public struct Endpoint {
         return url
     }
 
-    public init(hostKeypath: KeyPath<ApiEnvironment, String> = \.apiHost, path: String, queryItems: [URLQueryItem]? = nil, apiEnvironment: ApiEnvironment = .current) {
+    public init(hostKeypath: KeyPath<ApiEnvironment, String> = \.apiHost,
+                path: String,
+                queryItems: [URLQueryItem]? = nil,
+                apiEnvironment: ApiEnvironment = .current) {
         self.hostKeypath = hostKeypath
         self.path = path
         self.queryItems = queryItems

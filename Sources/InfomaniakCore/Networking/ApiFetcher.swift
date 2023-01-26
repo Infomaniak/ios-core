@@ -18,6 +18,7 @@
 
 import Alamofire
 import Foundation
+import InfomaniakDI
 import Sentry
 
 public protocol RefreshTokenDelegate: AnyObject {
@@ -111,6 +112,9 @@ open class ApiFetcher {
 
 /// - Tag: OAuthAuthenticator
 open class OAuthAuthenticator: Authenticator {
+    
+    @InjectService var networkLogin: InfomaniakNetworkLogin
+    
     public typealias Credential = ApiToken
 
     public weak var refreshTokenDelegate: RefreshTokenDelegate?
@@ -124,7 +128,7 @@ open class OAuthAuthenticator: Authenticator {
     }
 
     open func refresh(_ credential: Credential, for session: Session, completion: @escaping (Result<Credential, Error>) -> Void) {
-        InfomaniakNetworkLogin.refreshToken(token: credential) { token, error in
+        networkLogin.refreshToken(token: credential) { token, error in
             // New token has been fetched correctly
             if let token = token {
                 self.refreshTokenDelegate?.didUpdateToken(newToken: token, oldToken: credential)

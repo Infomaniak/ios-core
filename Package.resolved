@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "InfomaniakDI",
+        "repositoryURL": "https://github.com/Infomaniak/ios-dependency-injection",
+        "state": {
+          "branch": null,
+          "revision": "e749acc65b004c23268ea8178ea1ab4b9b01740c",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "RealmDatabase",
         "repositoryURL": "https://github.com/realm/realm-core",
         "state": {

@@ -32,7 +32,7 @@ public enum Constants {
 }
 
 /// Something that can keep the network stack authenticated
-public protocol InfomaniakNetworkLoggable {
+public protocol InfomaniakNetworkLoginable {
     /// Get an api token async (callback on background thread)
     func getApiTokenUsing(code: String, codeVerifier: String, completion: @escaping (ApiToken?, Error?) -> Void)
     
@@ -46,7 +46,7 @@ public protocol InfomaniakNetworkLoggable {
     func deleteApiToken(token: ApiToken, onError: @escaping (Error) -> Void)
 }
 
-public class InfomaniakNetworkLogin: InfomaniakNetworkLoggable {
+public class InfomaniakNetworkLogin: InfomaniakNetworkLoginable {
     private static let LOGIN_API_URL = "https://login.infomaniak.com/"
     private static let GET_TOKEN_API_URL = LOGIN_API_URL + "token"
 

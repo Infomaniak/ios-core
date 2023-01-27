@@ -31,42 +31,48 @@ public enum Constants {
     }
 }
 
-public class InfomaniakNetworkLogin {
+/// Something that can keep the network stack authenticated
+public protocol InfomaniakNetworkLoggable {
+    /// Get an api token async (callback on background thread)
+    func getApiTokenUsing(code: String, codeVerifier: String, completion: @escaping (ApiToken?, Error?) -> Void)
+    
+    /// Get an api token async from an application password (callback on background thread)
+    func getApiToken(username: String, applicationPassword: String, completion: @escaping (ApiToken?, Error?) -> Void)
+    
+    /// Refresh api token async (callback on background thread)
+    func refreshToken(token: ApiToken, completion: @escaping (ApiToken?, Error?) -> Void)
+
+    /// Delete an api token async
+    func deleteApiToken(token: ApiToken, onError: @escaping (Error) -> Void)
+}
+
+public class InfomaniakNetworkLogin: InfomaniakNetworkLoggable {
     private static let LOGIN_API_URL = "https://login.infomaniak.com/"
     private static let GET_TOKEN_API_URL = LOGIN_API_URL + "token"
 
-    public static let instance = InfomaniakNetworkLogin()
+    private var clientId: String
+    private var loginBaseUrl: String
+    private var redirectUri: String
 
-    private var clientId: String!
-    private var loginBaseUrl: String!
-    private var redirectUri: String!
-
-    private var codeChallenge: String!
-    private var codeChallengeMethod: String!
-    private var codeVerifier: String!
-
-    private init() {
-        // Singleton
+    // MARK: Public
+    
+    public init(clientId: String,
+                loginUrl: String = Constants.LOGIN_URL,
+                redirectUri: String = "\(Bundle.main.bundleIdentifier ?? "")://oauth2redirect") {
+        self.loginBaseUrl = loginUrl
+        self.clientId = clientId
+        self.redirectUri = redirectUri
     }
 
-    public static func initWith(clientId: String,
-                                loginUrl: String = Constants.LOGIN_URL,
-                                redirectUri: String = "\(Bundle.main.bundleIdentifier ?? "")://oauth2redirect") {
-        instance.loginBaseUrl = loginUrl
-        instance.clientId = clientId
-        instance.redirectUri = redirectUri
-    }
-
-    /// Get an api token async (callback on background thread)
-    public static func getApiTokenUsing(code: String, codeVerifier: String, completion: @escaping (ApiToken?, Error?) -> Void) {
-        var request = URLRequest(url: URL(string: GET_TOKEN_API_URL)!)
+    public func getApiTokenUsing(code: String, codeVerifier: String, completion: @escaping (ApiToken?, Error?) -> Void) {
+        var request = URLRequest(url: URL(string: Self.GET_TOKEN_API_URL)!)
 
         let parameterDictionary: [String: Any] = [
             "grant_type": "authorization_code",
-            "client_id": instance.clientId!,
+            "client_id": clientId,
             "code": code,
             "code_verifier": codeVerifier,
-            "redirect_uri": instance.redirectUri ?? ""
+            "redirect_uri": redirectUri
         ]
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
@@ -75,14 +81,13 @@ public class InfomaniakNetworkLogin {
         getApiToken(request: request, completion: completion)
     }
 
-    /// Get an api token async from an application password (callback on background thread)
-    public static func getApiToken(username: String, applicationPassword: String, completion: @escaping (ApiToken?, Error?) -> Void) {
-        var request = URLRequest(url: URL(string: GET_TOKEN_API_URL)!)
+    public func getApiToken(username: String, applicationPassword: String, completion: @escaping (ApiToken?, Error?) -> Void) {
+        var request = URLRequest(url: URL(string: Self.GET_TOKEN_API_URL)!)
 
         let parameterDictionary: [String: Any] = [
             "grant_type": "password",
             "access_type": "offline",
-            "client_id": instance.clientId!,
+            "client_id": clientId,
             "username": username,
             "password": applicationPassword
         ]
@@ -93,13 +98,12 @@ public class InfomaniakNetworkLogin {
         getApiToken(request: request, completion: completion)
     }
 
-    /// Refresh api token async (callback on background thread)
-    public static func refreshToken(token: ApiToken, completion: @escaping (ApiToken?, Error?) -> Void) {
-        var request = URLRequest(url: URL(string: GET_TOKEN_API_URL)!)
+    public func refreshToken(token: ApiToken, completion: @escaping (ApiToken?, Error?) -> Void) {
+        var request = URLRequest(url: URL(string: Self.GET_TOKEN_API_URL)!)
 
         let parameterDictionary: [String: Any] = [
             "grant_type": "refresh_token",
-            "client_id": instance.clientId!,
+            "client_id": clientId,
             "refresh_token": token.refreshToken
         ]
         request.httpMethod = "POST"
@@ -109,9 +113,8 @@ public class InfomaniakNetworkLogin {
         getApiToken(request: request, completion: completion)
     }
 
-    /// Delete an api token async
-    public static func deleteApiToken(token: ApiToken, onError: @escaping (Error) -> Void) {
-        var request = URLRequest(url: URL(string: GET_TOKEN_API_URL)!)
+    public func deleteApiToken(token: ApiToken, onError: @escaping (Error) -> Void) {
+        var request = URLRequest(url: URL(string: Self.GET_TOKEN_API_URL)!)
         request.addValue("Bearer \(token.accessToken)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "DELETE"
 
@@ -134,8 +137,10 @@ public class InfomaniakNetworkLogin {
         }.resume()
     }
 
+    // MARK: Private
+    
     /// Make the get token network call
-    private static func getApiToken(request: URLRequest, completion: @escaping (ApiToken?, Error?) -> Void) {
+    private func getApiToken(request: URLRequest, completion: @escaping (ApiToken?, Error?) -> Void) {
         let session = URLSession.shared
         session.dataTask(with: request) { data, response, sessionError in
             guard let response = response as? HTTPURLResponse,

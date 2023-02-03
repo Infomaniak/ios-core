@@ -20,6 +20,7 @@ let package = Package(
         .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.2.2")),
         .package(url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "7.2.9")),
         .package(url: "https://github.com/realm/realm-swift", .upToNextMajor(from: "10.0.0")),
+        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", .upToNextMajor(from: "3.7.0")),
     ],
     targets: [
         .target(
@@ -29,6 +30,7 @@ let package = Package(
                 .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
                 .product(name: "Sentry", package: "sentry-cocoa"),
                 .product(name: "RealmSwift", package: "realm-swift"),
+                .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
             ]
         ),
         .testTarget(

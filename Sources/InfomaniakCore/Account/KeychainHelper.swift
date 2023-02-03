@@ -200,27 +200,27 @@ public class KeychainHelper {
             }
             DDLogInfo("Successfully loaded tokens ? \(resultCode == noErr)")
             
-            if resultCode == noErr {
-                let jsonDecoder = JSONDecoder()
-                if let array = result as? [[String: Any]] {
-                    for item in array {
-                        if let value = item[kSecValueData as String] as? Data {
-                            if let token = try? jsonDecoder.decode(ApiToken.self, from: value) {
-                                values.append(token)
-                            }
-                        }
-                    }
-                    if let token = values.first {
-                        SentrySDK
-                            .addBreadcrumb(crumb: token.generateBreadcrumb(level: .info, message: "Successfully loaded token"))
-                    }
-                }
-            } else {
+            guard resultCode == noErr else {
                 let crumb = Breadcrumb(level: .error, category: "Token")
                 crumb.type = "error"
                 crumb.message = "Failed loading tokens"
                 crumb.data = ["Keychain error code": resultCode]
                 SentrySDK.addBreadcrumb(crumb: crumb)
+                return
+            }
+            
+            if let array = result as? [[String: Any]] {
+                let jsonDecoder = JSONDecoder()
+                for item in array {
+                    if let value = item[kSecValueData as String] as? Data,
+                       let token = try? jsonDecoder.decode(ApiToken.self, from: value) {
+                        values.append(token)
+                    }
+                }
+                if let token = values.first {
+                    SentrySDK
+                        .addBreadcrumb(crumb: token.generateBreadcrumb(level: .info, message: "Successfully loaded token"))
+                }
             }
         }
         return values

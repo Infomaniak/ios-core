@@ -1,5 +1,5 @@
 /*
- Infomaniak kDrive - iOS App
+ Infomaniak Core - iOS
  Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
@@ -76,6 +76,14 @@ struct BodyDataEncoding: ParameterEncoding {
 }
 
 public struct Request: Requestable {
+    
+    public init(method: Method, route: InfomaniakCore.Endpoint, GETParameters: Parameters?, body: RequestBody?) {
+        self.method = method
+        self.route = route
+        self.GETParameters = GETParameters
+        self.body = body
+    }
+    
     public var method: Method
 
     public var route: InfomaniakCore.Endpoint

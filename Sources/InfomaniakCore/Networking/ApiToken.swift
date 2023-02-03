@@ -65,19 +65,19 @@ import Sentry
 // MARK: - Token Logging
 
 extension ApiToken {
-    var truncatedAccessToken: String {
+    public var truncatedAccessToken: String {
         truncateToken(accessToken)
     }
 
-    var truncatedRefreshToken: String {
+    public var truncatedRefreshToken: String {
         truncateToken(refreshToken)
     }
 
-    private func truncateToken(_ token: String) -> String {
+    func truncateToken(_ token: String) -> String {
         String(token.prefix(4) + "-*****-" + token.suffix(4))
     }
 
-    func generateBreadcrumb(level: SentryLevel, message: String, keychainError: OSStatus = noErr) -> Breadcrumb {
+    public func generateBreadcrumb(level: SentryLevel, message: String, keychainError: OSStatus = noErr) -> Breadcrumb {
         let crumb = Breadcrumb(level: level, category: "Token")
         crumb.type = level == .info ? "info" : "error"
         crumb.message = message

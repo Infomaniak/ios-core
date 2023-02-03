@@ -49,7 +49,6 @@ public enum Method: String {
     case OPTIONS
     case TRACE
     case PATCH
-    case TEAPOT
 }
 
 /// Bridge to Alamofire

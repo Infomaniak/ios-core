@@ -1,5 +1,5 @@
 /*
- Infomaniak kDrive - iOS App
+ Infomaniak Core - iOS
  Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
@@ -20,6 +20,7 @@ import CryptoKit
 import Foundation
 
 /// Hashing data helpers
+@available(iOS 13.0, *)
 public extension Data {
     
     var SHA256Digest: SHA256Digest {

@@ -1,5 +1,5 @@
 /*
- Infomaniak kDrive - iOS App
+ Infomaniak Core - iOS
  Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ import Foundation
 /// A strcuture to select the stack to use
 ///
 /// We can encapsulate Alamofire this way
+@available(iOS 13, *)
 extension ApiFetcher: RequestDispatchable {
     static let contentType = "Content-Type"
     static let octetStream = "application/octet-stream"

@@ -17,9 +17,9 @@
  */
 
 import Foundation
+import Sentry
 
 @objc public class ApiToken: NSObject, Codable {
-
     @objc public var accessToken: String
     @objc public var expiresIn: Int
     @objc public var refreshToken: String
@@ -38,7 +38,7 @@ import Foundation
         case expirationDate
     }
 
-    required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         accessToken = try values.decode(String.self, forKey: .accessToken)
         expiresIn = try values.decode(Int.self, forKey: .expiresIn)
@@ -59,5 +59,33 @@ import Foundation
         self.tokenType = tokenType
         self.userId = userId
         self.expirationDate = expirationDate
+    }
+}
+
+// MARK: - Token Logging
+
+extension ApiToken {
+    var truncatedAccessToken: String {
+        truncateToken(accessToken)
+    }
+
+    var truncatedRefreshToken: String {
+        truncateToken(refreshToken)
+    }
+
+    private func truncateToken(_ token: String) -> String {
+        String(token.prefix(4) + "-*****-" + token.suffix(4))
+    }
+
+    func generateBreadcrumb(level: SentryLevel, message: String, keychainError: OSStatus = noErr) -> Breadcrumb {
+        let crumb = Breadcrumb(level: level, category: "Token")
+        crumb.type = level == .info ? "info" : "error"
+        crumb.message = message
+        crumb.data = ["User id": userId,
+                      "Expiration date": expirationDate.timeIntervalSince1970,
+                      "Access Token": truncatedAccessToken,
+                      "Refresh Token": truncatedRefreshToken,
+                      "Keychain error code": keychainError]
+        return crumb
     }
 }

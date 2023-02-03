@@ -79,9 +79,13 @@ open class ApiFetcher {
 
     // MARK: - Request helpers
 
-    open func authenticatedRequest(_ endpoint: Endpoint, method: HTTPMethod = .get, parameters: Parameters? = nil) -> DataRequest {
+    open func authenticatedRequest(_ endpoint: Endpoint,
+                                   method: HTTPMethod = .get,
+                                   parameters: Parameters? = nil,
+                                   encoding: ParameterEncoding = JSONEncoding.default,
+                                   headers: HTTPHeaders? = nil) -> DataRequest {
         return authenticatedSession
-            .request(endpoint.url, method: method, parameters: parameters, encoding: JSONEncoding.default)
+            .request(endpoint.url, method: method, parameters: parameters, encoding: encoding, headers: headers)
     }
 
     open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint, method: HTTPMethod = .get, parameters: Parameters? = nil) -> DataRequest {
@@ -170,7 +174,10 @@ class NetworkRequestRetrier: RequestInterceptor {
         self.maxRetry = maxRetry
     }
 
-    func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
+    func retry(_ request: Alamofire.Request,
+               for session: Session,
+               dueTo error: Error,
+               completion: @escaping (RetryResult) -> Void) {
         guard
             request.task?.response == nil,
             let url = request.request?.url?.absoluteString

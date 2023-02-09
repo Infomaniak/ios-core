@@ -93,8 +93,11 @@ open class ApiFetcher {
             .request(endpoint.url, method: method, parameters: parameters, encoder: JSONParameterEncoder.convertToSnakeCase)
     }
 
-    open func perform<T: Decodable>(request: DataRequest) async throws -> (data: T, responseAt: Int?) {
-        let response = await request.serializingDecodable(ApiResponse<T>.self, automaticallyCancelling: true, decoder: ApiFetcher.decoder).response
+    open func perform<T: Decodable>(request: DataRequest,
+                                    decoder: JSONDecoder = ApiFetcher.decoder) async throws -> (data: T, responseAt: Int?) {
+        let response = await request.serializingDecodable(ApiResponse<T>.self,
+                                                          automaticallyCancelling: true,
+                                                          decoder: decoder).response
         let json = try response.result.get()
         if let result = json.data {
             return (result, json.responseAt)
@@ -116,9 +119,8 @@ open class ApiFetcher {
 
 /// - Tag: OAuthAuthenticator
 open class OAuthAuthenticator: Authenticator {
-    
     @InjectService var networkLogin: InfomaniakNetworkLogin
-    
+
     public typealias Credential = ApiToken
 
     public weak var refreshTokenDelegate: RefreshTokenDelegate?

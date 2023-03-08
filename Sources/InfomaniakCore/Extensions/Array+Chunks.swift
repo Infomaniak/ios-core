@@ -1,5 +1,5 @@
 /*
- Infomaniak Core - iOS
+ Infomaniak kDrive - iOS App
  Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
@@ -16,27 +16,15 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import CryptoKit
 import Foundation
 
-/// Hashing data helpers
-@available(iOS 13.0, *)
-public extension Data {
-    
-    var SHA256Digest: SHA256Digest {
-        SHA256.hash(data: self)
+public extension Array {
+    /// Subdivide an array into smaller parts
+    /// - Parameter size: the size of the sub-division
+    /// - Returns: The chunked structure
+    func chunked(into size: Int) -> [[Element]] {
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0 ..< Swift.min($0 + size, count)])
+        }
     }
-    
-    var SHA512Digest: SHA512Digest {
-        SHA512.hash(data: self)
-    }
-    
-    var SHA256DigestString: String {
-        self.SHA256Digest.compactMap { String(format: "%02x", $0) }.joined()
-    }
-    
-    var SHA512DigestString: String {
-        self.SHA512Digest.compactMap { String(format: "%02x", $0) }.joined()
-    }
-    
 }

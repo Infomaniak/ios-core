@@ -20,21 +20,25 @@ import CryptoKit
 import Foundation
 
 /// Hashing data helpers
-@available(iOS 13.0, *)
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension Data {
     
+    /// Get a `SHA256Digest` of the current Data
     var SHA256Digest: SHA256Digest {
         SHA256.hash(data: self)
     }
     
+    /// Get a `SHA512Digest` of the current Data
     var SHA512Digest: SHA512Digest {
         SHA512.hash(data: self)
     }
     
+    /// Get a `SHA256` String of the current Data
     var SHA256DigestString: String {
         self.SHA256Digest.compactMap { String(format: "%02x", $0) }.joined()
     }
     
+    /// Get a `SHA512` String of the current Data
     var SHA512DigestString: String {
         self.SHA512Digest.compactMap { String(format: "%02x", $0) }.joined()
     }

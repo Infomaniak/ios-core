@@ -21,12 +21,13 @@ import Network
 
 #if os(macOS)
     import AppKit
-#elseif os(iOS)
+#elseif os(iOS) || os(tvOS)
     import UIKit
-#elseif os(tvOS) || os(watchOS)
-    import UIKit
+#elseif os(watchOS)
+    import WatchKit
 #endif
 
+@available(tvOS 12.0, watchOS 5.0, *)
 public class ReachabilityListener {
     public enum NetworkStatus {
         case undefined
@@ -62,13 +63,13 @@ public class ReachabilityListener {
             var inBackground = false
             if !Bundle.main.isExtension {
                 DispatchQueue.main.sync {
-                #if os(macOS)
-                    fatalError("unimplemented")
-                #elseif os(iOS)
-                    inBackground = UIApplication.shared.applicationState == .background
-                #elseif os(tvOS) || os(watchOS)
-                    inBackground = UIApplication.shared.applicationState == .background
-                #endif
+                    #if os(macOS)
+                        fatalError("unimplemented")
+                    #elseif os(iOS) || os(tvOS)
+                        inBackground = UIApplication.shared.applicationState == .background
+                    #elseif os(watchOS)
+                        inBackground = WKExtension.shared().applicationState == .background
+                    #endif
                 }
             }
             if newStatus != self.currentStatus && !inBackground {
@@ -98,6 +99,7 @@ public class ReachabilityListener {
 
 // MARK: - Observation
 
+@available(tvOS 12.0, watchOS 5.0, *)
 public extension ReachabilityListener {
     @discardableResult
     func observeNetworkChange<T: AnyObject>(_ observer: T, using closure: @escaping (NetworkStatus) -> Void)

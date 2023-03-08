@@ -19,7 +19,7 @@
 import Foundation
 
 /// Access metadata of a file
-protocol FileMetadatable {
+public protocol FileMetadatable {
     /// Read file modification date form metadata
     func fileModificationDate(url: URL) -> Date?
 
@@ -35,7 +35,7 @@ public struct FileMetadata: FileMetadatable {
         // FileMetadata service init
     }
 
-    func fileModificationDate(url: URL) -> Date? {
+    public func fileModificationDate(url: URL) -> Date? {
         do {
             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
             return attributes[FileAttributeKey.modificationDate] as? Date
@@ -44,7 +44,7 @@ public struct FileMetadata: FileMetadatable {
         }
     }
 
-    func fileCreationDate(url: URL) -> Date? {
+    public func fileCreationDate(url: URL) -> Date? {
         do {
             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
             return attributes[FileAttributeKey.creationDate] as? Date
@@ -53,7 +53,7 @@ public struct FileMetadata: FileMetadatable {
         }
     }
 
-    func fileSize(url: URL) -> UInt64? {
+    public func fileSize(url: URL) -> UInt64? {
         do {
             let fileAttributes = try FileManager.default.attributesOfItem(atPath: url.path)
             return fileAttributes[FileAttributeKey.size] as? UInt64

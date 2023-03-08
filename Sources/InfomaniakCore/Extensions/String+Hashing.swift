@@ -20,7 +20,7 @@ import CryptoKit
 import Foundation
 
 /// Hashing String helpers
-@available(iOS 13.0, *)
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension String {
     
     /// Get a `SHA256Digest` of the current String

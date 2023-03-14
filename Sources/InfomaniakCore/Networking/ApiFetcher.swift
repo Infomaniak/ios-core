@@ -119,7 +119,7 @@ open class ApiFetcher {
 
 /// - Tag: OAuthAuthenticator
 open class OAuthAuthenticator: Authenticator {
-    @InjectService var networkLogin: InfomaniakNetworkLogin
+    @InjectService var networkLogin: InfomaniakNetworkLoginable
 
     public typealias Credential = ApiToken
 

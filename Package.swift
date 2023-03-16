@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.7
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -18,10 +18,10 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Infomaniak/ios-dependency-injection", .upToNextMajor(from: "1.1.10")),
         .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.2.2")),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "7.2.9")),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "8.3.1")),
         .package(url: "https://github.com/realm/realm-swift", .upToNextMajor(from: "10.0.0")),
-        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", .upToNextMajor(from: "3.7.0")),
-        .package(url: "https://github.com/matomo-org/matomo-sdk-ios.git", .upToNextMajor(from: "7.5.2")),
+        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack", .upToNextMajor(from: "3.7.0")),
+        .package(url: "https://github.com/matomo-org/matomo-sdk-ios", .upToNextMajor(from: "7.5.2")),
     ],
     targets: [
         .target(

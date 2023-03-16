@@ -124,7 +124,7 @@ public class KeychainHelper {
                     ]
                     resultCode = SecItemUpdate(queryUpdate as CFDictionary, attributes as CFDictionary)
                     DDLogInfo("Successfully updated token ? \(resultCode == noErr)")
-                    SentrySDK.addBreadcrumb(crumb: token.generateBreadcrumb(level: .info, message: "Successfully updated token"))
+                    SentrySDK.addBreadcrumb(token.generateBreadcrumb(level: .info, message: "Successfully updated token"))
                 }
             }
         } else {
@@ -140,12 +140,12 @@ public class KeychainHelper {
                 ]
                 resultCode = SecItemAdd(queryAdd as CFDictionary, nil)
                 DDLogInfo("Successfully saved token ? \(resultCode == noErr)")
-                SentrySDK.addBreadcrumb(crumb: token.generateBreadcrumb(level: .info, message: "Successfully saved token"))
+                SentrySDK.addBreadcrumb(token.generateBreadcrumb(level: .info, message: "Successfully saved token"))
             }
         }
         if resultCode != noErr {
             SentrySDK
-                .addBreadcrumb(crumb: token
+                .addBreadcrumb(token
                     .generateBreadcrumb(level: .error, message: "Failed saving token", keychainError: resultCode))
         }
     }
@@ -205,7 +205,7 @@ public class KeychainHelper {
                 crumb.type = "error"
                 crumb.message = "Failed loading tokens"
                 crumb.data = ["Keychain error code": resultCode]
-                SentrySDK.addBreadcrumb(crumb: crumb)
+                SentrySDK.addBreadcrumb(crumb)
                 return
             }
             
@@ -219,7 +219,7 @@ public class KeychainHelper {
                 }
                 if let token = values.first {
                     SentrySDK
-                        .addBreadcrumb(crumb: token.generateBreadcrumb(level: .info, message: "Successfully loaded token"))
+                        .addBreadcrumb(token.generateBreadcrumb(level: .info, message: "Successfully loaded token"))
                 }
             }
         }

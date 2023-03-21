@@ -22,7 +22,7 @@ public protocol AccountUpdateDelegate {
     func didUpdateCurrentAccount(_ account: Account)
 }
 
-open class Account: Equatable, Codable {
+open class Account: Codable {
     public var token: ApiToken! {
         didSet {
             if let token = token {
@@ -39,16 +39,28 @@ open class Account: Equatable, Codable {
     public var user: UserProfile!
 
     public init(apiToken: ApiToken) {
-        self.token = apiToken
-        self.userId = apiToken.userId
-    }
-
-    public static func == (lhs: Account, rhs: Account) -> Bool {
-        return lhs.userId == rhs.userId
+        token = apiToken
+        userId = apiToken.userId
     }
 
     enum CodingKeys: CodingKey {
         case userId
         case user
+    }
+}
+
+extension Account: Equatable {
+    public static func == (lhs: Account, rhs: Account) -> Bool {
+        return lhs.userId == rhs.userId
+    }
+}
+
+extension Account: Identifiable {
+    public var id: Int { return userId }
+}
+
+extension Account: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(userId)
     }
 }

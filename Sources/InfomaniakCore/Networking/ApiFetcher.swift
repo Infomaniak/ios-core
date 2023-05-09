@@ -60,7 +60,17 @@ open class ApiFetcher {
     /// - Parameter delegate: The delegate called on token refresh.
     public func setToken(_ token: ApiToken, delegate: RefreshTokenDelegate) {
         let authenticator = OAuthAuthenticator(refreshTokenDelegate: delegate)
-        setToken(token, authenticator: authenticator)
+        createAuthenticatedSession(token, authenticator: authenticator)
+    }
+
+    @available(*, deprecated, message: "Use createAuthenticatedSession instead")
+    public func setToken(_ token: ApiToken, authenticator: OAuthAuthenticator) {
+        refreshTokenDelegate = authenticator.refreshTokenDelegate
+        authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
+
+        let retrier = NetworkRequestRetrier()
+        let interceptor = Interceptor(adapters: [], retriers: [retrier], interceptors: [authenticationInterceptor])
+        authenticatedSession = Session(interceptor: interceptor)
     }
 
     /// Creates a new authenticated session for the given token.
@@ -68,12 +78,18 @@ open class ApiFetcher {
     /// The delegate is called back every time the token is refreshed.
     /// - Parameter token: The token used to authenticate requests.
     /// - Parameter authenticator: The custom authenticator used to refresh the token.
-    public func setToken(_ token: ApiToken, authenticator: OAuthAuthenticator) {
+    public func createAuthenticatedSession(_ token: ApiToken,
+                                           authenticator: OAuthAuthenticator,
+                                           additionalAdapters: [RequestAdapter] = [],
+                                           additionalRetriers: [RequestRetrier] = [],
+                                           additionalInterceptors: [RequestInterceptor] = []) {
         refreshTokenDelegate = authenticator.refreshTokenDelegate
         authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
 
         let retrier = NetworkRequestRetrier()
-        let interceptor = Interceptor(adapters: [], retriers: [retrier], interceptors: [authenticationInterceptor])
+        let interceptor = Interceptor(adapters: additionalAdapters,
+                                      retriers: [retrier] + additionalRetriers,
+                                      interceptors: [authenticationInterceptor] + additionalInterceptors)
         authenticatedSession = Session(interceptor: interceptor)
     }
 
@@ -88,7 +104,9 @@ open class ApiFetcher {
             .request(endpoint.url, method: method, parameters: parameters, encoding: encoding, headers: headers)
     }
 
-    open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint, method: HTTPMethod = .get, parameters: Parameters? = nil) -> DataRequest {
+    open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint,
+                                                          method: HTTPMethod = .get,
+                                                          parameters: Parameters? = nil) -> DataRequest {
         return authenticatedSession
             .request(endpoint.url, method: method, parameters: parameters, encoder: JSONParameterEncoder.convertToSnakeCase)
     }
@@ -152,7 +170,9 @@ open class OAuthAuthenticator: Authenticator {
         }
     }
 
-    open func didRequest(_ urlRequest: URLRequest, with response: HTTPURLResponse, failDueToAuthenticationError error: Error) -> Bool {
+    open func didRequest(_ urlRequest: URLRequest,
+                         with response: HTTPURLResponse,
+                         failDueToAuthenticationError error: Error) -> Bool {
         return response.statusCode == 401
     }
 

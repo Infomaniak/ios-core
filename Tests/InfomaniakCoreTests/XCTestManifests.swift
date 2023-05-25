@@ -19,18 +19,61 @@
 import XCTest
 @testable import InfomaniakCore
 
-final class InfomaniakCoreTests: XCTestCase {
-    func testExample() throws {
+final class CollectionTests: XCTestCase {
+    func testSafeIndexSuccess() {
         // GIVEN
-        let expectedCode = 1337
-        let error = InfomaniakError.serverError(statusCode: expectedCode)
+        let shortArray = [1]
+        
+        // WHEN
+        let fetched = shortArray[safe: 0]
         
         // THEN
-        switch error {
-        case .serverError(statusCode: let code):
-            XCTAssertEqual(code, expectedCode)
-        case .apiError(_):
-            XCTFail("unexpected")
+        XCTAssertEqual(fetched, 1)
+    }
+    
+    func testSafeIndexNil() {
+        // GIVEN
+        let shortArray = [1]
+        
+        // WHEN
+        let fetched = shortArray[safe: 1]
+        
+        // THEN
+        XCTAssertNil(fetched)
+    }
+}
+
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+final class SequenceTests: XCTestCase {
+    
+    private func someAsyncFunc(input: Int) async -> Bool {
+        try! await Task.sleep(nanoseconds: 100)
+        return input > 2
+    }
+    
+    func testAsyncMap() async {
+        // GIVEN
+        let array = [1, 2, 3, 4, 5]
+        
+        // WHEN
+        let fetched = await array.asyncMap { await someAsyncFunc(input: $0) }
+        
+        // THEN
+        XCTAssertEqual(fetched, [false, false, true, true, true])
+    }
+    
+    func testAsyncForEach () async {
+        // GIVEN
+        let array = [1, 2, 3, 4, 5]
+        var callCount = 0
+        
+        // WHEN
+        await array.asyncForEach { _ in
+            try! await Task.sleep(nanoseconds: 100)
+            callCount += 1
         }
+        
+        // THEN
+        XCTAssertEqual(array.count, callCount)
     }
 }

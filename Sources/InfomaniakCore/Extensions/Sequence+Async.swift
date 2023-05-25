@@ -18,7 +18,7 @@
 
 import Foundation
 
-extension Sequence {
+public extension Sequence {
     /// Map that supports swift concurrency
     func asyncMap<T>(
         _ transform: (Element) async throws -> T
@@ -33,7 +33,7 @@ extension Sequence {
     }
 }
 
-extension Sequence {
+public extension Sequence {
     /// ForEach that supports swift concurrency
     func asyncForEach(
         _ operation: (Element) async throws -> Void

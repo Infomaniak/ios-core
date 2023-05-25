@@ -18,6 +18,7 @@
 
 import Foundation
 
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension Sequence {
     /// Map that supports swift concurrency
     func asyncMap<T>(
@@ -33,6 +34,7 @@ public extension Sequence {
     }
 }
 
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension Sequence {
     /// ForEach that supports swift concurrency
     func asyncForEach(

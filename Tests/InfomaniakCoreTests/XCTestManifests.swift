@@ -17,7 +17,7 @@
  */
 
 import XCTest
-@testable import InfomaniakCore
+import InfomaniakCore
 
 final class CollectionTests: XCTestCase {
     func testSafeIndexSuccess() {

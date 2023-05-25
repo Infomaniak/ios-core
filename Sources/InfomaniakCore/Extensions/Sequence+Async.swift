@@ -19,7 +19,7 @@
 import Foundation
 
 extension Sequence {
-    /// Map that support swift concurrency
+    /// Map that supports swift concurrency
     func asyncMap<T>(
         _ transform: (Element) async throws -> T
     ) async rethrows -> [T] {
@@ -34,7 +34,7 @@ extension Sequence {
 }
 
 extension Sequence {
-    /// ForEach that support swift concurrency
+    /// ForEach that supports swift concurrency
     func asyncForEach(
         _ operation: (Element) async throws -> Void
     ) async rethrows {

@@ -31,7 +31,6 @@ public struct ParallelTaskMapper {
     /// - Parameter concurrency: execution depth, keep default for optimized threading.
     public init(concurrency: Int = max(4, ProcessInfo.processInfo.activeProcessorCount) /* parallel by default */ ) {
         assert(concurrency > 0, "zero concurrency locks execution")
-        print("concurrency = \(concurrency)")
         taskQueue = TaskQueue(concurrency: concurrency)
     }
 

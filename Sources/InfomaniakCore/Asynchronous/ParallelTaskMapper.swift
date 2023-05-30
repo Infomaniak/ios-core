@@ -18,12 +18,58 @@
 
 import Foundation
 
+/// Something that can cancel all child processes
+public protocol CancelAllable {
+    /// cancel all child processes
+    func cancelAll()
+}
+
+public protocol Completionable {
+    mutating func waitForAll() async throws
+}
+
+public protocol TaskGroupAble: CancelAllable & Completionable {
+    
+}
+
+extension ThrowingTaskGroup: TaskGroupAble {}
+
 /// A concurrent way to map some computation with a closure to a collection of generic items.
 ///
 /// Use default settings for optimised queue depth
 ///
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public struct ParallelTaskMapper {
+    
+    
+    /// Something that can return the result asynchronously or cancel existing work
+    public struct ResultHandler<T>: TaskGroupAble {
+        init(accumulator: ArrayAccumulator<T>, taskGroup: TaskGroupAble?, wrapping: T.Type) {
+            self.accumulator = accumulator
+            self.taskGroup = taskGroup
+        }
+
+        private var accumulator: ArrayAccumulator<T>
+        private var taskGroup: TaskGroupAble?
+
+        /// Wait for completion of tasks and return the result
+        public var accumulation: [T?] {
+            mutating get async throws {
+                try await self.taskGroup?.waitForAll()
+                return await accumulator.accumulation
+            }
+        }
+        
+        public mutating func waitForAll() async throws {
+            try await self.taskGroup?.waitForAll()
+        }
+        
+        public func cancelAll() {
+            self.taskGroup?.cancelAll()
+        }
+        
+    }
+
     /// internal processing TaskQueue
     let taskQueue: TaskQueue
 
@@ -44,16 +90,21 @@ public struct ParallelTaskMapper {
     /// - Parameters:
     ///   - collection: The input collection of items to be processed
     ///   - toOperation: The operation to be applied to the `collection` of items
-    /// - Returns: An ordered processed collection of the desired type
+    /// - Returns: A result handler that can cancel running tasks
     public func map<T, U>(collection: [U],
-                          toOperation operation: @escaping @Sendable (_ item: U) async throws -> T?) async throws -> [T?] {
+                          toOperation operation: @escaping @Sendable (_ item: U) async throws -> T?) async throws
+        -> ResultHandler<T> {
         // Using an ArrayAccumulator to preserve the order of results
         let accumulator = ArrayAccumulator(count: collection.count, wrapping: T.self)
 
         // Using a TaskGroup to track completion
-        _ = try await withThrowingTaskGroup(of: Void.self, returning: Void.self) { taskGroup in
+        var taskGroupable: TaskGroupAble?
+        let _ = try await withThrowingTaskGroup(of: Void.self, returning: Void.self) { taskGroup in
+            taskGroupable = taskGroup
             for (index, item) in collection.enumerated() {
                 taskGroup.addTask {
+                    guard !Task.isCancelled else { return }
+
                     let result = try await self.taskQueue.enqueue {
                         try await operation(item)
                     }
@@ -61,13 +112,11 @@ public struct ParallelTaskMapper {
                     try? await accumulator.set(item: result, atIndex: index)
                 }
             }
-
-            // await completion of all tasks
-            try await taskGroup.waitForAll()
         }
 
-        // Get the accumulated results
-        let accumulated = await accumulator.accumulation
-        return accumulated
+        let resultHandler = ResultHandler(accumulator: accumulator,
+                                          taskGroup: taskGroupable,
+                                          wrapping: T.self)
+        return resultHandler
     }
 }

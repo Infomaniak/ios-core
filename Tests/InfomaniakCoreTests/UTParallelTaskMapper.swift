@@ -24,11 +24,11 @@ final class UTParallelTaskMapper: XCTestCase {
     func testAsyncMap() async {
         // GIVEN
         let taskMapper = ParallelTaskMapper()
-        let collectionToProcess = Array(0 ... 15)
+        let collectionToProcess = Array(0 ... 50)
 
         // WHEN
         do {
-            let result = try await taskMapper.map(collection: collectionToProcess) { item in
+            var result = try await taskMapper.map(collection: collectionToProcess) { item in
                 // Make the process take some short arbitrary time to complete
                 let randomShortTime = UInt64.random(in: 1 ... 100)
                 try await Task.sleep(nanoseconds: randomShortTime)
@@ -38,7 +38,7 @@ final class UTParallelTaskMapper: XCTestCase {
 
             // THEN
             // We check order is preserved
-            result.reduce(-1) { partialResult, item in
+            _ = try await result.accumulation.reduce(-1) { partialResult, item in
                 guard let item = item else {
                     fatalError("Unexpected")
                 }

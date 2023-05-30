@@ -24,7 +24,7 @@ final class UTParallelTaskMapper: XCTestCase {
     func testAsyncMap() async {
         // GIVEN
         let taskMapper = ParallelTaskMapper()
-        let collectionToProcess = Array(0 ... 15)
+        let collectionToProcess = Array(0 ... 50)
 
         // WHEN
         do {
@@ -38,13 +38,15 @@ final class UTParallelTaskMapper: XCTestCase {
 
             // THEN
             // We check order is preserved
-            result.reduce(-1) { partialResult, item in
+            _ = result.reduce(-1) { partialResult, item in
                 guard let item = item else {
                     fatalError("Unexpected")
                 }
                 XCTAssertGreaterThan(item, partialResult)
                 return item
             }
+
+            XCTAssertEqual(result.count, collectionToProcess.count)
 
         } catch {
             XCTFail("Unexpected")

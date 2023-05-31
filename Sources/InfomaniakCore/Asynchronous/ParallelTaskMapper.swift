@@ -44,10 +44,12 @@ public struct ParallelTaskMapper {
     ///   - collection: The input collection of items to be processed
     ///   - toOperation: The operation to be applied to the `collection` of items
     /// - Returns: An ordered processed collection of the desired type
-    public func map<T, U>(collection: [U],
-                          toOperation operation: @escaping @Sendable (_ item: U) async throws -> T?) async throws -> [T?] {
+    public func map<Input, Output>(
+        collection: [Input],
+        toOperation operation: @escaping @Sendable (_ item: Input) async throws -> Output?
+    ) async throws -> [Output?] {
         // Using an ArrayAccumulator to preserve the order of results
-        let accumulator = ArrayAccumulator(count: collection.count, wrapping: T.self)
+        let accumulator = ArrayAccumulator(count: collection.count, wrapping: Output.self)
 
         // Using a TaskGroup to track completion
         _ = try await withThrowingTaskGroup(of: Void.self, returning: Void.self) { taskGroup in

@@ -16,64 +16,29 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import XCTest
 import InfomaniakCore
+import XCTest
 
-final class CollectionTests: XCTestCase {
+final class UTCollectionTests: XCTestCase {
     func testSafeIndexSuccess() {
         // GIVEN
         let shortArray = [1]
-        
+
         // WHEN
         let fetched = shortArray[safe: 0]
-        
+
         // THEN
         XCTAssertEqual(fetched, 1)
     }
-    
+
     func testSafeIndexNil() {
         // GIVEN
         let shortArray = [1]
-        
+
         // WHEN
         let fetched = shortArray[safe: 1]
-        
+
         // THEN
         XCTAssertNil(fetched)
-    }
-}
-
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-final class SequenceTests: XCTestCase {
-    
-    private func someAsyncFunc(input: Int) async -> Bool {
-        try! await Task.sleep(nanoseconds: 100)
-        return input > 2
-    }
-    
-    func testAsyncMap() async {
-        // GIVEN
-        let array = [1, 2, 3, 4, 5]
-        
-        // WHEN
-        let fetched = await array.asyncMap { await someAsyncFunc(input: $0) }
-        
-        // THEN
-        XCTAssertEqual(fetched, [false, false, true, true, true])
-    }
-    
-    func testAsyncForEach () async {
-        // GIVEN
-        let array = [1, 2, 3, 4, 5]
-        var callCount = 0
-        
-        // WHEN
-        await array.asyncForEach { _ in
-            try! await Task.sleep(nanoseconds: 100)
-            callCount += 1
-        }
-        
-        // THEN
-        XCTAssertEqual(array.count, callCount)
     }
 }

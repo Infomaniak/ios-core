@@ -22,4 +22,13 @@ public extension Bundle {
     var isExtension: Bool {
         return bundleURL.pathExtension == "appex"
     }
+
+    /// Indicates whether the app is currently running in a TestFlight environment.
+    var isRunningInTestFlight: Bool {
+        guard let path = appStoreReceiptURL?.path else {
+            return false
+        }
+
+        return path.contains("sandboxReceipt")
+    }
 }

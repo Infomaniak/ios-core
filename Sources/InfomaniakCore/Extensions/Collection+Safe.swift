@@ -24,3 +24,9 @@ public extension Collection {
         return indices.contains(index) ? self[index] : nil
     }
 }
+
+public extension Array {
+    subscript(safe range: Range<Index>) -> ArraySlice<Element> {
+        return self[Swift.min(range.startIndex, endIndex) ..< Swift.min(range.endIndex, endIndex)]
+    }
+}

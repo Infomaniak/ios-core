@@ -19,7 +19,15 @@
 import InfomaniakCore
 import XCTest
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public final class CountedFulfillmentTestExpectation: XCTestExpectation {
+    private(set) var currentFulfillmentCount = 0
+
+    override public func fulfill() {
+        currentFulfillmentCount += 1
+        super.fulfill()
+    }
+}
+
 final class UTCurriedClosure: XCTestCase {
     func testAppendToClosure() {
         // GIVEN
@@ -41,7 +49,7 @@ final class UTCurriedClosure: XCTestCase {
 
         // WHEN
         let computation = a + b
-        let _ = computation~
+        computation(())
 
         // THEN
         wait(for: expectations, timeout: 10.0)
@@ -77,7 +85,7 @@ final class UTCurriedClosure: XCTestCase {
 
         // WHEN
         let computation = a + b + c
-        let _ = computation~
+        computation(())
 
         // THEN
         wait(for: expectations, timeout: 10.0)

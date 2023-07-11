@@ -30,8 +30,8 @@ public typealias SequenceableCollection = Sequence & Collection
 ///
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public struct ParallelTaskMapper {
-    /// internal processing TaskQueue
-    let taskQueue: TaskQueue
+    /// private processing TaskQueue
+    private let taskQueue: TaskQueue
 
     /// Init function
     /// - Parameter concurrency: execution depth, keep default for optimized threading.

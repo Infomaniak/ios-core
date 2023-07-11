@@ -19,6 +19,7 @@
 import Foundation
 
 public extension Bundle {
+    /// Returns `true` if executing in app extension context
     var isExtension: Bool {
         return bundleURL.pathExtension == "appex"
     }

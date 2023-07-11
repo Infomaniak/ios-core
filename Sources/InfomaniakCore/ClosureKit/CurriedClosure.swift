@@ -19,17 +19,17 @@
 import Foundation
 
 /// Represents `any` (ie. all of them not the type) curried closure, of arbitrary type.
-///
-/// see `AsyncCurriedClosure` if you need support for structured concurrency or error feedback
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public typealias CurriedClosure<Input, Output> = (Input) -> Output
 
 /// A closure that take no argument and return nothing, but technically curried.
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+///
+/// Calling this closure type requires the use of `Void` which is, in swift, an empty tuple `()`.
 public typealias SimpleClosure = CurriedClosure<Void, Void>
 
 /// Append a SimpleClosure to another one
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+///
+/// This allows you to append / prepend a closure to another one with the + operator.
+/// This is not function composition.
 public func + (_ lhs: @escaping SimpleClosure, _ rhs: @escaping SimpleClosure) -> SimpleClosure {
     let closure: SimpleClosure = { _ in
         lhs(())

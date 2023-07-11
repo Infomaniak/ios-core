@@ -24,3 +24,11 @@ public extension Collection {
         return indices.contains(index) ? self[index] : nil
     }
 }
+
+public extension Array {
+    /// Returns an `ArraySlice` for the specified indexes if possible.
+    /// The Slice is bounded to the size of the current collection.
+    subscript(safe range: Range<Index>) -> ArraySlice<Element> {
+        return self[Swift.min(range.startIndex, endIndex) ..< Swift.min(range.endIndex, endIndex)]
+    }
+}

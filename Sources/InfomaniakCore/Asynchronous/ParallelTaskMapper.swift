@@ -18,14 +18,20 @@
 
 import Foundation
 
+/// Something that behaves like a collection and can also be sequenced
+///
+/// Some of the conforming types are Array, ArraySlice, Dictionary …
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public typealias SequenceableCollection = Sequence & Collection
+
 /// A concurrent way to map some computation with a closure to a collection of generic items.
 ///
 /// Use default settings for optimised queue depth
 ///
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public struct ParallelTaskMapper {
-    /// internal processing TaskQueue
-    let taskQueue: TaskQueue
+    /// private processing TaskQueue
+    private let taskQueue: TaskQueue
 
     /// Init function
     /// - Parameter concurrency: execution depth, keep default for optimized threading.
@@ -41,11 +47,11 @@ public struct ParallelTaskMapper {
     /// This is using an underlying `TaskQueue` (with an optimized queue depth)
     /// Using it to apply work to each item of a given collection.
     /// - Parameters:
-    ///   - collection: The input collection of items to be processed
+    ///   - collection: The input collection of items to be processed. Supports Array / ArraySlice / Dictionary …
     ///   - toOperation: The operation to be applied to the `collection` of items
     /// - Returns: An ordered processed collection of the desired type
     public func map<Input, Output>(
-        collection: [Input],
+        collection: some SequenceableCollection<Input>,
         toOperation operation: @escaping @Sendable (_ item: Input) async throws -> Output?
     ) async throws -> [Output?] {
         // Using an ArrayAccumulator to preserve the order of results

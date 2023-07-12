@@ -49,13 +49,13 @@ public protocol AppGroupPathProvidable: AnyObject {
 }
 
 public final class AppGroupPathProvider: AppGroupPathProvidable {
-    private var fileManager = FileManager.default
+    private let fileManager = FileManager.default
 
-    private var realmRootPath: String
+    private let realmRootPath: String
 
     // MARK: public var
 
-    public var groupDirectoryURL: URL
+    public let groupDirectoryURL: URL
 
     public lazy var realmRootURL: URL = {
         let drivesURL = groupDirectoryURL.appendingPathComponent(self.realmRootPath, isDirectory: true)

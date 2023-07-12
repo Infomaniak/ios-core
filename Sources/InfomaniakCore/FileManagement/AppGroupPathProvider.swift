@@ -26,14 +26,14 @@ import OSLog
 /// This is shared between all apps of the group initialised with
 public protocol AppGroupPathProvidable: AnyObject {
     /// Failable init if app group is not found
-    init?(appGroupIdentifier: String)
+    init?(realmRootPath: String, appGroupIdentifier: String)
 
     /// The directory of the current app group, exists in FS.
     /// Uses the `.completeUntilFirstUserAuthentication` protection policy
     var groupDirectoryURL: URL { get }
 
-    /// The root directory of kDrive, exists in FS
-    var driveRootDocumentsURL: URL { get }
+    /// The root directory to store the App's Realm files, exists in FS
+    var realmRootURL: URL { get }
 
     /// The import directory, exists in FS
     var importDirectoryURL: URL { get }
@@ -51,12 +51,14 @@ public protocol AppGroupPathProvidable: AnyObject {
 public final class AppGroupPathProvider: AppGroupPathProvidable {
     private var fileManager = FileManager.default
 
+    private var realmRootPath: String
+
     // MARK: public var
-    
+
     public var groupDirectoryURL: URL
 
-    public lazy var driveRootDocumentsURL: URL = {
-        let drivesURL = groupDirectoryURL.appendingPathComponent("drives", isDirectory: true)
+    public lazy var realmRootURL: URL = {
+        let drivesURL = groupDirectoryURL.appendingPathComponent(self.realmRootPath, isDirectory: true)
         try? fileManager.createDirectory(
             atPath: drivesURL.path,
             withIntermediateDirectories: true,
@@ -102,8 +104,8 @@ public final class AppGroupPathProvider: AppGroupPathProvidable {
     }()
 
     // MARK: init
-    
-    public init?(appGroupIdentifier: String) {
+
+    public init?(realmRootPath: String, appGroupIdentifier: String) {
         guard let groupDirectoryURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier)
         else {
             return nil
@@ -120,6 +122,7 @@ public final class AppGroupPathProvider: AppGroupPathProvidable {
         }
 
         self.groupDirectoryURL = groupDirectoryURL
+        self.realmRootPath = realmRootPath
     }
 }
 

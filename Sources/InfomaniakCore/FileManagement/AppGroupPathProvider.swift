@@ -18,8 +18,8 @@
 
 #if canImport(MobileCoreServices)
 
+import CocoaLumberjackSwift
 import Foundation
-import OSLog
 
 /// Something that can provide a set of common URLs within the app group
 ///
@@ -117,7 +117,7 @@ public final class AppGroupPathProvider: AppGroupPathProvidable {
                 ofItemAtPath: groupDirectoryURL.path
             )
         } catch {
-            os_log("failed to protect mandatory path")
+            DDLogError("[AppGroupPathProvider] failed to protect mandatory path :\(error)")
             return nil
         }
 

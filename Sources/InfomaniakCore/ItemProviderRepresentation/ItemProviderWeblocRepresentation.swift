@@ -58,7 +58,7 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
 
             // Save the URL as a webloc file (plist)
             let content = ["URL": path.absoluteString]
-            
+
             do {
                 @InjectService var pathProvider: AppGroupPathProvidable
                 let tmpDirectoryURL = pathProvider.tmpDirectoryURL
@@ -80,26 +80,21 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
 
         /// Wrap the Combine pipe to a native Swift Async Task for convenience
         computeResultTask = Task {
-            do {
-                let result: URL = try await withCheckedThrowingContinuation { continuation in
-                    self.resultProcessedObserver = resultProcessed.sink { result in
-                        switch result {
-                        case .finished:
-                            break
-                        case .failure(let error):
-                            continuation.resume(throwing: error)
-                        }
-                        self.resultProcessedObserver?.cancel()
-                    } receiveValue: { value in
-                        continuation.resume(with: .success(value))
+            let result: URL = try await withCheckedThrowingContinuation { continuation in
+                self.resultProcessedObserver = resultProcessed.sink { result in
+                    switch result {
+                    case .finished:
+                        break
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
                     }
+                    self.resultProcessedObserver?.cancel()
+                } receiveValue: { value in
+                    continuation.resume(with: .success(value))
                 }
-
-                return result
-
-            } catch {
-                throw error
             }
+
+            return result
         }
     }
 

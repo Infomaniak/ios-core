@@ -65,7 +65,8 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
                 childProgress.completedUnitCount += Self.progressStep
             }
 
-            guard error == nil, coding != nil else {
+            guard error == nil,
+                  let coding else {
                 self.resultProcessed.send(completion: .failure(error ?? ErrorDomain.unknown))
                 return
             }
@@ -78,34 +79,17 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
                 try self.fileManager.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
 
                 // Is String
-                if let text = coding as? String {
-                    let targetURL = temporaryURL.appendingPathComponent("\(UUID().uuidString).txt")
-
-                    try text.write(to: targetURL, atomically: true, encoding: .utf8)
-                    self.resultProcessed.send(targetURL)
-                    self.resultProcessed.send(completion: .finished)
+                guard try !self.stringHandling(coding, temporaryURL: temporaryURL) else {
+                    return
                 }
 
                 // Is Data
-                else if let data = coding as? Data {
-                    guard let uti = UTI(typeIdentifier) else {
-                        self.resultProcessed.send(completion: .failure(ErrorDomain.UTINotFound))
-                        return
-                    }
-
-                    let targetURL = temporaryURL
-                        .appendingPathComponent(UUID().uuidString)
-                        .appendingPathExtension(for: uti)
-
-                    try data.write(to: targetURL)
-                    self.resultProcessed.send(targetURL)
-                    self.resultProcessed.send(completion: .finished)
+                guard try !self.dataHandling(coding, typeIdentifier: typeIdentifier, temporaryURL: temporaryURL) else {
+                    return
                 }
 
                 // Not supported
-                else {
-                    self.resultProcessed.send(completion: .failure(ErrorDomain.UTINotSupported))
-                }
+                self.resultProcessed.send(completion: .failure(ErrorDomain.UTINotSupported))
 
             } catch {
                 self.resultProcessed.send(completion: .failure(error))
@@ -131,6 +115,40 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
 
             return result
         }
+    }
+
+    private func stringHandling(_ coding: NSSecureCoding, temporaryURL: URL) throws -> Bool {
+        guard let text = coding as? String else {
+            return false
+        }
+        let targetURL = temporaryURL.appendingPathComponent("\(UUID().uuidString).txt")
+
+        try text.write(to: targetURL, atomically: true, encoding: .utf8)
+        resultProcessed.send(targetURL)
+        resultProcessed.send(completion: .finished)
+
+        return true
+    }
+
+    private func dataHandling(_ coding: NSSecureCoding, typeIdentifier: String, temporaryURL: URL) throws -> Bool {
+        guard let data = coding as? Data else {
+            return false
+        }
+
+        guard let uti = UTI(typeIdentifier) else {
+            resultProcessed.send(completion: .failure(ErrorDomain.UTINotFound))
+            return false
+        }
+
+        let targetURL = temporaryURL
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension(for: uti)
+
+        try data.write(to: targetURL)
+        resultProcessed.send(targetURL)
+        resultProcessed.send(completion: .finished)
+
+        return true
     }
 
     // MARK: Public

@@ -22,6 +22,7 @@ let package = Package(
         .package(url: "https://github.com/realm/realm-swift", .upToNextMajor(from: "10.0.0")),
         .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack", .upToNextMajor(from: "3.7.0")),
         .package(url: "https://github.com/matomo-org/matomo-sdk-ios", .upToNextMajor(from: "7.5.2")),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.0"))
     ],
     targets: [
         .target(
@@ -37,7 +38,7 @@ let package = Package(
         ),
         .testTarget(
             name: "InfomaniakCoreTests",
-            dependencies: ["InfomaniakCore"]
+            dependencies: ["InfomaniakCore","ZIPFoundation"]
         )
     ]
 )

@@ -99,7 +99,7 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
 
         /// Wrap the Combine pipe to a native Swift Async Task for convenience
         computeResultTask = Task {
-            let result: URL = try await withCheckedThrowingContinuation { continuation in
+            let resultURL: URL = try await withCheckedThrowingContinuation { continuation in
                 self.resultProcessedObserver = resultProcessed.sink { result in
                     switch result {
                     case .finished:
@@ -113,7 +113,7 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
                 }
             }
 
-            return result
+            return resultURL
         }
     }
 

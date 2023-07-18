@@ -29,11 +29,7 @@ final class UTFlowToAsyncResult: XCTestCase {
         let someResult = "Some random computational result 💽"
 
         // WHEN
-        // Events should start at least one run loop after the call to `result`
-        Task {
-            try? await Task.sleep(nanoseconds: 100_000_000)
-            flowWrapper.send(someResult)
-        }
+        flowWrapper.sendSuccess(someResult)
 
         // THEN
         let result = await flowWrapper.result
@@ -54,7 +50,7 @@ final class UTFlowToAsyncResult: XCTestCase {
         }
 
         // WHEN
-        flowWrapper.send(completion: .failure(expectedError))
+        flowWrapper.sendFailure(expectedError)
 
         // THEN
         let result = await flowWrapper.result
@@ -65,21 +61,35 @@ final class UTFlowToAsyncResult: XCTestCase {
         XCTAssertEqual(domainError, expectedError)
     }
 
-    // MARK: Potential miss-use
+    // MARK: Multiple calls
 
-    func testDoubleSendSuccess() async {
+    func testDoubleSuccess() async {
+        // GIVEN
+        let flowWrapper = FlowToAsyncResult<String>()
+        let someResult = "Some random computational result 💽"
+
+        // WHEN
+        flowWrapper.sendSuccess(someResult)
+        flowWrapper.sendSuccess(someResult)
+
+        // THEN
+        let result = await flowWrapper.result
+        guard case .success(let success) = result else {
+            XCTFail("Unexpected result :\(result)")
+            return
+        }
+        XCTAssertEqual(success, someResult)
+    }
+
+    func testDoubleSuccessDiff() async {
         // GIVEN
         let flowWrapper = FlowToAsyncResult<String>()
         let someResult = "Some random computational result 💽"
         let someOtherResult = "Some competitor 💿"
 
         // WHEN
-        // Events should start at least one run loop after the call to `result`
-        Task {
-            try? await Task.sleep(nanoseconds: 100_000_000)
-            flowWrapper.send(someResult)
-            flowWrapper.send(someOtherResult)
-        }
+        flowWrapper.sendSuccess(someResult)
+        flowWrapper.sendSuccess(someOtherResult)
 
         // THEN
         let result = await flowWrapper.result
@@ -103,14 +113,9 @@ final class UTFlowToAsyncResult: XCTestCase {
         let expectedError = SomeError.some
 
         // WHEN
-        // Events should start at least one run loop after the call to `result`
-        Task {
-            try? await Task.sleep(nanoseconds: 100_000_000)
-            flowWrapper.send(someResult)
-            flowWrapper.send(someOtherResult)
-            flowWrapper.send(completion: .failure(expectedError))
-        }
-        
+        flowWrapper.sendSuccess(someResult)
+        flowWrapper.sendSuccess(someOtherResult)
+        flowWrapper.sendFailure(expectedError)
 
         // THEN
         let result = await flowWrapper.result
@@ -120,7 +125,7 @@ final class UTFlowToAsyncResult: XCTestCase {
         }
         XCTAssertEqual(success, someResult)
     }
-    
+
     func testFailureDoubleSend() async {
         // GIVEN
         let flowWrapper = FlowToAsyncResult<String>()
@@ -133,8 +138,108 @@ final class UTFlowToAsyncResult: XCTestCase {
         }
 
         // WHEN
-        flowWrapper.send(completion: .failure(expectedError))
-        flowWrapper.send(completion: .failure(otherError))
+        flowWrapper.sendFailure(expectedError)
+        flowWrapper.sendFailure(otherError)
+
+        // THEN
+        let result = await flowWrapper.result
+        guard case .failure(let error) = result, let domainError = error as? SomeError else {
+            XCTFail("Unexpected result :\(result)")
+            return
+        }
+        XCTAssertEqual(domainError, expectedError)
+    }
+
+    // MARK: Multiple calls _and_ async calls
+
+    func testSuccess_late() async {
+        // GIVEN
+        let flowWrapper = FlowToAsyncResult<String>()
+        let someResult = "Some random computational result 💽"
+
+        // WHEN
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            flowWrapper.sendSuccess(someResult)
+        }
+
+        // THEN
+        let result = await flowWrapper.result
+        guard case .success(let success) = result else {
+            XCTFail("Unexpected result :\(result)")
+            return
+        }
+        XCTAssertEqual(success, someResult)
+    }
+
+    func testDoubleSendSuccess_late() async {
+        // GIVEN
+        let flowWrapper = FlowToAsyncResult<String>()
+        let someResult = "Some random computational result 💽"
+        let someOtherResult = "Some competitor 💿"
+
+        // WHEN
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            flowWrapper.sendSuccess(someResult)
+            flowWrapper.sendSuccess(someOtherResult)
+        }
+
+        // THEN
+        let result = await flowWrapper.result
+        guard case .success(let success) = result else {
+            XCTFail("Unexpected result :\(result)")
+            return
+        }
+        XCTAssertEqual(success, someResult)
+    }
+
+    func testDoubleSendSuccessAndFailure_late() async {
+        // GIVEN
+        let flowWrapper = FlowToAsyncResult<String>()
+        let someResult = "Some random computational result 💽"
+        let someOtherResult = "Some competitor 💿"
+
+        enum SomeError: Error, Equatable {
+            case some
+        }
+
+        let expectedError = SomeError.some
+
+        // WHEN
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            flowWrapper.sendSuccess(someResult)
+            flowWrapper.sendSuccess(someOtherResult)
+            flowWrapper.sendFailure(expectedError)
+        }
+
+        // THEN
+        let result = await flowWrapper.result
+        guard case .success(let success) = result else {
+            XCTFail("Unexpected result :\(result)")
+            return
+        }
+        XCTAssertEqual(success, someResult)
+    }
+
+    func testFailureDoubleSend_late() async {
+        // GIVEN
+        let flowWrapper = FlowToAsyncResult<String>()
+        let expectedError = SomeError.some
+        let otherError = SomeError.other
+
+        enum SomeError: Error, Equatable {
+            case some
+            case other
+        }
+
+        // WHEN
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            flowWrapper.sendFailure(expectedError)
+            flowWrapper.sendFailure(otherError)
+        }
 
         // THEN
         let result = await flowWrapper.result

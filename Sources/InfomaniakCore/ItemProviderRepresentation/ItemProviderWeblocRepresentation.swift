@@ -47,7 +47,7 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
         progress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
             guard error == nil, let path: URL = path else {
                 let error: Error = error ?? ErrorDomain.unableToLoadURLForObject
-                flowToAsync.send(completion: .failure(error))
+                flowToAsync.sendFailure(error)
                 return
             }
 
@@ -66,9 +66,9 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
                 let data = try encoder.encode(content)
                 try data.write(to: targetURL)
 
-                flowToAsync.send(targetURL)
+                flowToAsync.sendSuccess(targetURL)
             } catch {
-                flowToAsync.send(completion: .failure(error))
+                flowToAsync.sendFailure(error)
             }
         }
     }

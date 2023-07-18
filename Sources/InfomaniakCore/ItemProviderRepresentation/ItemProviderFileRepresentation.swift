@@ -52,7 +52,7 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
         // Set progress and hook completion closure to a combine pipe
         progress = itemProvider.loadFileRepresentation(forTypeIdentifier: typeIdentifier) { [self] fileProviderURL, error in
             guard let fileProviderURL, error == nil else {
-                flowToAsync.send(completion: .failure(error ?? ErrorDomain.UnableToLoadFile))
+                flowToAsync.sendFailure(error ?? ErrorDomain.UnableToLoadFile)
                 return
             }
 
@@ -67,9 +67,9 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
                 let temporaryFileURL = temporaryURL.appendingPathComponent(fileName)
                 try fileManager.copyItem(atPath: fileProviderURL.path, toPath: temporaryFileURL.path)
                 
-                flowToAsync.send(temporaryFileURL)
+                flowToAsync.sendSuccess(temporaryFileURL)
             } catch {
-                flowToAsync.send(completion: .failure(error))
+                flowToAsync.sendFailure(error)
             }
         }
     }

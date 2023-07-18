@@ -62,7 +62,7 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
 
             guard error == nil,
                   let coding else {
-                flowToAsync.send(completion: .failure(error ?? ErrorDomain.unknown))
+                flowToAsync.sendFailure(error ?? ErrorDomain.unknown)
                 return
             }
 
@@ -84,10 +84,10 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
                 }
 
                 // Not supported
-                flowToAsync.send(completion: .failure(ErrorDomain.UTINotSupported))
+                flowToAsync.sendFailure(ErrorDomain.UTINotSupported)
 
             } catch {
-                flowToAsync.send(completion: .failure(error))
+                flowToAsync.sendFailure(error)
                 return
             }
         }
@@ -100,7 +100,7 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
         let targetURL = temporaryURL.appendingPathComponent("\(UUID().uuidString).txt")
 
         try text.write(to: targetURL, atomically: true, encoding: .utf8)
-        flowToAsync.send(targetURL)
+        flowToAsync.sendSuccess(targetURL)
 
         return true
     }
@@ -111,7 +111,7 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
         }
 
         guard let uti = UTI(typeIdentifier) else {
-            flowToAsync.send(completion: .failure(ErrorDomain.UTINotFound))
+            flowToAsync.sendFailure(ErrorDomain.UTINotFound)
             return false
         }
 
@@ -120,7 +120,7 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
             .appendingPathExtension(for: uti)
 
         try data.write(to: targetURL)
-        flowToAsync.send(targetURL)
+        flowToAsync.sendSuccess(targetURL)
 
         return true
     }

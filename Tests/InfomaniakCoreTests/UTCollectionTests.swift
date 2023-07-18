@@ -42,3 +42,91 @@ final class UTCollectionTests: XCTestCase {
         XCTAssertNil(fetched)
     }
 }
+
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+final class UTSendableArray: XCTestCase {
+    func testInsertSubscript() async {
+        // GIVEN
+        let collection = SendableArray<String>()
+
+        // WHEN
+        let t = Task.detached {
+            collection[0] = "a"
+            collection[1] = "b"
+            collection[2] = "c"
+        }
+
+        _ = await t.result
+
+        // THEN
+        XCTAssertEqual(collection.count, 3)
+    }
+
+    func testInsert() async {
+        // GIVEN
+        let collection = SendableArray<String>()
+
+        // WHEN
+        let t = Task.detached {
+            collection.append("a")
+            collection.append("b")
+        }
+
+        _ = await t.result
+
+        // THEN
+        XCTAssertEqual(collection.count, 2)
+    }
+
+    func testUpdate() async {
+        // GIVEN
+        let collection = SendableArray<String>()
+
+        // WHEN
+        let t = Task.detached {
+            collection.append("a")
+            collection[0] = "b"
+            collection[1] = "c"
+        }
+
+        _ = await t.result
+
+        // THEN
+        XCTAssertEqual(collection.count, 2)
+    }
+}
+
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+final class UTSendableDictionary: XCTestCase {
+    func testInsertSubscript() async {
+        // GIVEN
+        let collection = SendableDictionary<String, Int>()
+
+        // WHEN
+        let t = Task.detached {
+            collection["a"] = 1
+            collection["b"] = 2
+        }
+
+        _ = await t.result
+
+        // THEN
+        XCTAssertEqual(collection.count, 2)
+    }
+
+    func testInsert() async {
+        // GIVEN
+        let collection = SendableDictionary<String, Int>()
+
+        // WHEN
+        let t = Task.detached {
+            collection.setValue(1, for: "a")
+            collection.setValue(2, for: "b")
+        }
+
+        _ = await t.result
+
+        // THEN
+        XCTAssertEqual(collection.count, 2)
+    }
+}

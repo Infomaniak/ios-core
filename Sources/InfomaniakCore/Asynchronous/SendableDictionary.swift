@@ -30,6 +30,15 @@ public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
         // META: keep SonarCloud happy
     }
 
+    public var count: Int {
+        var buffer: Int!
+        lock.sync {
+            buffer = content.count
+        }
+
+        return buffer
+    }
+    
     public var values: Dictionary<T, U>.Values {
         var buffer: Dictionary<T, U>.Values!
         lock.sync {

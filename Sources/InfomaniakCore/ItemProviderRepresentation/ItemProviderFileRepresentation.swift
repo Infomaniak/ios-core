@@ -18,13 +18,19 @@
 
 #if canImport(MobileCoreServices)
 
-import Combine
 import Foundation
 import InfomaniakDI
 
 /// Something that can provide a `Progress` and an async `Result` in order to load an url from a `NSItemProvider`
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class ItemProviderFileRepresentation: NSObject, ProgressResultable {
+    /// Something to transform events to a nice `async Result`
+    private let flowToAsync = FlowToAsyncResult<Success>()
+    
+    /// Shorthand for default FileManager
+    private let fileManager = FileManager.default
+    
+    /// Domain specific errors
     public enum ErrorDomain: Error, Equatable{
         case UTINotFound
         case UnableToLoadFile
@@ -32,17 +38,6 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
 
     public typealias Success = URL
     public typealias Failure = Error
-
-    /// Track task progress with internal Combine pipe
-    private let resultProcessed = PassthroughSubject<Success, Failure>()
-
-    /// Internal observation of the Combine progress Pipe
-    private var resultProcessedObserver: AnyCancellable?
-
-    /// Internal Task that wraps the combine result observation
-    private var computeResultTask: Task<Success, Failure>?
-
-    private let fileManager = FileManager.default
 
     public init(from itemProvider: NSItemProvider) throws {
         guard let typeIdentifier = itemProvider.registeredTypeIdentifiers.first else {
@@ -55,9 +50,9 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
         super.init()
 
         // Set progress and hook completion closure to a combine pipe
-        progress = itemProvider.loadFileRepresentation(forTypeIdentifier: typeIdentifier) { fileProviderURL, error in
+        progress = itemProvider.loadFileRepresentation(forTypeIdentifier: typeIdentifier) { [self] fileProviderURL, error in
             guard let fileProviderURL, error == nil else {
-                self.resultProcessed.send(completion: .failure(error ?? ErrorDomain.UnableToLoadFile))
+                flowToAsync.send(completion: .failure(error ?? ErrorDomain.UnableToLoadFile))
                 return
             }
 
@@ -66,49 +61,27 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
                 @InjectService var pathProvider: AppGroupPathProvidable
                 let temporaryURL = pathProvider.tmpDirectoryURL
                     .appendingPathComponent(UUID().uuidString, isDirectory: true)
-                try self.fileManager.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
+                try fileManager.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
 
                 let fileName = fileProviderURL.appendingPathExtension(for: UTI).lastPathComponent
                 let temporaryFileURL = temporaryURL.appendingPathComponent(fileName)
-                try self.fileManager.copyItem(atPath: fileProviderURL.path, toPath: temporaryFileURL.path)
-                self.resultProcessed.send(temporaryFileURL)
-                self.resultProcessed.send(completion: .finished)
+                try fileManager.copyItem(atPath: fileProviderURL.path, toPath: temporaryFileURL.path)
+                
+                flowToAsync.send(temporaryFileURL)
+                flowToAsync.send(completion: .finished)
             } catch {
-                self.resultProcessed.send(completion: .failure(error))
+                flowToAsync.send(completion: .failure(error))
             }
-        }
-
-        /// Wrap the Combine pipe to a native Swift Async Task for convenience
-        computeResultTask = Task {
-            let resultURL: URL = try await withCheckedThrowingContinuation { continuation in
-                self.resultProcessedObserver = resultProcessed.sink { result in
-                    switch result {
-                    case .finished:
-                        break
-                    case .failure(let error):
-                        continuation.resume(throwing: error)
-                    }
-                    self.resultProcessedObserver?.cancel()
-                } receiveValue: { value in
-                    continuation.resume(with: .success(value))
-                }
-            }
-
-            return resultURL
         }
     }
 
-    // MARK: Public
+    // MARK: ProgressResultable
 
     public var progress: Progress
 
     public var result: Result<URL, Error> {
         get async {
-            guard let computeResultTask else {
-                fatalError("This never should be nil")
-            }
-
-            return await computeResultTask.result
+            await self.flowToAsync.result
         }
     }
 }

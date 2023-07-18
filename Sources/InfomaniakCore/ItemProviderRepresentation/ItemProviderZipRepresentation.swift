@@ -25,6 +25,13 @@ import InfomaniakDI
 /// Something that can provide a `Progress` and an async `Result` in order to make a zip from a `NSItemProvider`
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
+    /// Something to transform events to a nice `async Result`
+    private let flowToAsync = FlowToAsyncResult<Success>()
+
+    /// Shorthand for default FileManager
+    private let fileManager = FileManager.default
+
+    /// Domain specific errors
     public enum ErrorDomain: Error, Equatable {
         case unableToLoadURLForObject
         case notADirectory
@@ -43,8 +50,6 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
 
     /// Internal Task that wraps the combine result observation
     private var computeResultTask: Task<Success, Failure>?
-
-    private let fileManager = FileManager.default
 
     public init(from itemProvider: NSItemProvider) throws {
         // It must be a directory for the OS to zip it for us, a file returns a file
@@ -77,57 +82,34 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
 
             // compress content of folder and move it somewhere we can safely store it for upload
             var error: NSError?
-            coordinator.coordinate(readingItemAt: path, options: [.forUploading], error: &error) { zipURL in
+            coordinator.coordinate(readingItemAt: path, options: [.forUploading], error: &error) { [self] zipURL in
                 do {
                     @InjectService var pathProvider: AppGroupPathProvidable
                     let tmpDirectoryURL = pathProvider.tmpDirectoryURL
                         .appendingPathComponent(UUID().uuidString, isDirectory: true)
-                    try self.fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
+                    try fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
 
                     let fileName = path.lastPathComponent
                     let targetURL = tmpDirectoryURL.appendingPathComponent("\(fileName).zip")
 
-                    try self.fileManager.moveItem(at: zipURL, to: targetURL)
-                    self.resultProcessed.send(targetURL)
-                    self.resultProcessed.send(completion: .finished)
+                    try fileManager.moveItem(at: zipURL, to: targetURL)
+                    flowToAsync.send(targetURL)
+                    flowToAsync.send(completion: .finished)
                 } catch {
-                    self.resultProcessed.send(completion: .failure(error))
+                    flowToAsync.send(completion: .failure(error))
                 }
                 childProgress.completedUnitCount += Self.progressStep
             }
         }
-
-        /// Wrap the Combine pipe to a native Swift Async Task for convenience
-        computeResultTask = Task {
-            let resultURL: URL = try await withCheckedThrowingContinuation { continuation in
-                self.resultProcessedObserver = resultProcessed.sink { result in
-                    switch result {
-                    case .finished:
-                        break
-                    case .failure(let error):
-                        continuation.resume(throwing: error)
-                    }
-                    self.resultProcessedObserver?.cancel()
-                } receiveValue: { value in
-                    continuation.resume(with: .success(value))
-                }
-            }
-
-            return resultURL
-        }
     }
 
-    // MARK: Public
+    // MARK: ProgressResultable
 
     public var progress: Progress
 
     public var result: Result<URL, Error> {
         get async {
-            guard let computeResultTask else {
-                fatalError("This never should be nil")
-            }
-
-            return await computeResultTask.result
+            return await flowToAsync.result
         }
     }
 }

@@ -18,13 +18,19 @@
 
 #if canImport(MobileCoreServices)
 
-import Combine
 import Foundation
 import InfomaniakDI
 
 /// Something that can provide a `Progress` and an async `Result` in order to make a raw text file from a `NSItemProvider`
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class ItemProviderTextRepresentation: NSObject, ProgressResultable {
+    /// Something to transform events to a nice `async Result`
+    private let flowToAsync = FlowToAsyncResult<Success>()
+
+    /// Shorthand for default FileManager
+    private let fileManager = FileManager.default
+
+    /// Domain specific errors
     public enum ErrorDomain: Error, Equatable {
         case UTINotFound
         case UTINotSupported
@@ -35,17 +41,6 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
     public typealias Failure = Error
 
     private static let progressStep: Int64 = 1
-
-    /// Track task progress with internal Combine pipe
-    private let resultProcessed = PassthroughSubject<Success, Failure>()
-
-    /// Internal observation of the Combine progress Pipe
-    private var resultProcessedObserver: AnyCancellable?
-
-    /// Internal Task that wraps the combine result observation
-    private var computeResultTask: Task<Success, Failure>?
-
-    private let fileManager = FileManager.default
 
     public init(from itemProvider: NSItemProvider) throws {
         guard let typeIdentifier = itemProvider.registeredTypeIdentifiers.first else {
@@ -60,14 +55,14 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
         let childProgress = Progress()
         progress.addChild(childProgress, withPendingUnitCount: Self.progressStep)
 
-        itemProvider.loadItem(forTypeIdentifier: typeIdentifier) { coding, error in
+        itemProvider.loadItem(forTypeIdentifier: typeIdentifier) { [self] coding, error in
             defer {
                 childProgress.completedUnitCount += Self.progressStep
             }
 
             guard error == nil,
                   let coding else {
-                self.resultProcessed.send(completion: .failure(error ?? ErrorDomain.unknown))
+                flowToAsync.send(completion: .failure(error ?? ErrorDomain.unknown))
                 return
             }
 
@@ -76,44 +71,25 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
                 @InjectService var pathProvider: AppGroupPathProvidable
                 let temporaryURL = pathProvider.tmpDirectoryURL
                     .appendingPathComponent(UUID().uuidString, isDirectory: true)
-                try self.fileManager.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
+                try fileManager.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
 
                 // Is String
-                guard try !self.stringHandling(coding, temporaryURL: temporaryURL) else {
+                guard try !stringHandling(coding, temporaryURL: temporaryURL) else {
                     return
                 }
 
                 // Is Data
-                guard try !self.dataHandling(coding, typeIdentifier: typeIdentifier, temporaryURL: temporaryURL) else {
+                guard try !dataHandling(coding, typeIdentifier: typeIdentifier, temporaryURL: temporaryURL) else {
                     return
                 }
 
                 // Not supported
-                self.resultProcessed.send(completion: .failure(ErrorDomain.UTINotSupported))
+                flowToAsync.send(completion: .failure(ErrorDomain.UTINotSupported))
 
             } catch {
-                self.resultProcessed.send(completion: .failure(error))
+                flowToAsync.send(completion: .failure(error))
                 return
             }
-        }
-
-        /// Wrap the Combine pipe to a native Swift Async Task for convenience
-        computeResultTask = Task {
-            let resultURL: URL = try await withCheckedThrowingContinuation { continuation in
-                self.resultProcessedObserver = resultProcessed.sink { result in
-                    switch result {
-                    case .finished:
-                        break
-                    case .failure(let error):
-                        continuation.resume(throwing: error)
-                    }
-                    self.resultProcessedObserver?.cancel()
-                } receiveValue: { value in
-                    continuation.resume(with: .success(value))
-                }
-            }
-
-            return resultURL
         }
     }
 
@@ -124,8 +100,8 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
         let targetURL = temporaryURL.appendingPathComponent("\(UUID().uuidString).txt")
 
         try text.write(to: targetURL, atomically: true, encoding: .utf8)
-        resultProcessed.send(targetURL)
-        resultProcessed.send(completion: .finished)
+        flowToAsync.send(targetURL)
+        flowToAsync.send(completion: .finished)
 
         return true
     }
@@ -136,7 +112,7 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
         }
 
         guard let uti = UTI(typeIdentifier) else {
-            resultProcessed.send(completion: .failure(ErrorDomain.UTINotFound))
+            flowToAsync.send(completion: .failure(ErrorDomain.UTINotFound))
             return false
         }
 
@@ -145,23 +121,19 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
             .appendingPathExtension(for: uti)
 
         try data.write(to: targetURL)
-        resultProcessed.send(targetURL)
-        resultProcessed.send(completion: .finished)
+        flowToAsync.send(targetURL)
+        flowToAsync.send(completion: .finished)
 
         return true
     }
 
-    // MARK: Public
+    // MARK: ProgressResultable
 
     public var progress: Progress
 
     public var result: Result<URL, Error> {
         get async {
-            guard let computeResultTask else {
-                fatalError("This never should be nil")
-            }
-
-            return await computeResultTask.result
+            return await flowToAsync.result
         }
     }
 }

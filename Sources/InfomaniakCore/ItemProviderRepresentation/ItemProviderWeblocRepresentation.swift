@@ -18,13 +18,19 @@
 
 #if canImport(MobileCoreServices)
 
-import Combine
 import Foundation
 import InfomaniakDI
 
 /// Something that can provide a `Progress` and an async `Result` in order to make a webloc plist from a `NSItemProvider`
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultable {
+    /// Something to transform events to a nice `async Result`
+    private let flowToAsync = FlowToAsyncResult<Success>()
+
+    /// Shorthand for default FileManager
+    private let fileManager = FileManager.default
+
+    /// Domain specific errors
     public enum ErrorDomain: Error, Equatable {
         case unableToLoadURLForObject
     }
@@ -32,27 +38,16 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
     public typealias Success = URL
     public typealias Failure = Error
 
-    /// Track task progress with internal Combine pipe
-    private let resultProcessed = PassthroughSubject<Success, Failure>()
-
-    /// Internal observation of the Combine progress Pipe
-    private var resultProcessedObserver: AnyCancellable?
-
-    /// Internal Task that wraps the combine result observation
-    private var computeResultTask: Task<Success, Failure>?
-
-    private let fileManager = FileManager.default
-
     public init(from itemProvider: NSItemProvider) throws {
         // Keep compiler happy
         progress = Progress(totalUnitCount: 1)
 
         super.init()
 
-        progress = itemProvider.loadObject(ofClass: URL.self) { path, error in
+        progress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
             guard error == nil, let path: URL = path else {
                 let error: Error = error ?? ErrorDomain.unableToLoadURLForObject
-                self.resultProcessed.send(completion: .failure(error))
+                flowToAsync.send(completion: .failure(error))
                 return
             }
 
@@ -63,7 +58,7 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
                 @InjectService var pathProvider: AppGroupPathProvidable
                 let tmpDirectoryURL = pathProvider.tmpDirectoryURL
                     .appendingPathComponent(UUID().uuidString, isDirectory: true)
-                try self.fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
+                try fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
 
                 let fileName = path.lastPathComponent
                 let targetURL = tmpDirectoryURL.appendingPathComponent("\(fileName).webloc")
@@ -71,44 +66,21 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
                 let data = try encoder.encode(content)
                 try data.write(to: targetURL)
 
-                self.resultProcessed.send(targetURL)
-                self.resultProcessed.send(completion: .finished)
+                flowToAsync.send(targetURL)
+                flowToAsync.send(completion: .finished)
             } catch {
-                self.resultProcessed.send(completion: .failure(error))
+                flowToAsync.send(completion: .failure(error))
             }
-        }
-
-        /// Wrap the Combine pipe to a native Swift Async Task for convenience
-        computeResultTask = Task {
-            let resultURL: URL = try await withCheckedThrowingContinuation { continuation in
-                self.resultProcessedObserver = resultProcessed.sink { result in
-                    switch result {
-                    case .finished:
-                        break
-                    case .failure(let error):
-                        continuation.resume(throwing: error)
-                    }
-                    self.resultProcessedObserver?.cancel()
-                } receiveValue: { value in
-                    continuation.resume(with: .success(value))
-                }
-            }
-
-            return resultURL
         }
     }
 
-    // MARK: Public
+    // MARK: ProgressResultable
 
     public var progress: Progress
 
     public var result: Result<URL, Error> {
         get async {
-            guard let computeResultTask else {
-                fatalError("This never should be nil")
-            }
-
-            return await computeResultTask.result
+            return await flowToAsync.result
         }
     }
 }

@@ -68,7 +68,6 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
                 try fileManager.copyItem(atPath: fileProviderURL.path, toPath: temporaryFileURL.path)
                 
                 flowToAsync.send(temporaryFileURL)
-                flowToAsync.send(completion: .finished)
             } catch {
                 flowToAsync.send(completion: .failure(error))
             }

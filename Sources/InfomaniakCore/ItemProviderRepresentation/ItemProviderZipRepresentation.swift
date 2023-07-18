@@ -94,7 +94,6 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
 
                     try fileManager.moveItem(at: zipURL, to: targetURL)
                     flowToAsync.send(targetURL)
-                    flowToAsync.send(completion: .finished)
                 } catch {
                     flowToAsync.send(completion: .failure(error))
                 }

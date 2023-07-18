@@ -101,7 +101,6 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
 
         try text.write(to: targetURL, atomically: true, encoding: .utf8)
         flowToAsync.send(targetURL)
-        flowToAsync.send(completion: .finished)
 
         return true
     }
@@ -122,7 +121,6 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
 
         try data.write(to: targetURL)
         flowToAsync.send(targetURL)
-        flowToAsync.send(completion: .finished)
 
         return true
     }

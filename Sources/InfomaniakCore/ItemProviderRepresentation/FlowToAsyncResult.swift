@@ -22,43 +22,27 @@ import Foundation
 /// Encapsulate a simple asynchronous event into a Combine flow in order to provide a nice swift `async Result<>`.
 ///
 /// Useful when dealing with old xOS APIs that do not work well with swift native structured concurrency.
+///
+/// You _must_ await the result before sending events by convention.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class FlowToAsyncResult<Success> {
-    // MARK: Private
-
-    /// Internal observation of the Combine progress Pipe
-    private var flowObserver: AnyCancellable?
-
-    /// Internal Task that wraps the combine result observation
-    private lazy var resultTask: Task<Success, Error> = Task {
-        let result: Success = try await withCheckedThrowingContinuation { continuation in
-            self.flowObserver = flow.sink { result in
-                switch result {
-                case .finished:
-                    break
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-                self.flowObserver?.cancel()
-            } receiveValue: { value in
-                continuation.resume(with: .success(value))
-            }
-        }
-
-        return result
-    }
+final class FlowToAsyncResult<Success> {
+    /// Track progress with an internal Combine PassthroughSubject
+    private let flow = PassthroughSubject<Success, Error>()
 
     // MARK: Public
 
-    /// Track task progress with internal Combine pipe.
+    /// Provides a nice `async Result` public API.
     ///
-    /// Public entry point, send result threw this pipe.
-    public let flow = PassthroughSubject<Success, Error>()
-
-    /// Provides a nice `async Result` public API
+    /// You are expected to `await result` before sending events by convention.
     public var result: Result<Success, Error> {
         get async {
-            return await resultTask.result
+            do {
+                let result = try await flow.eraseToAnyPublisher().async()
+                return .success(result)
+            }
+            catch {
+                return .failure(error)
+            }
         }
     }
 
@@ -69,13 +53,17 @@ public final class FlowToAsyncResult<Success> {
     }
 }
 
-/// Shorthand to access underlying flow
+/// Event handling
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension FlowToAsyncResult {
+extension FlowToAsyncResult {
+    
+    /// Send an event. You must await the result first by convention.
     func send(_ input: Success) {
         flow.send(input)
+        flow.send(completion: .finished)
     }
 
+    /// Send a completion. You must await the result first by convention.
     func send(completion: Subscribers.Completion<Error>) {
         flow.send(completion: completion)
     }

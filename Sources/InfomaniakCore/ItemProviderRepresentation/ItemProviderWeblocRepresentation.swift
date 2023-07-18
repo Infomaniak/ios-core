@@ -67,7 +67,6 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
                 try data.write(to: targetURL)
 
                 flowToAsync.send(targetURL)
-                flowToAsync.send(completion: .finished)
             } catch {
                 flowToAsync.send(completion: .failure(error))
             }

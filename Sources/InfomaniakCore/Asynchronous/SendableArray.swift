@@ -20,7 +20,7 @@ import Foundation
 
 /// A thread safe Array wrapper that does not require `await`. Conforms to Sendable.
 ///
-/// Useful when dealing with UI.
+/// Please prefer using first party structured concurrency. Use this for prototyping or dealing with race conditions.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class SendableArray<T>: @unchecked Sendable {
     /// Serial locking queue
@@ -34,21 +34,15 @@ public final class SendableArray<T>: @unchecked Sendable {
     }
 
     public var count: Int {
-        var buffer: Int!
         lock.sync {
-            buffer = content.count
+            return content.count
         }
-
-        return buffer
     }
 
     public var values: [T] {
-        var buffer: [T]!
         lock.sync {
-            buffer = content
+            return Array(content)
         }
-
-        return buffer
     }
 
     public func append(_ newElement: T) {
@@ -64,12 +58,9 @@ public final class SendableArray<T>: @unchecked Sendable {
     }
 
     public func popLast() -> T? {
-        var buffer: T?
         lock.sync {
-            buffer = content.popLast()
+            return content.popLast()
         }
-
-        return buffer
     }
 
     public func insert(_ item: T, at index: Int) {
@@ -79,21 +70,17 @@ public final class SendableArray<T>: @unchecked Sendable {
     }
 
     public var isEmpty: Bool {
-        var isEmpty: Bool!
         lock.sync {
-            isEmpty = content.isEmpty
+            return content.isEmpty
         }
-        return isEmpty
     }
 
     /// Bracket get / set pattern
     public subscript(_ index: Int) -> T? {
         get {
-            var buffer: T?
             lock.sync {
-                buffer = content[index]
+                return content[index]
             }
-            return buffer
         }
         set {
             guard let newValue else {

@@ -31,7 +31,7 @@ public extension AnyPublisher {
     var result: Result<Output, Error> {
         get async {
             do {
-                let result = try await async()
+                let result = try await asyncCall()
                 return .success(result)
             } catch {
                 return .failure(error)
@@ -41,7 +41,7 @@ public extension AnyPublisher {
 
     /// Bridge `AnyPublisher` to async await
     /// - Returns: the first() Output of this AnyPublisher
-    func async() async throws -> Output {
+    func asyncCall() async throws -> Output {
         try await withCheckedThrowingContinuation { continuation in
             var cancellable: AnyCancellable?
 

@@ -20,7 +20,7 @@ import Foundation
 
 /// A thread safe Dictionary wrapper that does not require `await`. Conforms to Sendable.
 ///
-/// Useful when dealing with UI.
+/// Please prefer using first party structured concurrency. Use this for prototyping or dealing with race conditions.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
     let lock = DispatchQueue(label: "com.infomaniak.core.SendableDictionary.lock")
@@ -38,21 +38,17 @@ public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
 
         return buffer
     }
-    
+
     public var values: Dictionary<T, U>.Values {
-        var buffer: Dictionary<T, U>.Values!
         lock.sync {
-            buffer = content.values
+            return content.values
         }
-        return buffer
     }
 
     public func value(for key: T) -> U? {
-        var buffer: U?
         lock.sync {
-            buffer = content[key]
+            return content[key]
         }
-        return buffer
     }
 
     public func setValue(_ value: U?, for key: T) {
@@ -63,11 +59,9 @@ public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
 
     @discardableResult
     public func removeValue(forKey key: T) -> U? {
-        var buffer: U?
         lock.sync {
-            buffer = content.removeValue(forKey: key)
+            return content.removeValue(forKey: key)
         }
-        return buffer
     }
 
     /// Bracket get / set pattern

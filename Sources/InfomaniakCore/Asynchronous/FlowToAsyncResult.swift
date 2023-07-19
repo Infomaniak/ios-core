@@ -52,11 +52,9 @@ public final class FlowToAsyncResult<Success> {
     /// Thread safe
     private var state: State {
         get {
-            var buffer: State!
             lock.sync {
-                buffer = _state
+                return _state
             }
-            return buffer
         }
         set {
             lock.sync {

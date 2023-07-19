@@ -31,8 +31,7 @@ public extension AnyPublisher {
     var result: Result<Output, Error> {
         get async {
             do {
-                let result = try await asyncCall()
-                return .success(result)
+                return .success(try await asyncCall())
             } catch {
                 return .failure(error)
             }

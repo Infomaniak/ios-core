@@ -118,7 +118,7 @@ public final class FlowToAsyncResult<Success> {
 
 /// Event handling
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-extension FlowToAsyncResult {
+public extension FlowToAsyncResult {
     /// Send a successful event.
     func sendSuccess(_ input: Success) {
         guard case .wait = state else {

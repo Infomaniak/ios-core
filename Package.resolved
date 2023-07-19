@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire",
       "state" : {
-        "revision" : "78424be314842833c04bc3bef5b72e85fff99204",
-        "version" : "5.6.4"
+        "revision" : "bc268c28fb170f494de9e9927c371b8342979ece",
+        "version" : "5.7.1"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-core.git",
       "state" : {
-        "revision" : "dd91f5f967c4ae89c37e24ab2a0315c31106648f",
-        "version" : "13.6.0"
+        "revision" : "f1434caadda443b4ed2261b91ea4f43ab1ee2aa5",
+        "version" : "13.15.1"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-swift",
       "state" : {
-        "revision" : "8ac6fe1aa5d0fb0100062d80863416a4d70de8ca",
-        "version" : "10.37.0"
+        "revision" : "b287dc102036ff425bd8a88483f0a5596871f05e",
+        "version" : "10.41.0"
       }
     },
     {
@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/getsentry/sentry-cocoa",
       "state" : {
-        "revision" : "2e7899aff930ed3b8d81be1909492f7684bbd481",
-        "version" : "8.3.1"
+        "revision" : "e46936ed191c0112cd3276e1c10c0bb7f865268e",
+        "version" : "8.9.1"
       }
     },
     {
@@ -70,6 +70,15 @@
       "state" : {
         "revision" : "32e8d724467f8fe623624570367e3d50c5638e46",
         "version" : "1.5.2"
+      }
+    },
+    {
+      "identity" : "zipfoundation",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/weichsel/ZIPFoundation.git",
+      "state" : {
+        "revision" : "43ec568034b3731101dbf7670765d671c30f54f3",
+        "version" : "0.9.16"
       }
     }
   ],

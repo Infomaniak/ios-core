@@ -41,7 +41,7 @@ public protocol AppGroupPathProvidable: AnyObject {
     /// The cache directory within the app group, exists in FS
     var cacheDirectoryURL: URL { get }
 
-    /// The temporary directory within the app group, exists in FS
+    /// A temporary directory, exists in FS, implementation should use something akin to `NSTemporaryDirectory`
     var tmpDirectoryURL: URL { get }
 
     /// Open In Place directory if available
@@ -88,7 +88,8 @@ public final class AppGroupPathProvider: AppGroupPathProvidable {
     }()
 
     public lazy var tmpDirectoryURL: URL = {
-        let tmpURL = groupDirectoryURL.appendingPathComponent("tmp", isDirectory: true)
+        let tmpURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try? fileManager.createDirectory(
             atPath: tmpURL.path,
             withIntermediateDirectories: true,

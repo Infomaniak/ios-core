@@ -42,15 +42,6 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
 
     private static let progressStep: Int64 = 1
 
-    /// Track task progress with internal Combine pipe
-    private let resultProcessed = PassthroughSubject<Success, Failure>()
-
-    /// Internal observation of the Combine progress Pipe
-    private var resultProcessedObserver: AnyCancellable?
-
-    /// Internal Task that wraps the combine result observation
-    private var computeResultTask: Task<Success, Failure>?
-
     public init(from itemProvider: NSItemProvider) throws {
         // It must be a directory for the OS to zip it for us, a file returns a file
         guard itemProvider.underlyingType == .isDirectory else {
@@ -64,10 +55,9 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
 
         let coordinator = NSFileCoordinator()
 
-        progress = itemProvider.loadObject(ofClass: URL.self) { path, error in
+        progress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
             guard error == nil, let path: URL = path else {
-                let error: Error = error ?? ErrorDomain.unableToLoadURLForObject
-                self.resultProcessed.send(completion: .failure(error))
+                flowToAsync.sendFailure(error ?? ErrorDomain.unableToLoadURLForObject)
                 return
             }
 
@@ -78,24 +68,24 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
 
             // Minimalist progress file processing support
             let childProgress = Progress()
-            self.progress.addChild(childProgress, withPendingUnitCount: Self.progressStep)
+            progress.addChild(childProgress, withPendingUnitCount: Self.progressStep)
 
             // compress content of folder and move it somewhere we can safely store it for upload
             var error: NSError?
-            coordinator.coordinate(readingItemAt: path, options: [.forUploading], error: &error) { [self] zipURL in
+            coordinator.coordinate(readingItemAt: path, options: [.forUploading], error: &error) { zipURL in
                 do {
                     @InjectService var pathProvider: AppGroupPathProvidable
                     let tmpDirectoryURL = pathProvider.tmpDirectoryURL
                         .appendingPathComponent(UUID().uuidString, isDirectory: true)
-                    try fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
+                    try self.fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
 
                     let fileName = path.lastPathComponent
                     let targetURL = tmpDirectoryURL.appendingPathComponent("\(fileName).zip")
 
-                    try fileManager.moveItem(at: zipURL, to: targetURL)
-                    flowToAsync.sendSuccess(targetURL)
+                    try self.fileManager.moveItem(at: zipURL, to: targetURL)
+                    self.flowToAsync.sendSuccess(targetURL)
                 } catch {
-                    flowToAsync.sendFailure(error)
+                    self.flowToAsync.sendFailure(error)
                 }
                 childProgress.completedUnitCount += Self.progressStep
             }

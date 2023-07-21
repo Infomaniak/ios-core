@@ -77,6 +77,10 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
             // compress content of folder and move it somewhere we can safely store it for upload
             var error: NSError?
             coordinator.coordinate(readingItemAt: path, options: [.forUploading], error: &error) { zipURL in
+                defer {
+                    completionProgress.completedUnitCount += Self.progressStep
+                }
+                
                 do {
                     @InjectService var pathProvider: AppGroupPathProvidable
                     let tmpDirectoryURL = pathProvider.tmpDirectoryURL
@@ -88,10 +92,8 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
 
                     try self.fileManager.moveItem(at: zipURL, to: targetURL)
                     
-                    completionProgress.completedUnitCount += Self.progressStep
                     self.flowToAsync.sendSuccess(targetURL)
                 } catch {
-                    completionProgress.completedUnitCount += Self.progressStep
                     self.flowToAsync.sendFailure(error)
                 }
             }

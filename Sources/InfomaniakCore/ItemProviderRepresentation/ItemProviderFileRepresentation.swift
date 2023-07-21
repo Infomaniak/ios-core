@@ -24,6 +24,12 @@ import InfomaniakDI
 /// Something that can provide a `Progress` and an async `Result` in order to load an url from a `NSItemProvider`
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class ItemProviderFileRepresentation: NSObject, ProgressResultable {
+    /// Progress increment size
+    private static let progressStep: Int64 = 1
+    
+    /// Number of steps to complete the task
+    private static let totalSteps: Int64 = 2
+    
     /// Something to transform events to a nice `async Result`
     private let flowToAsync = FlowToAsyncResult<Success>()
 
@@ -49,8 +55,7 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
             throw ErrorDomain.UTINotFound
         }
 
-        // Keep compiler happy
-        progress = Progress(totalUnitCount: 1)
+        progress = Progress(totalUnitCount: Self.totalSteps)
 
         super.init()
 
@@ -61,8 +66,13 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
             preferredImageFileFormat: preferredImageFileFormat
         )
 
-        // Set progress and hook completion closure to a combine pipe
-        progress = itemProvider.loadFileRepresentation(forTypeIdentifier: fileIdentifierToUse) { [self] fileProviderURL, error in
+        // Set progress and hook completion closure
+        let completionProgress = Progress(totalUnitCount: Self.progressStep)
+        let loadURLProgress = itemProvider.loadFileRepresentation(forTypeIdentifier: fileIdentifierToUse) { [self] fileProviderURL, error in
+            defer {
+                completionProgress.completedUnitCount += Self.progressStep
+            }
+            
             guard let fileProviderURL, error == nil else {
                 flowToAsync.sendFailure(error ?? ErrorDomain.UnableToLoadFile)
                 return
@@ -84,6 +94,8 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
                 flowToAsync.sendFailure(error)
             }
         }
+        progress.addChild(loadURLProgress, withPendingUnitCount: Self.progressStep)
+        progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
     }
 
     // MARK: ProgressResultable

@@ -24,6 +24,9 @@ import InfomaniakDI
 /// Something that can provide a `Progress` and an async `Result` in order to make a raw text file from a `NSItemProvider`
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class ItemProviderTextRepresentation: NSObject, ProgressResultable {
+    /// Progress increment size
+    private static let progressStep: Int64 = 1
+
     /// Something to transform events to a nice `async Result`
     private let flowToAsync = FlowToAsyncResult<Success>()
 
@@ -40,24 +43,21 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
     public typealias Success = URL
     public typealias Failure = Error
 
-    private static let progressStep: Int64 = 1
-
     public init(from itemProvider: NSItemProvider) throws {
         guard let typeIdentifier = itemProvider.registeredTypeIdentifiers.first else {
             throw ErrorDomain.UTINotFound
         }
 
-        // Keep compiler happy
-        progress = Progress(totalUnitCount: 1)
+        progress = Progress(totalUnitCount: Self.progressStep)
 
         super.init()
 
-        let childProgress = Progress()
-        progress.addChild(childProgress, withPendingUnitCount: Self.progressStep)
+        let completionProgress = Progress()
+        progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
 
         itemProvider.loadItem(forTypeIdentifier: typeIdentifier) { [self] coding, error in
             defer {
-                childProgress.completedUnitCount += Self.progressStep
+                completionProgress.completedUnitCount += Self.progressStep
             }
 
             guard error == nil,

@@ -51,12 +51,16 @@ final class UTItemProviderWeblocRepresentation: XCTestCase {
         let someURL = URL(string: "file://some/path/image.jpg")!
         let item = NSItemProvider(contentsOf: someURL)!
 
-        // WHEN
         do {
             let provider = try ItemProviderWeblocRepresentation(from: item)
-
-            // THEN
+            let progress = provider.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
+            // WHEN
             let success = try await provider.result.get()
+            
+            // THEN
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertEqual(success.lastPathComponent, "image.jpg.webloc")
 
         } catch {

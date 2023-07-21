@@ -25,6 +25,15 @@ import InfomaniakDI
 /// Something that can provide a `Progress` and an async `Result` in order to make a zip from a `NSItemProvider`
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
+    /// Coordinator for file operations
+    let coordinator = NSFileCoordinator()
+
+    /// Progress increment size
+    private static let progressStep: Int64 = 1
+
+    /// Number of steps to complete the task
+    private static let totalSteps: Int64 = 2
+
     /// Something to transform events to a nice `async Result`
     private let flowToAsync = FlowToAsyncResult<Success>()
 
@@ -40,24 +49,21 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
     public typealias Success = URL
     public typealias Failure = Error
 
-    private static let progressStep: Int64 = 1
-
     public init(from itemProvider: NSItemProvider) throws {
         // It must be a directory for the OS to zip it for us, a file returns a file
         guard itemProvider.underlyingType == .isDirectory else {
             throw ErrorDomain.notADirectory
         }
 
-        // Keep compiler happy
-        progress = Progress(totalUnitCount: 1)
+        progress = Progress(totalUnitCount: Self.totalSteps)
 
         super.init()
 
-        let coordinator = NSFileCoordinator()
-
-        progress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
+        let completionProgress = Progress(totalUnitCount: Self.progressStep)
+        let loadURLProgress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
             guard error == nil, let path: URL = path else {
                 flowToAsync.sendFailure(error ?? ErrorDomain.unableToLoadURLForObject)
+                completionProgress.completedUnitCount += Self.progressStep
                 return
             }
 
@@ -66,13 +72,13 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
             // > If you’d like to see such support [ie. for NSProgress] added in the future, I encourage you to file an
             // enhancement request
 
-            // Minimalist progress file processing support
-            let childProgress = Progress()
-            progress.addChild(childProgress, withPendingUnitCount: Self.progressStep)
-
             // compress content of folder and move it somewhere we can safely store it for upload
             var error: NSError?
             coordinator.coordinate(readingItemAt: path, options: [.forUploading], error: &error) { zipURL in
+                defer {
+                    completionProgress.completedUnitCount += Self.progressStep
+                }
+
                 do {
                     @InjectService var pathProvider: AppGroupPathProvidable
                     let tmpDirectoryURL = pathProvider.tmpDirectoryURL
@@ -87,9 +93,10 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
                 } catch {
                     self.flowToAsync.sendFailure(error)
                 }
-                childProgress.completedUnitCount += Self.progressStep
             }
         }
+        progress.addChild(loadURLProgress, withPendingUnitCount: Self.progressStep)
+        progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
     }
 
     // MARK: ProgressResultable

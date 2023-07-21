@@ -43,12 +43,12 @@ final class UTItemProviderFileRepresentation: XCTestCase {
     func cleanFile(_ url: URL) {
         try? fileManager.removeItem(at: url)
     }
-    
+
     /// Image from wikimedia under CC.
     static let imageFile = "Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons"
 
     // MARK: - Text file
-    
+
     func testFile() async {
         // GIVEN
         let someText: NSString = "Some Text" // for NSCoding
@@ -69,11 +69,15 @@ final class UTItemProviderFileRepresentation: XCTestCase {
                 return
             }
 
-            // WHEN
             let fileRepresentation = try ItemProviderFileRepresentation(from: fileItem)
+            let progress = fileRepresentation.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
+            // WHEN
+            let success = try await fileRepresentation.result.get()
 
             // THEN
-            let success = try await fileRepresentation.result.get()
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertEqual(success.pathExtension.lowercased(), "txt")
 
             let stringResult = try String(contentsOf: success, encoding: .utf8) as NSString // for NSCoding
@@ -83,29 +87,33 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             XCTFail("Unexpected \(error)")
         }
     }
-    
+
     // MARK: - Image file
-    
+
     // MARK: Retrieve Image without conversion
-    
+
     func testJPGImageNoChange() async {
         // GIVEN
         guard let imgUrlJpg = Bundle.module.url(forResource: Self.imageFile, withExtension: "jpg") else {
             XCTFail("unexpected")
             return
         }
-        
+
         guard let jpgImageItem = NSItemProvider(contentsOf: imgUrlJpg) else {
             XCTFail("unexpected")
             return
         }
 
         do {
-            // WHEN
             let fileRepresentation = try ItemProviderFileRepresentation(from: jpgImageItem)
+            let progress = fileRepresentation.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
+            // WHEN
+            let success = try await fileRepresentation.result.get()
 
             // THEN
-            let success = try await fileRepresentation.result.get()
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertEqual(success.pathExtension.lowercased(), "jpeg")
 
             let imageData = try Data(contentsOf: success)
@@ -114,25 +122,29 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             XCTFail("Unexpected \(error)")
         }
     }
-    
+
     func testHEICImageNoChange() async {
         // GIVEN
         guard let imgUrlHeic = Bundle.module.url(forResource: Self.imageFile, withExtension: "heic") else {
             XCTFail("unexpected")
             return
         }
-        
+
         guard let heicImageItem = NSItemProvider(contentsOf: imgUrlHeic) else {
             XCTFail("unexpected")
             return
         }
 
         do {
-            // WHEN
             let fileRepresentation = try ItemProviderFileRepresentation(from: heicImageItem)
+            let progress = fileRepresentation.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
+            // WHEN
+            let success = try await fileRepresentation.result.get()
 
             // THEN
-            let success = try await fileRepresentation.result.get()
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertEqual(success.pathExtension.lowercased(), "heic")
 
             let imageData = try Data(contentsOf: success)
@@ -141,9 +153,9 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             XCTFail("Unexpected \(error)")
         }
     }
-    
+
     // MARK: Retrieve Image _with_ conversion
-    
+
     func testHEICtoJPEG_success() async {
         // GIVEN
         guard let imgUrlHeic = Bundle.module.url(forResource: Self.imageFile, withExtension: "heic"),
@@ -151,7 +163,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             XCTFail("unexpected")
             return
         }
-        
+
         // Prepare an NSItemProvider with both JPG and HEIC counterparts
         let imageDataHeic = NSData(contentsOf: imgUrlHeic)
         let heicImageItem = NSItemProvider(item: imageDataHeic, typeIdentifier: UTI.heic.identifier)
@@ -159,19 +171,23 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             let imageDataJpg = NSData(contentsOf: imgUrlJpg)
             completionHandler?(imageDataJpg, nil)
         }
-        
+
         do {
-            // WHEN
             let fileRepresentation = try ItemProviderFileRepresentation(from: heicImageItem, preferredImageFileFormat: UTI.jpeg)
+            let progress = fileRepresentation.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
+            // WHEN
+            let success = try await fileRepresentation.result.get()
 
             // THEN
-            let success = try await fileRepresentation.result.get()
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertEqual(success.pathExtension.lowercased(), "jpeg")
         } catch {
             XCTFail("Unexpected \(error)")
         }
     }
-    
+
     func testJPEGtoHEIC_success() async {
         // GIVEN
         guard let imgUrlHeic = Bundle.module.url(forResource: Self.imageFile, withExtension: "heic"),
@@ -179,7 +195,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             XCTFail("unexpected")
             return
         }
-        
+
         // Prepare an NSItemProvider with both JPG and HEIC counterparts
         let imageDataJpg = NSData(contentsOf: imgUrlJpg)
         let heicImageItem = NSItemProvider(item: imageDataJpg, typeIdentifier: UTI.jpeg.identifier)
@@ -187,19 +203,23 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             let imageDataHeic = NSData(contentsOf: imgUrlHeic)
             completionHandler?(imageDataHeic, nil)
         }
-        
+
         do {
-            // WHEN
             let fileRepresentation = try ItemProviderFileRepresentation(from: heicImageItem, preferredImageFileFormat: UTI.jpeg)
+            let progress = fileRepresentation.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
+            // WHEN
+            let success = try await fileRepresentation.result.get()
 
             // THEN
-            let success = try await fileRepresentation.result.get()
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertEqual(success.pathExtension.lowercased(), "jpeg")
         } catch {
             XCTFail("Unexpected \(error)")
         }
     }
-    
+
     // MARK: Retrieve Image _with_ conversion failure and _fallback_
 
     func testHEICtoJPG_fallbackToHEIC() async {
@@ -208,54 +228,68 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             XCTFail("unexpected")
             return
         }
-        
+
         guard let heicImageItem = NSItemProvider(contentsOf: imgUrlHeic) else {
             XCTFail("unexpected")
             return
         }
 
         do {
+            let heicFileRepresentation = try ItemProviderFileRepresentation(
+                from: heicImageItem,
+                preferredImageFileFormat: UTI.jpeg
+            )
+            let progress = heicFileRepresentation.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
             // WHEN
-            let heicFileRepresentation = try ItemProviderFileRepresentation(from: heicImageItem, preferredImageFileFormat: UTI.jpeg)
+            let success = try await heicFileRepresentation.result.get()
 
             // THEN
-            let success = try await heicFileRepresentation.result.get()
-            
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
+
             // We expect a HEIC fallback when no JPG is available
             XCTAssertEqual(success.pathExtension.lowercased(), "heic")
         } catch {
             XCTFail("Unexpected \(error)")
         }
     }
-    
+
     func testJPGtoHEIC_fallbackToJPEG() async {
         // GIVEN
         guard let imgUrlJpg = Bundle.module.url(forResource: Self.imageFile, withExtension: "jpg") else {
             XCTFail("unexpected")
             return
         }
-        
+
         guard let jpgImageItem = NSItemProvider(contentsOf: imgUrlJpg) else {
             XCTFail("unexpected")
             return
         }
 
         do {
+            let heicFileRepresentation = try ItemProviderFileRepresentation(
+                from: jpgImageItem,
+                preferredImageFileFormat: UTI.heic
+            )
+            let progress = heicFileRepresentation.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
             // WHEN
-            let heicFileRepresentation = try ItemProviderFileRepresentation(from: jpgImageItem, preferredImageFileFormat: UTI.heic)
+            let success = try await heicFileRepresentation.result.get()
 
             // THEN
-            let success = try await heicFileRepresentation.result.get()
-            
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
+
             // We expect a JPEG fallback when no HEIC is available
             XCTAssertEqual(success.pathExtension.lowercased(), "jpeg")
         } catch {
             XCTFail("Unexpected \(error)")
         }
     }
-    
+
     // MARK: Retrieve Image _with_ conversion, source is not an image
-    
+
     func testJPGfromText_fallback() async {
         // GIVEN
         let someText: NSString = "Some Text" // for NSCoding
@@ -276,11 +310,15 @@ final class UTItemProviderFileRepresentation: XCTestCase {
                 return
             }
 
-            // WHEN absurdly asking a HEIC from a TXT file
             let fileRepresentation = try ItemProviderFileRepresentation(from: fileItem, preferredImageFileFormat: UTI.heic)
+            let progress = fileRepresentation.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
+            // WHEN absurdly asking a HEIC from a TXT file
+            let success = try await fileRepresentation.result.get()
 
             // THEN we still get an unchanged TXT file
-            let success = try await fileRepresentation.result.get()
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertEqual(success.pathExtension.lowercased(), "txt")
 
             let stringResult = try String(contentsOf: success, encoding: .utf8) as NSString // for NSCoding

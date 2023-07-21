@@ -67,13 +67,15 @@ final class UTItemProviderZipRepresentation: XCTestCase {
                 return
             }
 
-            // WHEN
             let zipFileRepresentation = try ItemProviderZipRepresentation(from: folderItem)
+            let progress = zipFileRepresentation.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+
+            // WHEN We get the path of the zipped file
+            let successURL = try await zipFileRepresentation.result.get()
 
             // THEN
-
-            // We get the path of the zipped file
-            let successURL = try await zipFileRepresentation.result.get()
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
 
             // We create a folder to unzip content
             let unzipFolder = successURL.deletingLastPathComponent()
@@ -126,7 +128,7 @@ final class UTItemProviderZipRepresentation: XCTestCase {
             }
 
             // WHEN
-            let _ = try ItemProviderZipRepresentation(from: fileItem)
+            let fileRepresentation = try ItemProviderZipRepresentation(from: fileItem)
             XCTFail("Expected to throw")
 
             // THEN

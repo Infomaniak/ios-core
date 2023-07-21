@@ -51,12 +51,17 @@ final class UTItemProviderTextRepresentation: XCTestCase {
         let someText: NSString = "Some Text" // for NSCoding
         let item = NSItemProvider(item: someText, typeIdentifier: "\(UTI.text.rawValue)")
 
-        // WHEN
+        
         do {
             let provider = try ItemProviderTextRepresentation(from: item)
-
-            // THEN
+            let progress = provider.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
+            // WHEN
             let success = try await provider.result.get()
+            
+            // THEN
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertTrue(success.lastPathComponent.hasSuffix("txt"))
 
             let stringResult = try String(contentsOf: success, encoding: .utf8) as NSString // for NSCoding
@@ -71,12 +76,18 @@ final class UTItemProviderTextRepresentation: XCTestCase {
         let someTextData = "Some Text".data(using: .utf8)! as NSData // For NSCoding
         let item = NSItemProvider(item: someTextData, typeIdentifier: "\(UTI.text.rawValue)")
 
-        // WHEN
+        
         do {
             let provider = try ItemProviderTextRepresentation(from: item)
-
-            // THEN
+            let progress = provider.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+            
+            // WHEN
             let success = try await provider.result.get()
+            
+            // THEN
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
+            
             let stringResult = try String(contentsOf: success, encoding: .utf8) as NSString // for NSCoding
             XCTAssertEqual(stringResult, "Some Text")
         } catch {

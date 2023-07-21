@@ -94,6 +94,41 @@ final class UTSendableArray: XCTestCase {
         // THEN
         XCTAssertEqual(collection.count, 2)
     }
+
+    func testRemoveAll() async {
+        // GIVEN
+        let collection = SendableArray<String>()
+        collection.append("a")
+        collection.append("b")
+
+        // WHEN
+        let t = Task.detached {
+            collection.removeAll()
+        }
+
+        _ = await t.result
+
+        // THEN
+        XCTAssertTrue(collection.isEmpty)
+    }
+
+    func testRemoveAllWhere() async {
+        // GIVEN
+        let collection = SendableArray<String>()
+        collection.append("a")
+        collection.append("b")
+        collection.append("c")
+
+        // WHEN
+        let t = Task.detached {
+            collection.removeAll(where: { $0 == "b" })
+        }
+
+        _ = await t.result
+
+        // THEN
+        XCTAssertFalse(collection.values.contains("b"))
+    }
 }
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
@@ -128,5 +163,22 @@ final class UTSendableDictionary: XCTestCase {
 
         // THEN
         XCTAssertEqual(collection.count, 2)
+    }
+
+    func testRemoveAll() async {
+        // GIVEN
+        let collection = SendableDictionary<String, Int>()
+        collection.setValue(1, for: "a")
+        collection.setValue(2, for: "b")
+
+        // WHEN
+        let t = Task.detached {
+            collection.removeAll()
+        }
+
+        _ = await t.result
+
+        // THEN
+        XCTAssertTrue(collection.values.isEmpty)
     }
 }

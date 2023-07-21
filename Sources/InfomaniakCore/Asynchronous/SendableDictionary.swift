@@ -31,12 +31,9 @@ public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
     }
 
     public var count: Int {
-        var buffer: Int!
         lock.sync {
-            buffer = content.count
+            return content.count
         }
-
-        return buffer
     }
 
     public var values: Dictionary<T, U>.Values {
@@ -71,6 +68,12 @@ public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
         }
         set {
             setValue(newValue, for: key)
+        }
+    }
+
+    public func removeAll(keepCapacity: Bool = false) {
+        lock.sync {
+            return content.removeAll(keepingCapacity: keepCapacity)
         }
     }
 }

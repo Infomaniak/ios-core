@@ -105,6 +105,12 @@ public final class SendableArray<T>: @unchecked Sendable, Sequence {
         }
     }
 
+    public var first: T? {
+        lock.sync {
+            return content.first
+        }
+    }
+
     public func makeIterator() -> IndexingIterator<[T]> {
         lock.sync {
             return content.makeIterator()

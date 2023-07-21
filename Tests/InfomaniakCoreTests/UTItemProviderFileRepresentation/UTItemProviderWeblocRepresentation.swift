@@ -48,7 +48,7 @@ final class UTItemProviderWeblocRepresentation: XCTestCase {
 
     func testWebloc() async {
         // GIVEN
-        let someURL = URL(string: "file://some/path/image.jpg")!
+        let someURL = URL(string: "file://some/path/index.html")!
         let item = NSItemProvider(contentsOf: someURL)!
 
         do {
@@ -61,7 +61,7 @@ final class UTItemProviderWeblocRepresentation: XCTestCase {
             
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertEqual(success.lastPathComponent, "image.jpg.webloc")
+            XCTAssertEqual(success.lastPathComponent, "index.webloc")
 
         } catch {
             XCTFail("Unexpected \(error)")

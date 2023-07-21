@@ -71,11 +71,8 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
         progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
         
         let loadURLProgress = itemProvider.loadFileRepresentation(forTypeIdentifier: fileIdentifierToUse) { [self] fileProviderURL, error in
-            defer {
-                completionProgress.completedUnitCount += Self.progressStep
-            }
-            
             guard let fileProviderURL, error == nil else {
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error ?? ErrorDomain.UnableToLoadFile)
                 return
             }
@@ -91,8 +88,10 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
                 let temporaryFileURL = temporaryURL.appendingPathComponent(fileName)
                 try fileManager.copyItem(atPath: fileProviderURL.path, toPath: temporaryFileURL.path)
 
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendSuccess(temporaryFileURL)
             } catch {
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error)
             }
         }

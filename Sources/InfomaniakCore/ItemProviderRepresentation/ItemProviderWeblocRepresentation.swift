@@ -53,12 +53,9 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
         progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
         
         let loadURLProgress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
-            defer {
-                completionProgress.completedUnitCount += Self.progressStep
-            }
-            
             guard error == nil, let path: URL = path else {
                 let error: Error = error ?? ErrorDomain.unableToLoadURLForObject
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error)
                 return
             }
@@ -72,14 +69,16 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
                     .appendingPathComponent(UUID().uuidString, isDirectory: true)
                 try fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
 
-                let fileName = path.lastPathComponent
+                let fileName = path.deletingPathExtension().lastPathComponent
                 let targetURL = tmpDirectoryURL.appendingPathComponent("\(fileName).webloc")
                 let encoder = PropertyListEncoder()
                 let data = try encoder.encode(content)
                 try data.write(to: targetURL)
 
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendSuccess(targetURL)
             } catch {
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error)
             }
         }

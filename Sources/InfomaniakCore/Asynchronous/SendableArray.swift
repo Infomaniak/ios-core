@@ -96,4 +96,16 @@ public final class SendableArray<T>: @unchecked Sendable {
             }
         }
     }
+    
+    public func removeAll(keepCapacity: Bool = false) {
+        lock.sync {
+            return content.removeAll(keepingCapacity: keepCapacity)
+        }
+    }
+    
+    public func removeAll(where shouldBeRemoved: (T) throws -> Bool) rethrows {
+        try lock.sync {
+            return try content.removeAll(where: shouldBeRemoved)
+        }
+    }
 }

@@ -109,7 +109,7 @@ final class UTSendableArray: XCTestCase {
         _ = await t.result
 
         // THEN
-        XCTAssertEqual(collection.count, 0)
+        XCTAssertTrue(collection.isEmpty)
     }
 
     func testRemoveAllWhere() async {
@@ -127,7 +127,7 @@ final class UTSendableArray: XCTestCase {
         _ = await t.result
 
         // THEN
-        XCTAssertEqual(collection.values.contains("b"), false)
+        XCTAssertFalse(collection.values.contains("b"))
     }
 }
 
@@ -179,6 +179,6 @@ final class UTSendableDictionary: XCTestCase {
         _ = await t.result
 
         // THEN
-        XCTAssertEqual(collection.count, 0)
+        XCTAssertTrue(collection.values.isEmpty)
     }
 }

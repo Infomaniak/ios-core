@@ -76,17 +76,13 @@ public final class SendableArray<T>: @unchecked Sendable {
     }
 
     /// Bracket get / set pattern
-    public subscript(_ index: Int) -> T? {
+    public subscript(_ index: Int) -> T {
         get {
             lock.sync {
                 return content[index]
             }
         }
         set {
-            guard let newValue else {
-                return
-            }
-
             lock.sync {
                 guard content[safe: index] != nil else {
                     content.insert(newValue, at: index)

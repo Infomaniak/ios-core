@@ -128,7 +128,7 @@ final class UTItemProviderZipRepresentation: XCTestCase {
             }
 
             // WHEN
-            let fileRepresentation = try ItemProviderZipRepresentation(from: fileItem)
+            let _ = try ItemProviderZipRepresentation(from: fileItem)
             XCTFail("Expected to throw")
 
             // THEN

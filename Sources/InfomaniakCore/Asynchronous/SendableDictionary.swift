@@ -73,4 +73,10 @@ public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
             setValue(newValue, for: key)
         }
     }
+
+    public func removeAll(keepCapacity: Bool = false) {
+        lock.sync {
+            return content.removeAll(keepingCapacity: keepCapacity)
+        }
+    }
 }

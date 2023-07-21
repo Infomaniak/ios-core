@@ -129,4 +129,21 @@ final class UTSendableDictionary: XCTestCase {
         // THEN
         XCTAssertEqual(collection.count, 2)
     }
+    
+    func testRemoveAll() async {
+        // GIVEN
+        let collection = SendableDictionary<String, Int>()
+        collection.setValue(1, for: "a")
+        collection.setValue(2, for: "b")
+        
+        // WHEN
+        let t = Task.detached {
+            collection.removeAll()
+        }
+        
+        _ = await t.result
+        
+        // THEN
+        XCTAssertEqual(collection.count, 0)
+    }
 }

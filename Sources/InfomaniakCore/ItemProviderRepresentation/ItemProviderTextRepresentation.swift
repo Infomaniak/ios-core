@@ -56,12 +56,9 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
         progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
 
         itemProvider.loadItem(forTypeIdentifier: typeIdentifier) { [self] coding, error in
-            defer {
-                completionProgress.completedUnitCount += Self.progressStep
-            }
-
             guard error == nil,
                   let coding else {
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error ?? ErrorDomain.unknown)
                 return
             }
@@ -74,43 +71,58 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
                 try fileManager.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
 
                 // Is String
-                guard try !stringHandling(coding, temporaryURL: temporaryURL) else {
+                guard try !stringHandling(coding, temporaryURL: temporaryURL, completionProgress: completionProgress) else {
                     return
                 }
 
                 // Is Data
-                guard try !dataHandling(coding, typeIdentifier: typeIdentifier, temporaryURL: temporaryURL) else {
+                guard try !dataHandling(
+                    coding,
+                    typeIdentifier: typeIdentifier,
+                    temporaryURL: temporaryURL,
+                    completionProgress: completionProgress
+                ) else {
                     return
                 }
 
                 // Not supported
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(ErrorDomain.UTINotSupported)
 
             } catch {
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error)
                 return
             }
         }
     }
 
-    private func stringHandling(_ coding: NSSecureCoding, temporaryURL: URL) throws -> Bool {
+    private func stringHandling(_ coding: NSSecureCoding, temporaryURL: URL, completionProgress: Progress) throws -> Bool {
         guard let text = coding as? String else {
+            // Not matching type, do nothing.
             return false
         }
-        let targetURL = temporaryURL.appendingPathComponent("\(UUID().uuidString).txt")
 
+        let targetURL = temporaryURL.appendingPathComponent("\(UUID().uuidString).txt")
         try text.write(to: targetURL, atomically: true, encoding: .utf8)
+
+        completionProgress.completedUnitCount += Self.progressStep
         flowToAsync.sendSuccess(targetURL)
 
         return true
     }
 
-    private func dataHandling(_ coding: NSSecureCoding, typeIdentifier: String, temporaryURL: URL) throws -> Bool {
+    private func dataHandling(_ coding: NSSecureCoding,
+                              typeIdentifier: String,
+                              temporaryURL: URL,
+                              completionProgress: Progress) throws -> Bool {
         guard let data = coding as? Data else {
+            // Not matching type, do nothing.
             return false
         }
 
         guard let uti = UTI(typeIdentifier) else {
+            completionProgress.completedUnitCount += Self.progressStep
             flowToAsync.sendFailure(ErrorDomain.UTINotFound)
             return false
         }
@@ -120,6 +132,8 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
             .appendingPathExtension(for: uti)
 
         try data.write(to: targetURL)
+
+        completionProgress.completedUnitCount += Self.progressStep
         flowToAsync.sendSuccess(targetURL)
 
         return true

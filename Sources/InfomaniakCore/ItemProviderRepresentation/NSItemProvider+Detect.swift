@@ -23,6 +23,37 @@ import InfomaniakDI
 
 /// Extending NSItemProvider for detecting file type, business logic.
 public extension NSItemProvider {
+    /// image identifiers supported by the app
+    private static let imageUTIIdentifiers = [
+        UTI.image.identifier,
+        UTI.jpeg.identifier,
+        UTI.tiff.identifier,
+        UTI.gif.identifier,
+        UTI.png.identifier,
+        UTI.icns.identifier,
+        UTI.bmp.identifier,
+        UTI.ico.identifier,
+        UTI.rawImage.identifier,
+        UTI.svg.identifier,
+        UTI.livePhoto.identifier,
+        UTI.heic.identifier
+    ]
+
+    /// archive identifiers supported by the app
+    private static let compressedUTIIdentifiers = [
+        UTI.zip.identifier,
+        UTI.bz2.identifier,
+        UTI.gzip.identifier,
+        UTI.archive.identifier
+    ]
+
+    /// directory identifiers supported by the app
+    private static let directoryUTIIdentifiers = [
+        UTI.directory.identifier,
+        UTI.folder.identifier,
+        UTI.filesAppFolder.identifier
+    ]
+
     /// Subset of types supported by the Apps
     enum ItemUnderlyingType: Equatable {
         /// The item is an URL
@@ -56,20 +87,14 @@ public extension NSItemProvider {
             && !hasItemConformingToTypeIdentifier(UTI.fileURL.identifier)
             && canLoadObject(ofClass: String.self) {
             return .isText
-        } else if hasItemConformingToTypeIdentifier(UTI.directory.identifier)
-            || hasItemConformingToTypeIdentifier(UTI.folder.identifier)
-            || hasItemConformingToTypeIdentifier(UTI.filesAppFolder.identifier) {
+        } else if hasItemConformingToAnyOfTypeIdentifiers(Self.directoryUTIIdentifiers) {
             return .isDirectory
-        } else if hasItemConformingToTypeIdentifier(UTI.zip.identifier)
-            || hasItemConformingToTypeIdentifier(UTI.bz2.identifier)
-            || hasItemConformingToTypeIdentifier(UTI.gzip.identifier)
-            || hasItemConformingToTypeIdentifier(UTI.archive.identifier) {
+        } else if hasItemConformingToAnyOfTypeIdentifiers(Self.compressedUTIIdentifiers) {
             return .isCompressedData(identifier: typeIdentifier)
         } else if registeredTypeIdentifiers.count == 1 &&
             registeredTypeIdentifiers.first == UTI.image.identifier {
             return .isUIImage
-        } else if hasItemConformingToTypeIdentifier(UTI.heic.identifier) ||
-            hasItemConformingToTypeIdentifier(UTI.jpeg.identifier) {
+        } else if hasItemConformingToAnyOfTypeIdentifiers(Self.imageUTIIdentifiers) {
             return .isImageData
         } else {
             return .isMiscellaneous(identifier: typeIdentifier)

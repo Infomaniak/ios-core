@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Please prefer using first party structured concurrency. Use this for prototyping or dealing with race conditions.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class SendableArray<T>: @unchecked Sendable {
+public final class SendableArray<T>: @unchecked Sendable, Sequence {
     /// Serial locking queue
     let lock = DispatchQueue(label: "com.infomaniak.core.SendableArray.lock")
 
@@ -76,17 +76,13 @@ public final class SendableArray<T>: @unchecked Sendable {
     }
 
     /// Bracket get / set pattern
-    public subscript(_ index: Int) -> T? {
+    public subscript(_ index: Int) -> T {
         get {
             lock.sync {
                 return content[index]
             }
         }
         set {
-            guard let newValue else {
-                return
-            }
-
             lock.sync {
                 guard content[safe: index] != nil else {
                     content.insert(newValue, at: index)
@@ -96,16 +92,28 @@ public final class SendableArray<T>: @unchecked Sendable {
             }
         }
     }
-    
+
     public func removeAll(keepCapacity: Bool = false) {
         lock.sync {
             return content.removeAll(keepingCapacity: keepCapacity)
         }
     }
-    
+
     public func removeAll(where shouldBeRemoved: (T) throws -> Bool) rethrows {
         try lock.sync {
             return try content.removeAll(where: shouldBeRemoved)
+        }
+    }
+
+    public var first: T? {
+        lock.sync {
+            return content.first
+        }
+    }
+
+    public func makeIterator() -> IndexingIterator<[T]> {
+        lock.sync {
+            return content.makeIterator()
         }
     }
 }

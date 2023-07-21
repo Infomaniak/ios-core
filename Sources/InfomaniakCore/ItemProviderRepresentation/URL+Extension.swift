@@ -51,7 +51,7 @@ public extension URL {
     /// Try to append the correct file type extension for a given UTI
     func appendingPathExtension(for contentType: UTI) -> URL {
         guard let newExtension = contentType.preferredFilenameExtension,
-              pathExtension != newExtension else {
+              pathExtension.caseInsensitiveCompare(newExtension) != .orderedSame else {
             return self
         }
 

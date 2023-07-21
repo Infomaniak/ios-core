@@ -22,8 +22,9 @@ import Foundation
 import InfomaniakDI
 
 /// Extending NSItemProvider for detecting file type, business logic.
-extension NSItemProvider {
-    public enum ItemUnderlyingType: Equatable {
+public extension NSItemProvider {
+    /// Subset of types supported by the Apps
+    enum ItemUnderlyingType: Equatable {
         /// The item is an URL
         case isURL
         /// The item is Text
@@ -43,7 +44,12 @@ extension NSItemProvider {
     }
 
     /// Wrapping business logic of supported types by the apps.
-    public var underlyingType: ItemUnderlyingType {
+    var underlyingType: ItemUnderlyingType {
+        // We expect to have a type identifier to work with
+        guard let typeIdentifier = registeredTypeIdentifiers.first else {
+            return .none
+        }
+
         if hasItemConformingToTypeIdentifier(UTI.url.identifier) && registeredTypeIdentifiers.count == 1 {
             return .isURL
         } else if hasItemConformingToTypeIdentifier(UTI.plainText.identifier)
@@ -57,8 +63,7 @@ extension NSItemProvider {
         } else if hasItemConformingToTypeIdentifier(UTI.zip.identifier)
             || hasItemConformingToTypeIdentifier(UTI.bz2.identifier)
             || hasItemConformingToTypeIdentifier(UTI.gzip.identifier)
-            || hasItemConformingToTypeIdentifier(UTI.archive.identifier),
-            let typeIdentifier = registeredTypeIdentifiers.first {
+            || hasItemConformingToTypeIdentifier(UTI.archive.identifier) {
             return .isCompressedData(identifier: typeIdentifier)
         } else if registeredTypeIdentifiers.count == 1 &&
             registeredTypeIdentifiers.first == UTI.image.identifier {
@@ -66,11 +71,20 @@ extension NSItemProvider {
         } else if hasItemConformingToTypeIdentifier(UTI.heic.identifier) ||
             hasItemConformingToTypeIdentifier(UTI.jpeg.identifier) {
             return .isImageData
-        } else if let typeIdentifier = registeredTypeIdentifiers.first {
-            return .isMiscellaneous(identifier: typeIdentifier)
         } else {
-            return .none
+            return .isMiscellaneous(identifier: typeIdentifier)
         }
+    }
+
+    /// Check if item is conforming to *at least* one identifier provided
+    /// - Parameter collection: A collection of identifiers
+    /// - Returns: `true` if matches for at least one identifier
+    func hasItemConformingToAnyOfTypeIdentifiers(_ collection: [String]) -> Bool {
+        let hasItem = collection.contains(where: { identifier in
+            self.hasItemConformingToTypeIdentifier(identifier)
+        })
+
+        return hasItem
     }
 }
 

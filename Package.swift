@@ -38,7 +38,9 @@ let package = Package(
         ),
         .testTarget(
             name: "InfomaniakCoreTests",
-            dependencies: ["InfomaniakCore","ZIPFoundation"]
+            dependencies: ["InfomaniakCore","ZIPFoundation"],
+            resources: [Resource.process("Ressources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.heic"),
+                Resource.process("Ressources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.jpg")]
         )
     ]
 )

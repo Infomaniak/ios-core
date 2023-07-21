@@ -51,7 +51,6 @@ final class UTItemProviderTextRepresentation: XCTestCase {
         let someText: NSString = "Some Text" // for NSCoding
         let item = NSItemProvider(item: someText, typeIdentifier: "\(UTI.text.rawValue)")
 
-        
         do {
             let provider = try ItemProviderTextRepresentation(from: item)
             let progress = provider.progress

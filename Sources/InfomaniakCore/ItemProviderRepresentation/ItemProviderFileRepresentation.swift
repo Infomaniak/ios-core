@@ -68,6 +68,8 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
 
         // Set progress and hook completion closure
         let completionProgress = Progress(totalUnitCount: Self.progressStep)
+        progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
+        
         let loadURLProgress = itemProvider.loadFileRepresentation(forTypeIdentifier: fileIdentifierToUse) { [self] fileProviderURL, error in
             defer {
                 completionProgress.completedUnitCount += Self.progressStep
@@ -95,7 +97,6 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
             }
         }
         progress.addChild(loadURLProgress, withPendingUnitCount: Self.progressStep)
-        progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
     }
 
     // MARK: ProgressResultable

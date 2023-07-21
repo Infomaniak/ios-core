@@ -60,6 +60,8 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
         super.init()
 
         let completionProgress = Progress(totalUnitCount: Self.progressStep)
+        progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
+        
         let loadURLProgress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
             guard error == nil, let path: URL = path else {
                 flowToAsync.sendFailure(error ?? ErrorDomain.unableToLoadURLForObject)
@@ -96,7 +98,6 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
             }
         }
         progress.addChild(loadURLProgress, withPendingUnitCount: Self.progressStep)
-        progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
     }
 
     // MARK: ProgressResultable

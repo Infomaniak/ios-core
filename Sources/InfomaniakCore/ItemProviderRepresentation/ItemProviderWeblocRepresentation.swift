@@ -50,6 +50,8 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
         super.init()
 
         let completionProgress = Progress(totalUnitCount: Self.progressStep)
+        progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
+        
         let loadURLProgress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
             defer {
                 completionProgress.completedUnitCount += Self.progressStep
@@ -82,7 +84,6 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
             }
         }
         progress.addChild(loadURLProgress, withPendingUnitCount: Self.progressStep)
-        progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
     }
 
     // MARK: ProgressResultable

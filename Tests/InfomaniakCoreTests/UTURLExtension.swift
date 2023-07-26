@@ -23,6 +23,8 @@ import XCTest
 
 final class UTURLExtension: XCTestCase {
 
+    // MARK: - typeIdentifier
+    
     func testTypeIdentifier() {
         // GIVEN
         let someURL = URL(string: "file://some/path/image.jpg")!
@@ -33,6 +35,8 @@ final class UTURLExtension: XCTestCase {
         // THEN
         XCTAssertEqual(typeIdentifier, "public.jpeg")
     }
+    
+    // MARK: - uti
     
     func testUTI() {
         // GIVEN
@@ -45,6 +49,7 @@ final class UTURLExtension: XCTestCase {
         XCTAssertEqual(uti?.rawValue, "public.jpeg" as CFString)
     }
     
+    // MARK: - creationDate
     
     func testCreationDate_nil() {
         // GIVEN
@@ -56,6 +61,8 @@ final class UTURLExtension: XCTestCase {
         // THEN
         XCTAssertNil(date)
     }
+    
+    // MARK: - appendPathExtension
     
     func testAppendPathExtension() {
         // GIVEN
@@ -69,9 +76,35 @@ final class UTURLExtension: XCTestCase {
         XCTAssertEqual(someURL.absoluteString, "file://some/path/image.jpeg")
     }
     
+    func testAppendPathExtensionHasExtension() {
+        // GIVEN
+        var someURL = URL(string: "file://some/path/image.JPG")!
+        let uti = UTI(rawValue: "public.jpeg" as CFString)
+        
+        // WHEN
+        someURL.appendPathExtension(for: uti)
+        
+        // THEN
+        XCTAssertEqual(someURL.absoluteString, "file://some/path/image.jpeg")
+    }
+    
+    // MARK: - appendingPathExtension
+    
     func testAppendingPathExtension() {
         // GIVEN
         let someURL = URL(string: "file://some/path/image")!
+        let uti = UTI(rawValue: "public.jpeg" as CFString)
+        
+        // WHEN
+        let newURL = someURL.appendingPathExtension(for: uti)
+        
+        // THEN
+        XCTAssertEqual(newURL.absoluteString, "file://some/path/image.jpeg")
+    }
+    
+    func testAppendingPathExtensionHasExtension() {
+        // GIVEN
+        let someURL = URL(string: "file://some/path/image.JPG")!
         let uti = UTI(rawValue: "public.jpeg" as CFString)
         
         // WHEN

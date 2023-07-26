@@ -24,6 +24,12 @@ import InfomaniakDI
 /// Something that can provide a `Progress` and an async `Result` in order to make a webloc plist from a `NSItemProvider`
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultable {
+    /// Progress increment size
+    private static let progressStep: Int64 = 1
+
+    /// Number of steps to complete the task
+    private static let totalSteps: Int64 = 2
+
     /// Something to transform events to a nice `async Result`
     private let flowToAsync = FlowToAsyncResult<Success>()
 
@@ -39,14 +45,17 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
     public typealias Failure = Error
 
     public init(from itemProvider: NSItemProvider) throws {
-        // Keep compiler happy
-        progress = Progress(totalUnitCount: 1)
+        progress = Progress(totalUnitCount: Self.totalSteps)
 
         super.init()
 
-        progress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
+        let completionProgress = Progress(totalUnitCount: Self.progressStep)
+        progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
+        
+        let loadURLProgress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
             guard error == nil, let path: URL = path else {
                 let error: Error = error ?? ErrorDomain.unableToLoadURLForObject
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error)
                 return
             }
@@ -60,17 +69,20 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
                     .appendingPathComponent(UUID().uuidString, isDirectory: true)
                 try fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
 
-                let fileName = path.lastPathComponent
+                let fileName = path.deletingPathExtension().lastPathComponent
                 let targetURL = tmpDirectoryURL.appendingPathComponent("\(fileName).webloc")
                 let encoder = PropertyListEncoder()
                 let data = try encoder.encode(content)
                 try data.write(to: targetURL)
 
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendSuccess(targetURL)
             } catch {
+                completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error)
             }
         }
+        progress.addChild(loadURLProgress, withPendingUnitCount: Self.progressStep)
     }
 
     // MARK: ProgressResultable

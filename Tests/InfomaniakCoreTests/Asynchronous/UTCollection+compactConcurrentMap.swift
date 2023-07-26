@@ -449,4 +449,62 @@ final class UTConcurrentCompactMap: XCTestCase {
             // All good
         }
     }
+    
+    // MARK: - nullability of output types
+    
+    func testConcurrentCompactMapNonNullableOutputTypes() async {
+        // GIVEN
+        let collectionToProcess: Array<Int?> = [1, nil, 3, 4, nil, 5]
+
+        let result: [Int] = await collectionToProcess.concurrentCompactMap { item in
+            guard let item else {
+                return nil
+            }
+            
+            return item * 10
+        }
+
+        // THEN
+        // We check order is preserved
+        _ = result.reduce(-1) { partialResult, item in
+            XCTAssertGreaterThan(item, partialResult)
+            return item
+        }
+        
+        // Expecting same behaviour than a standard lib compact map
+        XCTAssertEqual(result.count, 4)
+        XCTAssertEqual(result.count, collectionToProcess.compactMap{$0}.count)
+    }
+    
+    
+    // Not something useful to do, but consistent.
+    func testConcurrentCompactMapNullableOutputTypes() async {
+        // GIVEN
+        let collectionToProcess: Array<Int?> = [1, nil, 3, 4, nil, 5]
+
+        let result: [Int?] = await collectionToProcess.concurrentCompactMap { item in
+            guard let item else {
+                return nil
+            }
+            
+            return item * 10
+        }
+
+        // THEN
+        // We check order is preserved
+        _ = result.reduce(-1) { partialResult, item in
+            guard let item else {
+                XCTFail("Not expecting a nil result inside the result of a flat map")
+                return partialResult
+            }
+            XCTAssertGreaterThan(item, partialResult)
+            return item
+        }
+
+        // Expecting same behaviour than a standard lib compact map
+        XCTAssertEqual(result.count, 4)
+        XCTAssertEqual(result.count, collectionToProcess.compactMap{$0}.count)
+    }
+    
+    
 }

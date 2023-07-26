@@ -33,40 +33,18 @@ public extension Collection {
     func concurrentMap<Input, Output>(
         transform: @escaping @Sendable (_ item: Input) async throws -> Output
     ) async rethrows -> [Output] where Element == Input {
-        // Concurrency making use of all the cores available
-        let optimalConcurrency = Swift.max(4, ProcessInfo.processInfo.activeProcessorCount)
-
-        // Dispatch work on a TaskQueue for concurrency.
-        let taskQueue = TaskQueue(concurrency: optimalConcurrency)
-
-        // Using an ArrayAccumulator to preserve original collection order.
-        let accumulator = ArrayAccumulator(count: count, wrapping: Output.self)
-
-        // Using a TaskGroup to track completion only.
-        _ = try await withThrowingTaskGroup(of: Void.self, returning: Void.self) { taskGroup in
-            for (index, item) in self.enumerated() {
-                taskGroup.addTask {
-                    let result = try await taskQueue.enqueue {
-                        try await transform(item)
-                    }
-
-                    try await accumulator.set(item: result, atIndex: index)
-                }
-            }
-
-            // await completion of all tasks.
-            try await taskGroup.waitForAll()
+        // Our `concurrentMap` is a subset of what does `concurrentCompactMap`
+        // Wrapping a closure that cannot return nil, in a closure that can, does the job.
+        let results = try await concurrentCompactMap { item in
+            try await transform(item)
         }
-
-        // Get the accumulated results.
-        let accumulated = await accumulator.compactAccumulation
-
+        
         // Sanity check, should never append
-        guard accumulated.count == count else {
-            fatalError("Internal consistency error. Got:\(accumulated.count) Expecting:\(count)")
+        guard results.count == count else {
+            fatalError("Internal consistency error. Got:\(results.count) Expecting:\(count)")
         }
 
-        return accumulated
+        return results
     }
 
     /// Maps a task with nullable result __concurrently__, returning only non nil values. Input order __preserved__.

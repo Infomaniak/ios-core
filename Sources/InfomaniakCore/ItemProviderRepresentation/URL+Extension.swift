@@ -55,7 +55,8 @@ public extension URL {
             return self
         }
 
-        return appendingPathExtension(newExtension)
+        // remove any existing extension before applying the preferred one.
+        return  deletingPathExtension().appendingPathExtension(newExtension)
     }
 
     /// Try to append the correct file type extension to current `URL`

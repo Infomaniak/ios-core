@@ -51,7 +51,7 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
 
         let completionProgress = Progress(totalUnitCount: Self.progressStep)
         progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
-        
+
         let loadURLProgress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
             guard error == nil, let path: URL = path else {
                 let error: Error = error ?? ErrorDomain.unableToLoadURLForObject
@@ -65,12 +65,21 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
 
             do {
                 @InjectService var pathProvider: AppGroupPathProvidable
+
+                // Use a unique folder to prevent collisions
                 let tmpDirectoryURL = pathProvider.tmpDirectoryURL
                     .appendingPathComponent(UUID().uuidString, isDirectory: true)
                 try fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
 
-                let fileName = path.deletingPathExtension().lastPathComponent
-                let targetURL = tmpDirectoryURL.appendingPathComponent("\(fileName).webloc")
+                let currentName = (path.lastPathComponent as NSString).deletingPathExtension
+                let fileName: String
+                if currentName.isEmpty {
+                    fileName = "\(URL.defaultFileName()).webloc"
+                } else {
+                    fileName = "\(currentName).webloc"
+                }
+
+                let targetURL = tmpDirectoryURL.appendingPathComponent(fileName)
                 let encoder = PropertyListEncoder()
                 let data = try encoder.encode(content)
                 try data.write(to: targetURL)

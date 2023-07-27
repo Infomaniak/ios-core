@@ -56,13 +56,27 @@ public extension URL {
         }
 
         // remove any existing extension before applying the preferred one.
-        return  deletingPathExtension().appendingPathExtension(newExtension)
+        return deletingPathExtension().appendingPathExtension(newExtension)
     }
 
     /// Try to append the correct file type extension to current `URL`
     mutating func appendPathExtension(for contentType: UTI) {
         self = appendingPathExtension(for: contentType)
     }
+    
+    private static let defaultNameFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd_HHmmssSS"
+        return formatter
+    }()
+    
+    /// Provides a name for a file, based on current date
+    ///
+    /// Not safe against collisions.
+    static func defaultFileName(date: Date = Date()) -> String {
+        Self.defaultNameFormatter.string(from: date)
+    }
+
 }
 
 #endif

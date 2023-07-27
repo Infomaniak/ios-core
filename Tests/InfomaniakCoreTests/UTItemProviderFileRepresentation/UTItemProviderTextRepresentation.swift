@@ -61,6 +61,8 @@ final class UTItemProviderTextRepresentation: XCTestCase {
             
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
+            XCTAssertGreaterThanOrEqual(success.lastPathComponent.count, 17+".txt".count, "non empty title")
+            XCTAssertLessThanOrEqual(success.lastPathComponent.count, 30+".txt".count, "smaller than UUID")
             XCTAssertTrue(success.lastPathComponent.hasSuffix("txt"))
 
             let stringResult = try String(contentsOf: success, encoding: .utf8) as NSString // for NSCoding
@@ -74,7 +76,6 @@ final class UTItemProviderTextRepresentation: XCTestCase {
         // GIVEN
         let someTextData = "Some Text".data(using: .utf8)! as NSData // For NSCoding
         let item = NSItemProvider(item: someTextData, typeIdentifier: "\(UTI.text.rawValue)")
-
         
         do {
             let provider = try ItemProviderTextRepresentation(from: item)
@@ -86,6 +87,10 @@ final class UTItemProviderTextRepresentation: XCTestCase {
             
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
+            
+            XCTAssertGreaterThanOrEqual(success.lastPathComponent.count, 17+".txt".count, "non empty title")
+            XCTAssertLessThanOrEqual(success.lastPathComponent.count, 30+".txt".count, "smaller than UUID")
+            XCTAssertTrue(success.lastPathComponent.hasSuffix("txt"))
             
             let stringResult = try String(contentsOf: success, encoding: .utf8) as NSString // for NSCoding
             XCTAssertEqual(stringResult, "Some Text")

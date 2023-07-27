@@ -61,7 +61,7 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
 
         let completionProgress = Progress(totalUnitCount: Self.progressStep)
         progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
-        
+
         let loadURLProgress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
             guard error == nil, let path: URL = path else {
                 completionProgress.completedUnitCount += Self.progressStep
@@ -79,12 +79,14 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
             coordinator.coordinate(readingItemAt: path, options: [.forUploading], error: &error) { zipURL in
                 do {
                     @InjectService var pathProvider: AppGroupPathProvidable
+
+                    // Use a unique folder to prevent collisions
                     let tmpDirectoryURL = pathProvider.tmpDirectoryURL
                         .appendingPathComponent(UUID().uuidString, isDirectory: true)
                     try self.fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
 
-                    let fileName = path.lastPathComponent
-                    let targetURL = tmpDirectoryURL.appendingPathComponent("\(fileName).zip")
+                    let fileName = path.lastPathComponent // Not empty as comes from the name of a system folder
+                    let targetURL = tmpDirectoryURL.appendingPathComponent(fileName).appendingPathExtension(for: UTI.zip)
 
                     try self.fileManager.moveItem(at: zipURL, to: targetURL)
                     

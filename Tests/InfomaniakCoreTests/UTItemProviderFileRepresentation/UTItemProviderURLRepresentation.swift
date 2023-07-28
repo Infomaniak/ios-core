@@ -24,7 +24,7 @@ import XCTest
 import ZIPFoundation
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-final class UTItemProviderWeblocRepresentation: XCTestCase {
+final class UTItemProviderURLRepresentation: XCTestCase {
     private let fileManager = FileManager.default
 
     override func setUp() {
@@ -44,7 +44,39 @@ final class UTItemProviderWeblocRepresentation: XCTestCase {
         try? fileManager.removeItem(at: url)
     }
 
-    // MARK: ItemProviderWeblocRepresentation
+    /// Image from wikimedia under CC.
+    static let imageFile = "Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons"
+
+    // MARK: ItemProviderURLRepresentation
+
+    func testLocalFile_success() async {
+        // GIVEN
+        guard let imgUrlJpg = Bundle.module.url(forResource: Self.imageFile, withExtension: "jpg") else {
+            XCTFail("unexpected")
+            return
+        }
+
+        guard let item = NSItemProvider(contentsOf: imgUrlJpg) else {
+            XCTFail("unexpected")
+            return
+        }
+
+        do {
+            let provider = try ItemProviderURLRepresentation(from: item)
+            let progress = provider.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+
+            // WHEN
+            let success = try await provider.result.get()
+
+            // THEN
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
+            XCTAssertEqual(success.lastPathComponent, Self.imageFile + ".jpg")
+
+        } catch {
+            XCTFail("Unexpected \(error)")
+        }
+    }
 
     func testWebloc_success() async {
         // GIVEN
@@ -52,13 +84,13 @@ final class UTItemProviderWeblocRepresentation: XCTestCase {
         let item = NSItemProvider(contentsOf: someURL)!
 
         do {
-            let provider = try ItemProviderWeblocRepresentation(from: item)
+            let provider = try ItemProviderURLRepresentation(from: item)
             let progress = provider.progress
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-            
+
             // WHEN
             let success = try await provider.result.get()
-            
+
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertEqual(success.lastPathComponent, "index.webloc")
@@ -67,24 +99,24 @@ final class UTItemProviderWeblocRepresentation: XCTestCase {
             XCTFail("Unexpected \(error)")
         }
     }
-    
+
     func testWebloc_emptyName() async {
         // GIVEN
         let someURL = URL(string: "about:blank")!
         let item = NSItemProvider(contentsOf: someURL)!
 
         do {
-            let provider = try ItemProviderWeblocRepresentation(from: item)
+            let provider = try ItemProviderURLRepresentation(from: item)
             let progress = provider.progress
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-            
+
             // WHEN
             let success = try await provider.result.get()
-            
+
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertGreaterThanOrEqual(success.lastPathComponent.count, 17+".webloc".count, "non empty title")
-            XCTAssertLessThanOrEqual(success.lastPathComponent.count, 30+".webloc".count, "smaller than UUID")
+            XCTAssertGreaterThanOrEqual(success.lastPathComponent.count, 17 + ".webloc".count, "non empty title")
+            XCTAssertLessThanOrEqual(success.lastPathComponent.count, 30 + ".webloc".count, "smaller than UUID")
 
         } catch {
             XCTFail("Unexpected \(error)")

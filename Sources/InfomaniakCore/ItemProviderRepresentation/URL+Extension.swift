@@ -19,6 +19,7 @@
 #if canImport(MobileCoreServices)
 
 import Foundation
+import InfomaniakDI
 
 /// Extending URL with UTI helpers
 public extension URL {
@@ -63,20 +64,29 @@ public extension URL {
     mutating func appendPathExtension(for contentType: UTI) {
         self = appendingPathExtension(for: contentType)
     }
-    
+
+    /// Build a path where a file can be moved to prevent collisions
+    static func temporaryUniqueFolderURL() throws -> URL {
+        // Use a unique folder to prevent collisions
+        @InjectService var pathProvider: AppGroupPathProvidable
+        let targetFolderURL = pathProvider.tmpDirectoryURL
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: targetFolderURL, withIntermediateDirectories: true)
+        return targetFolderURL
+    }
+
     private static let defaultNameFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd_HHmmssSS"
         return formatter
     }()
-    
+
     /// Provides a name for a file, based on current date
     ///
     /// Not safe against collisions.
     static func defaultFileName(date: Date = Date()) -> String {
         Self.defaultNameFormatter.string(from: date)
     }
-
 }
 
 #endif

@@ -81,9 +81,7 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
                     @InjectService var pathProvider: AppGroupPathProvidable
 
                     // Use a unique folder to prevent collisions
-                    let tmpDirectoryURL = pathProvider.tmpDirectoryURL
-                        .appendingPathComponent(UUID().uuidString, isDirectory: true)
-                    try self.fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
+                    let tmpDirectoryURL = try URL.temporaryUniqueFolderURL()
 
                     let fileName = path.lastPathComponent // Not empty as comes from the name of a system folder
                     let targetURL = tmpDirectoryURL.appendingPathComponent(fileName).appendingPathExtension(for: UTI.zip)

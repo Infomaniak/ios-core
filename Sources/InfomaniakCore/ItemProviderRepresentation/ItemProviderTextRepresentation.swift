@@ -96,7 +96,7 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
             return false
         }
 
-        let targetURL = try targetFolderURL
+        let targetURL = try URL.temporaryUniqueFolderURL()
             .appendingPathComponent("\(URL.defaultFileName()).txt")
 
         try text.write(to: targetURL, atomically: true, encoding: .utf8)
@@ -121,7 +121,7 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
             return false
         }
 
-        let targetURL = try targetFolderURL
+        let targetURL = try URL.temporaryUniqueFolderURL()
             .appendingPathComponent("\(URL.defaultFileName()).txt")
             .appendingPathExtension(for: uti)
 
@@ -131,18 +131,6 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
         flowToAsync.sendSuccess(targetURL)
 
         return true
-    }
-
-    /// Build a path where a file can be moved to without collisions
-    private var targetFolderURL: URL {
-        get throws {
-            // Use a unique folder to prevent collisions
-            @InjectService var pathProvider: AppGroupPathProvidable
-            let targetFolderURL = pathProvider.tmpDirectoryURL
-                .appendingPathComponent(UUID().uuidString, isDirectory: true)
-            try fileManager.createDirectory(at: targetFolderURL, withIntermediateDirectories: true)
-            return targetFolderURL
-        }
     }
 
     // MARK: ProgressResultable

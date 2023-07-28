@@ -93,7 +93,7 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
             fileName = "\(currentName).webloc"
         }
 
-        let targetURL = try targetFolderURL.appendingPathComponent(fileName)
+        let targetURL = try URL.temporaryUniqueFolderURL().appendingPathComponent(fileName)
         let encoder = PropertyListEncoder()
         let data = try encoder.encode(content)
         try data.write(to: targetURL)
@@ -110,7 +110,7 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
         }
 
         let fileName = url.lastPathComponent.isEmpty ? URL.defaultFileName() : url.lastPathComponent
-        let targetURL = try targetFolderURL
+        let targetURL = try URL.temporaryUniqueFolderURL()
             .appendingPathComponent(fileName)
 
         try fileManager.moveItem(at: url, to: targetURL)
@@ -119,18 +119,6 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
         flowToAsync.sendSuccess(targetURL)
 
         return true
-    }
-
-    /// Build a path where a file can be moved to without collisions
-    private var targetFolderURL: URL {
-        get throws {
-            // Use a unique folder to prevent collisions
-            @InjectService var pathProvider: AppGroupPathProvidable
-            let targetFolderURL = pathProvider.tmpDirectoryURL
-                .appendingPathComponent(UUID().uuidString, isDirectory: true)
-            try fileManager.createDirectory(at: targetFolderURL, withIntermediateDirectories: true)
-            return targetFolderURL
-        }
     }
 
     // MARK: ProgressResultable

@@ -64,14 +64,8 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
             }
 
             do {
-                // Build dedicated storage path
-                @InjectService var pathProvider: AppGroupPathProvidable
-                let temporaryURL = pathProvider.tmpDirectoryURL
-                    .appendingPathComponent(UUID().uuidString, isDirectory: true)
-                try fileManager.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
-
                 // Is String
-                guard try !stringHandling(coding, temporaryURL: temporaryURL, completionProgress: completionProgress) else {
+                guard try !stringHandling(coding, completionProgress: completionProgress) else {
                     return
                 }
 
@@ -79,7 +73,6 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
                 guard try !dataHandling(
                     coding,
                     typeIdentifier: typeIdentifier,
-                    temporaryURL: temporaryURL,
                     completionProgress: completionProgress
                 ) else {
                     return
@@ -97,13 +90,15 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
         }
     }
 
-    private func stringHandling(_ coding: NSSecureCoding, temporaryURL: URL, completionProgress: Progress) throws -> Bool {
+    private func stringHandling(_ coding: NSSecureCoding, completionProgress: Progress) throws -> Bool {
         guard let text = coding as? String else {
             // Not matching type, do nothing.
             return false
         }
 
-        let targetURL = temporaryURL.appendingPathComponent("\(UUID().uuidString).txt")
+        let targetURL = try URL.temporaryUniqueFolderURL()
+            .appendingPathComponent("\(URL.defaultFileName()).txt")
+
         try text.write(to: targetURL, atomically: true, encoding: .utf8)
 
         completionProgress.completedUnitCount += Self.progressStep
@@ -114,7 +109,6 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
 
     private func dataHandling(_ coding: NSSecureCoding,
                               typeIdentifier: String,
-                              temporaryURL: URL,
                               completionProgress: Progress) throws -> Bool {
         guard let data = coding as? Data else {
             // Not matching type, do nothing.
@@ -127,8 +121,8 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
             return false
         }
 
-        let targetURL = temporaryURL
-            .appendingPathComponent(UUID().uuidString)
+        let targetURL = try URL.temporaryUniqueFolderURL()
+            .appendingPathComponent("\(URL.defaultFileName()).txt")
             .appendingPathExtension(for: uti)
 
         try data.write(to: targetURL)

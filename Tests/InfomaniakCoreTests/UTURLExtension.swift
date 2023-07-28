@@ -22,97 +22,112 @@ import InfomaniakCore
 import XCTest
 
 final class UTURLExtension: XCTestCase {
-
     // MARK: - typeIdentifier
-    
+
     func testTypeIdentifier() {
         // GIVEN
         let someURL = URL(string: "file://some/path/image.jpg")!
-        
+
         // WHEN
         let typeIdentifier = someURL.typeIdentifier
-        
+
         // THEN
         XCTAssertEqual(typeIdentifier, "public.jpeg")
     }
-    
+
     // MARK: - uti
-    
+
     func testUTI() {
         // GIVEN
         let someURL = URL(string: "file://some/path/image.jpg")!
-        
+
         // WHEN
         let uti = someURL.uti
-        
+
         // THEN
         XCTAssertEqual(uti?.rawValue, "public.jpeg" as CFString)
     }
-    
+
     // MARK: - creationDate
-    
+
     func testCreationDate_nil() {
         // GIVEN
         let someURL = URL(string: "file://some/path/image.jpg")!
-        
+
         // WHEN
         let date = someURL.creationDate
-        
+
         // THEN
         XCTAssertNil(date)
     }
-    
+
     // MARK: - appendPathExtension
-    
+
     func testAppendPathExtension() {
         // GIVEN
         var someURL = URL(string: "file://some/path/image")!
         let uti = UTI(rawValue: "public.jpeg" as CFString)
-        
+
         // WHEN
         someURL.appendPathExtension(for: uti)
-        
+
         // THEN
         XCTAssertEqual(someURL.absoluteString, "file://some/path/image.jpeg")
     }
-    
+
     func testAppendPathExtensionHasExtension() {
         // GIVEN
         var someURL = URL(string: "file://some/path/image.JPG")!
         let uti = UTI(rawValue: "public.jpeg" as CFString)
-        
+
         // WHEN
         someURL.appendPathExtension(for: uti)
-        
+
         // THEN
         XCTAssertEqual(someURL.absoluteString, "file://some/path/image.jpeg")
     }
-    
+
     // MARK: - appendingPathExtension
-    
+
     func testAppendingPathExtension() {
         // GIVEN
         let someURL = URL(string: "file://some/path/image")!
         let uti = UTI(rawValue: "public.jpeg" as CFString)
-        
+
         // WHEN
         let newURL = someURL.appendingPathExtension(for: uti)
-        
+
         // THEN
         XCTAssertEqual(newURL.absoluteString, "file://some/path/image.jpeg")
     }
-    
+
     func testAppendingPathExtensionHasExtension() {
         // GIVEN
         let someURL = URL(string: "file://some/path/image.JPG")!
         let uti = UTI(rawValue: "public.jpeg" as CFString)
-        
+
         // WHEN
         let newURL = someURL.appendingPathExtension(for: uti)
-        
+
         // THEN
         XCTAssertEqual(newURL.absoluteString, "file://some/path/image.jpeg")
     }
-    
+
+    // MARK: - defaultFileName
+
+    func testDefaultFileName() {
+        // GIVEN
+        let date = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd_HHmmssSS"
+        let expectedDateString = formatter.string(from: date)
+
+        // WHEN
+        let name = URL.defaultFileName(date: date)
+
+        // THEN
+        XCTAssertFalse(name.isEmpty)
+        XCTAssertEqual(name, expectedDateString)
+    }
 }
 #endif

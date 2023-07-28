@@ -76,7 +76,9 @@ final class UTItemProviderZipRepresentation: XCTestCase {
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-
+            XCTAssertGreaterThanOrEqual(successURL.lastPathComponent.count, 30+".zip".count, "it should reflect the folder used, a UUID here")
+            XCTAssertEqual(successURL.pathExtension, "zip")
+            
             // We create a folder to unzip content
             let unzipFolder = successURL.deletingLastPathComponent()
                 .appendingPathComponent("Unzip", isDirectory: true)

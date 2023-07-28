@@ -80,9 +80,7 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
             do {
                 let uti = UTI(rawValue: fileIdentifierToUse as CFString)
                 @InjectService var pathProvider: AppGroupPathProvidable
-                let temporaryURL = pathProvider.tmpDirectoryURL
-                    .appendingPathComponent(UUID().uuidString, isDirectory: true)
-                try fileManager.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
+                let temporaryURL = try URL.temporaryUniqueFolderURL()
 
                 let fileName = fileProviderURL.appendingPathExtension(for: uti).lastPathComponent
                 let temporaryFileURL = temporaryURL.appendingPathComponent(fileName)

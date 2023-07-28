@@ -21,9 +21,13 @@
 import Foundation
 import InfomaniakDI
 
-/// Something that can provide a `Progress` and an async `Result` in order to make a webloc plist from a `NSItemProvider`
+/// Something that provides an URL to a usable recourse
+///
+/// If the URL represents a local file, the file is copied, else it generates a .webloc
+///
+/// Provides a `Progress` and an async `Result`
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultable {
+public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
     /// Progress increment size
     private static let progressStep: Int64 = 1
 
@@ -51,38 +55,70 @@ public final class ItemProviderWeblocRepresentation: NSObject, ProgressResultabl
 
         let completionProgress = Progress(totalUnitCount: Self.progressStep)
         progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
-        
-        let loadURLProgress = itemProvider.loadObject(ofClass: URL.self) { [self] path, error in
-            guard error == nil, let path: URL = path else {
+
+        let loadURLProgress = itemProvider.loadObject(ofClass: URL.self) { [self] url, error in
+            guard error == nil, let url: URL = url else {
                 let error: Error = error ?? ErrorDomain.unableToLoadURLForObject
                 completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error)
                 return
             }
 
-            // Save the URL as a webloc file (plist)
-            let content = ["URL": path.absoluteString]
-
             do {
-                @InjectService var pathProvider: AppGroupPathProvidable
-                let tmpDirectoryURL = pathProvider.tmpDirectoryURL
-                    .appendingPathComponent(UUID().uuidString, isDirectory: true)
-                try fileManager.createDirectory(at: tmpDirectoryURL, withIntermediateDirectories: true)
+                // Check if the URL points to a local file
+                guard try !localURLHandling(url, completionProgress: completionProgress) else {
+                    return
+                }
 
-                let fileName = path.deletingPathExtension().lastPathComponent
-                let targetURL = tmpDirectoryURL.appendingPathComponent("\(fileName).webloc")
-                let encoder = PropertyListEncoder()
-                let data = try encoder.encode(content)
-                try data.write(to: targetURL)
-
-                completionProgress.completedUnitCount += Self.progressStep
-                flowToAsync.sendSuccess(targetURL)
+                // Fallback to create a .webloc that point to an external resource
+                try weblocURLHandling(url, completionProgress: completionProgress)
+                
             } catch {
                 completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error)
             }
         }
         progress.addChild(loadURLProgress, withPendingUnitCount: Self.progressStep)
+    }
+    
+    /// Save the URL as a webloc file (plist)
+    private func weblocURLHandling(_ url: URL, completionProgress: Progress) throws {
+        let content = ["URL": url.absoluteString]
+
+        let currentName = (url.lastPathComponent as NSString).deletingPathExtension
+        let fileName: String
+        if currentName.isEmpty {
+            fileName = "\(URL.defaultFileName()).webloc"
+        } else {
+            fileName = "\(currentName).webloc"
+        }
+
+        let targetURL = try URL.temporaryUniqueFolderURL().appendingPathComponent(fileName)
+        let encoder = PropertyListEncoder()
+        let data = try encoder.encode(content)
+        try data.write(to: targetURL)
+
+        completionProgress.completedUnitCount += Self.progressStep
+        flowToAsync.sendSuccess(targetURL)
+    }
+    
+    /// Move a local file for later use
+    private func localURLHandling(_ url: URL, completionProgress: Progress) throws -> Bool {
+        // If the URL point to a local path, we must handle it as a standard file
+        guard fileManager.fileExists(atPath: url.path) else {
+            return false
+        }
+
+        let fileName = url.lastPathComponent.isEmpty ? URL.defaultFileName() : url.lastPathComponent
+        let targetURL = try URL.temporaryUniqueFolderURL()
+            .appendingPathComponent(fileName)
+
+        try fileManager.moveItem(at: url, to: targetURL)
+
+        completionProgress.completedUnitCount += Self.progressStep
+        flowToAsync.sendSuccess(targetURL)
+
+        return true
     }
 
     // MARK: ProgressResultable

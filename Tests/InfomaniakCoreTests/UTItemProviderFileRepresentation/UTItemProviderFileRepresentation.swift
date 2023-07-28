@@ -72,7 +72,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             let fileRepresentation = try ItemProviderFileRepresentation(from: fileItem)
             let progress = fileRepresentation.progress
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-            
+
             // WHEN
             let success = try await fileRepresentation.result.get()
 
@@ -108,7 +108,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             let fileRepresentation = try ItemProviderFileRepresentation(from: jpgImageItem)
             let progress = fileRepresentation.progress
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-            
+
             // WHEN
             let success = try await fileRepresentation.result.get()
 
@@ -139,7 +139,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             let fileRepresentation = try ItemProviderFileRepresentation(from: heicImageItem)
             let progress = fileRepresentation.progress
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-            
+
             // WHEN
             let success = try await fileRepresentation.result.get()
 
@@ -176,7 +176,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             let fileRepresentation = try ItemProviderFileRepresentation(from: heicImageItem, preferredImageFileFormat: UTI.jpeg)
             let progress = fileRepresentation.progress
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-            
+
             // WHEN
             let success = try await fileRepresentation.result.get()
 
@@ -208,7 +208,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             let fileRepresentation = try ItemProviderFileRepresentation(from: heicImageItem, preferredImageFileFormat: UTI.jpeg)
             let progress = fileRepresentation.progress
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-            
+
             // WHEN
             let success = try await fileRepresentation.result.get()
 
@@ -241,7 +241,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             )
             let progress = heicFileRepresentation.progress
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-            
+
             // WHEN
             let success = try await heicFileRepresentation.result.get()
 
@@ -274,7 +274,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             )
             let progress = heicFileRepresentation.progress
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-            
+
             // WHEN
             let success = try await heicFileRepresentation.result.get()
 
@@ -313,7 +313,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
             let fileRepresentation = try ItemProviderFileRepresentation(from: fileItem, preferredImageFileFormat: UTI.heic)
             let progress = fileRepresentation.progress
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-            
+
             // WHEN absurdly asking a HEIC from a TXT file
             let success = try await fileRepresentation.result.get()
 

@@ -38,7 +38,7 @@ public extension Collection {
         let results = try await concurrentCompactMap { item in
             try await transform(item)
         }
-        
+
         // Sanity check, should never append
         guard results.count == count else {
             fatalError("Internal consistency error. Got:\(results.count) Expecting:\(count)")
@@ -59,8 +59,24 @@ public extension Collection {
     func concurrentCompactMap<Input, Output>(
         transform: @escaping @Sendable (_ item: Input) async throws -> Output?
     ) async rethrows -> [Output] where Element == Input {
+        try await concurrentCompactMap(customConcurrency: nil, transform: transform)
+    }
+
+    /// Maps a task with nullable result __concurrently__, returning only non nil values. Input order __preserved__.
+    ///
+    /// Set a `customConcurrency` value to override the optimised behaviour. You might want to set a fixed depth for network
+    /// calls.
+    ///
+    /// - Parameters:
+    ///   - transform: The operation to be applied to the `Collection` of items
+    ///   - customConcurrency: set a custom depth to override behaviour, useful for network calls.
+    /// - Returns: An ordered processed collection of the desired type, containing non nil values.
+    func concurrentCompactMap<Input, Output>(
+        customConcurrency: Int?,
+        transform: @escaping @Sendable (_ item: Input) async throws -> Output?
+    ) async rethrows -> [Output] where Element == Input {
         // Concurrency making use of all the cores available
-        let optimalConcurrency = Swift.max(4, ProcessInfo.processInfo.activeProcessorCount)
+        let optimalConcurrency = customConcurrency ?? Swift.max(4, ProcessInfo.processInfo.activeProcessorCount)
 
         // Dispatch work on a TaskQueue for concurrency.
         let taskQueue = TaskQueue(concurrency: optimalConcurrency)

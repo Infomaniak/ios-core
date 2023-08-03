@@ -113,7 +113,7 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
         let targetURL = try URL.temporaryUniqueFolderURL()
             .appendingPathComponent(fileName)
 
-        try fileManager.moveItem(at: url, to: targetURL)
+        try fileManager.copyItem(at: url, to: targetURL)
 
         completionProgress.completedUnitCount += Self.progressStep
         flowToAsync.sendSuccess(targetURL)

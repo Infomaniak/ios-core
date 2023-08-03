@@ -86,7 +86,7 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
                     let fileName = path.lastPathComponent // Not empty as comes from the name of a system folder
                     let targetURL = tmpDirectoryURL.appendingPathComponent(fileName).appendingPathExtension(for: UTI.zip)
 
-                    try self.fileManager.moveItem(at: zipURL, to: targetURL)
+                    try self.fileManager.copyItem(at: zipURL, to: targetURL)
                     
                     completionProgress.completedUnitCount += Self.progressStep
                     self.flowToAsync.sendSuccess(targetURL)

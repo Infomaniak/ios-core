@@ -116,13 +116,17 @@ open class ApiFetcher {
         let response = await request.serializingDecodable(ApiResponse<T>.self,
                                                           automaticallyCancelling: true,
                                                           decoder: decoder).response
-        let json = try response.result.get()
-        if let result = json.data {
-            return (result, json.responseAt)
-        } else if let apiError = json.error {
+        let apiResponse = try response.result.get()
+        return try handleApiResponse(apiResponse, responseStatusCode: response.response?.statusCode ?? -1)
+    }
+    
+    open func handleApiResponse<T: Decodable>(_ response: ApiResponse<T>, responseStatusCode: Int) throws -> (data: T, responseAt: Int?) {
+        if let responseData = response.data {
+            return (responseData, response.responseAt)
+        } else if let apiError = response.error {
             throw InfomaniakError.apiError(apiError)
         } else {
-            throw InfomaniakError.serverError(statusCode: response.response?.statusCode ?? -1)
+            throw InfomaniakError.serverError(statusCode: responseStatusCode)
         }
     }
 

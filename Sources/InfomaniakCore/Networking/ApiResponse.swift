@@ -18,6 +18,10 @@
 
 import Foundation
 
+public struct NullableResponse: Codable, ExpressibleByNilLiteral {
+    public init(nilLiteral: ()) { /* Empty api response */ }
+}
+
 public enum ApiResult: String, Codable {
     case success
     case error
@@ -42,5 +46,23 @@ open class ApiResponse<ResponseContent: Decodable>: Decodable {
         case page
         case itemsPerPage = "items_per_page"
         case responseAt = "response_at"
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        result = try container.decode(ApiResult.self, forKey: .result)
+        if let type = (ResponseContent.self as? NullableResponse.Type),
+           container.allKeys.contains(where: { $0.stringValue == CodingKeys.data.rawValue }) {
+            data = type.init(nilLiteral: ()) as? ResponseContent
+        } else {
+            data = try container.decodeIfPresent(ResponseContent.self, forKey: .data)
+        }
+        error = try container.decodeIfPresent(ApiError.self, forKey: .error)
+        total = try container.decodeIfPresent(Int.self, forKey: .total)
+        pages = try container.decodeIfPresent(Int.self, forKey: .pages)
+        page = try container.decodeIfPresent(Int.self, forKey: .page)
+        itemsPerPage = try container.decodeIfPresent(Int.self, forKey: .itemsPerPage)
+        responseAt = try container.decodeIfPresent(Int.self, forKey: .responseAt)
     }
 }

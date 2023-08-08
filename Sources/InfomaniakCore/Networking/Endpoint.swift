@@ -44,15 +44,14 @@ public enum ApiEnvironment {
 }
 
 public struct Endpoint {
-    public let hostKeypath: KeyPath<ApiEnvironment, String>
+    public let host: String
     public let path: String
     public let queryItems: [URLQueryItem]?
-    public let apiEnvironment: ApiEnvironment
 
     public var url: URL {
         var components = URLComponents()
         components.scheme = "https"
-        components.host = apiEnvironment[keyPath: hostKeypath]
+        components.host = host
         components.path = path
         components.queryItems = queryItems
 
@@ -66,14 +65,21 @@ public struct Endpoint {
                 path: String,
                 queryItems: [URLQueryItem]? = nil,
                 apiEnvironment: ApiEnvironment = .current) {
-        self.hostKeypath = hostKeypath
+        self.host = apiEnvironment[keyPath: hostKeypath]
         self.path = path
         self.queryItems = queryItems
-        self.apiEnvironment = apiEnvironment
+    }
+    
+    public init(host: String,
+                path: String,
+                queryItems: [URLQueryItem]? = nil) {
+        self.host = host
+        self.path = path
+        self.queryItems = queryItems
     }
 
     public func appending(path: String, queryItems: [URLQueryItem]? = nil) -> Endpoint {
-        return Endpoint(hostKeypath: hostKeypath, path: self.path + path, queryItems: queryItems, apiEnvironment: apiEnvironment)
+        return Endpoint(host: host, path: self.path + path, queryItems: queryItems)
     }
 }
 

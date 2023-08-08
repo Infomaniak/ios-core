@@ -31,6 +31,7 @@ final class UTConcurrentCompactMap: XCTestCase {
         // GIVEN
         let collectionToProcess = Array(0 ... 50)
 
+// WHEN
         let result: [Int] = await collectionToProcess.concurrentCompactMap { item in
             // We arbitrarily remove elements
             if item % 10 == 0 {

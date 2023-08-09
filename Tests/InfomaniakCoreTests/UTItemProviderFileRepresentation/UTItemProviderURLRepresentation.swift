@@ -72,28 +72,7 @@ final class UTItemProviderURLRepresentation: XCTestCase {
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertEqual(success.lastPathComponent, Self.imageFile + ".jpg")
-
-        } catch {
-            XCTFail("Unexpected \(error)")
-        }
-    }
-
-    func testWebloc_success() async {
-        // GIVEN
-        let someURL = URL(string: "file://some/path/index.html")!
-        let item = NSItemProvider(contentsOf: someURL)!
-
-        do {
-            let provider = try ItemProviderURLRepresentation(from: item)
-            let progress = provider.progress
-            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
-
-            // WHEN
-            let success = try await provider.result.get()
-
-            // THEN
-            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertEqual(success.lastPathComponent, "index.webloc")
+            XCTAssertTrue(success.lastPathComponent.hasSuffix(".jpg"))
 
         } catch {
             XCTFail("Unexpected \(error)")
@@ -117,9 +96,138 @@ final class UTItemProviderURLRepresentation: XCTestCase {
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
             XCTAssertGreaterThanOrEqual(success.lastPathComponent.count, 17 + ".webloc".count, "non empty title")
             XCTAssertLessThanOrEqual(success.lastPathComponent.count, 30 + ".webloc".count, "smaller than UUID")
+            XCTAssertTrue(success.lastPathComponent.hasSuffix(".webloc"))
 
         } catch {
             XCTFail("Unexpected \(error)")
+        }
+    }
+
+    func testWebloc_successWebMainPage() async {
+        // GIVEN
+        let someURL = URL(string: "https://infomaniak.com/")!
+        let item = NSItemProvider(contentsOf: someURL)!
+
+        do {
+            let provider = try ItemProviderURLRepresentation(from: item)
+            let progress = provider.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+
+            // WHEN
+            let success = try await provider.result.get()
+
+            // THEN
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
+            XCTAssertGreaterThanOrEqual(success.lastPathComponent.count, 17 + ".webloc".count, "non empty title")
+            XCTAssertLessThanOrEqual(success.lastPathComponent.count, 30 + ".webloc".count, "smaller than UUID")
+            XCTAssertTrue(success.lastPathComponent.hasSuffix(".webloc"))
+
+        } catch {
+            XCTFail("Unexpected \(error)")
+        }
+    }
+
+    func testWebloc_successWebMainPageAlt() async {
+        // GIVEN
+        let someURL = URL(string: "https://infomaniak.com")!
+        let item = NSItemProvider(contentsOf: someURL)!
+
+        do {
+            let provider = try ItemProviderURLRepresentation(from: item)
+            let progress = provider.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+
+            // WHEN
+            let success = try await provider.result.get()
+
+            // THEN
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
+            XCTAssertGreaterThanOrEqual(success.lastPathComponent.count, 17 + ".webloc".count, "non empty title")
+            XCTAssertLessThanOrEqual(success.lastPathComponent.count, 30 + ".webloc".count, "smaller than UUID")
+            XCTAssertTrue(success.lastPathComponent.hasSuffix(".webloc"))
+
+        } catch {
+            XCTFail("Unexpected \(error)")
+        }
+    }
+
+    func testWebloc_successWebIndexPage() async {
+        // GIVEN
+        let someURL = URL(string: "https://infomaniak.com/index.html")!
+        let item = NSItemProvider(contentsOf: someURL)!
+
+        do {
+            let provider = try ItemProviderURLRepresentation(from: item)
+            let progress = provider.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+
+            // WHEN
+            let success = try await provider.result.get()
+
+            // THEN
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
+            XCTAssertEqual(success.lastPathComponent, "index.webloc")
+
+        } catch {
+            XCTFail("Unexpected \(error)")
+        }
+    }
+
+    func testWebloc_nonExistingLocalFile() async {
+        // GIVEN
+        let someURL = URL(string: "file://dev/null/somefile.txt")!
+        let item = NSItemProvider(contentsOf: someURL)!
+
+        do {
+            let provider = try ItemProviderURLRepresentation(from: item)
+            let progress = provider.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+
+            // WHEN
+            let _ = try await provider.result.get()
+
+            // THEN
+            XCTFail("Expecting to throw")
+
+        } catch {
+            guard let error = error as? ItemProviderURLRepresentation.ErrorDomain else {
+                XCTFail("Unexpected \(error)")
+                return
+            }
+            XCTAssertEqual(
+                error,
+                ItemProviderURLRepresentation.ErrorDomain.localFileNotFound,
+                "Expecting to not be able to find a local file"
+            )
+        }
+    }
+    
+    func testWebloc_malformedLocalFile() async {
+        // GIVEN
+        let someURL = URL(string: "file://infomaniak.com/index.html")!
+        let item = NSItemProvider(contentsOf: someURL)!
+
+        do {
+            let provider = try ItemProviderURLRepresentation(from: item)
+            let progress = provider.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+
+            // WHEN
+            let _ = try await provider.result.get()
+
+            // THEN
+            XCTFail("Expecting to throw")
+
+        } catch {
+            guard let error = error as? ItemProviderURLRepresentation.ErrorDomain else {
+                XCTFail("Unexpected \(error)")
+                return
+            }
+            XCTAssertEqual(
+                error,
+                ItemProviderURLRepresentation.ErrorDomain.localFileNotFound,
+                "Expecting to not be able to find a local file"
+            )
         }
     }
 }

@@ -42,7 +42,11 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
 
     /// Domain specific errors
     public enum ErrorDomain: Error, Equatable {
+        /// Unable to load an URL object from the `itemProvider`
         case unableToLoadURLForObject
+
+        /// The local file pointed to by the URL we got from the `itemProvider` is not accessible or present on file system.
+        case localFileNotFound
     }
 
     public typealias Success = URL
@@ -72,7 +76,7 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
 
                 // Fallback to create a .webloc that point to an external resource
                 try weblocURLHandling(url, completionProgress: completionProgress)
-                
+
             } catch {
                 completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error)
@@ -80,12 +84,14 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
         }
         progress.addChild(loadURLProgress, withPendingUnitCount: Self.progressStep)
     }
-    
+
     /// Save the URL as a webloc file (plist)
     private func weblocURLHandling(_ url: URL, completionProgress: Progress) throws {
         let content = ["URL": url.absoluteString]
 
-        let currentName = (url.lastPathComponent as NSString).deletingPathExtension
+        let currentName = (url.lastPathComponent as NSString)
+            .deletingPathExtension
+            .replacingOccurrences(of: "/", with: "")
         let fileName: String
         if currentName.isEmpty {
             fileName = "\(URL.defaultFileName()).webloc"
@@ -101,12 +107,17 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
         completionProgress.completedUnitCount += Self.progressStep
         flowToAsync.sendSuccess(targetURL)
     }
-    
+
     /// Move a local file for later use
     private func localURLHandling(_ url: URL, completionProgress: Progress) throws -> Bool {
         // If the URL point to a local path, we must handle it as a standard file
-        guard fileManager.fileExists(atPath: url.path) else {
+        guard url.isFileURL else {
             return false
+        }
+
+        // If we point to a local file that do not exists we throw
+        guard fileManager.fileExists(atPath: url.path) else {
+            throw ErrorDomain.localFileNotFound
         }
 
         let fileName = url.lastPathComponent.isEmpty ? URL.defaultFileName() : url.lastPathComponent

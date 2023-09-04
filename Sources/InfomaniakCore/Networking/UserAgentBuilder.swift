@@ -64,8 +64,7 @@ public struct UserAgentBuilder {
         /// Something like:
         /// `com.infomaniak.mail/1.0.5-1 (iPhone15,2; iOS16.4.0; arm64e)`
         /// `com.infomaniak.mail.ShareExtension/1.0.5-1 (iPhone15,2; iOS16.4.0; arm64e)`
-        let userAgent = "\(executableName)/\(appVersion) (\(hardwareDevice); \(operatingSystemNameAndVersion); \(cpuArchitecture))"
-        return userAgent
+        return "\(executableName)/\(appVersion) (\(hardwareDevice); \(operatingSystemNameAndVersion); \(cpuArchitecture))"
     }
 }
 

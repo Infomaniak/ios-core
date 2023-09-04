@@ -25,7 +25,9 @@ import Foundation
 public class UserAgentAdapter: RequestAdapter {
     public static let userAgentKey = "User-Agent"
 
-    public init() {}
+    public init() {
+        // META: keep sonar cloud happy
+    }
 
     public func adapt(
         _ urlRequest: URLRequest,

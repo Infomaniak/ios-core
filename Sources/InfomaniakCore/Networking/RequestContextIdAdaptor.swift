@@ -23,7 +23,9 @@ import Sentry
 public class RequestContextIdAdaptor: RequestAdapter {
     public static let requestContextIdHeader = "x-infomaniak-request-context-id"
 
-    public init() {}
+    public init() {
+        // META: keep sonar cloud happy
+    }
 
     public func adapt(
         _ urlRequest: URLRequest,

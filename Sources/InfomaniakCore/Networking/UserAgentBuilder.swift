@@ -46,7 +46,7 @@ public struct UserAgentBuilder {
         return String(cString: archRaw)
     }
 
-    /// The standard infomaniak app user agent
+    /// The standard Infomaniak app user agent
     public var userAgent: String {
         let release = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "x.x.x"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "x"
@@ -56,7 +56,7 @@ public struct UserAgentBuilder {
         let hardwareDevice = modelIdentifier() ?? "unknownModel"
 
         let operatingSystemVersion = ProcessInfo.processInfo.operatingSystemVersion
-        let OSNameAndVersion =
+        let operatingSystemNameAndVersion =
             "\(UIDevice.current.systemName) \(operatingSystemVersion.majorVersion).\(operatingSystemVersion.minorVersion).\(operatingSystemVersion.patchVersion)"
 
         let cpuArchitecture = microarchitecture() ?? "unknownArch"
@@ -64,7 +64,7 @@ public struct UserAgentBuilder {
         /// Something like:
         /// `com.infomaniak.mail/1.0.5-1 (iPhone15,2; iOS16.4.0; arm64e)`
         /// `com.infomaniak.mail.ShareExtension/1.0.5-1 (iPhone15,2; iOS16.4.0; arm64e)`
-        let userAgent = "\(executableName)/\(appVersion) (\(hardwareDevice); \(OSNameAndVersion); \(cpuArchitecture))"
+        let userAgent = "\(executableName)/\(appVersion) (\(hardwareDevice); \(operatingSystemNameAndVersion); \(cpuArchitecture))"
         return userAgent
     }
 }

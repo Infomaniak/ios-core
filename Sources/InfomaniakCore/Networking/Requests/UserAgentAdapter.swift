@@ -16,12 +16,14 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if canImport(UIKit)
+
 import Alamofire
 import Foundation
-import Sentry
 
-public class RequestContextIdAdaptor: RequestAdapter {
-    public static let requestContextIdHeader = "x-infomaniak-request-context-id"
+/// Something to set the user agent for AF requests
+public class UserAgentAdapter: RequestAdapter {
+    public static let userAgentKey = "User-Agent"
 
     public init() {
         // META: keep sonar cloud happy
@@ -33,9 +35,11 @@ public class RequestContextIdAdaptor: RequestAdapter {
         completion: @escaping (Result<URLRequest, Error>) -> Void
     ) {
         var adaptedRequest = urlRequest
-        let requestId = UUID().uuidString
-        adaptedRequest.headers.add(name: RequestContextIdAdaptor.requestContextIdHeader, value: requestId)
+        adaptedRequest.headers.remove(name: Self.userAgentKey)
+        adaptedRequest.headers.add(name: Self.userAgentKey, value: UserAgentBuilder().userAgent)
 
         completion(.success(adaptedRequest))
     }
 }
+
+#endif

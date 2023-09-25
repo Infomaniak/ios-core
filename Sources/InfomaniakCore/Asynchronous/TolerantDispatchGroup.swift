@@ -24,6 +24,10 @@ public final class TolerantDispatchGroup {
     private let dispatchGroup = DispatchGroup()
     private var callBalancer = 0
 
+    public init() {
+        // Meta: Keep Sonar Cloud happy
+    }
+    
     public func enter() {
         syncQueue.sync {
             dispatchGroup.enter()

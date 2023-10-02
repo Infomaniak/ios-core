@@ -24,10 +24,10 @@ import Foundation
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
     let lock = DispatchQueue(label: "com.infomaniak.core.SendableDictionary.lock")
-    private(set) var content = [T: U]()
+    private(set) var content: [T: U]
 
-    public init() {
-        // META: keep SonarCloud happy
+    public init(content: [T: U] = [:]) {
+        self.content = content
     }
 
     public var count: Int {

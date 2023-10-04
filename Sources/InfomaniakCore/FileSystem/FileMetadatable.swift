@@ -40,6 +40,7 @@ public struct FileMetadata: FileMetadatable {
             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
             return attributes[FileAttributeKey.modificationDate] as? Date
         } catch {
+            SentryDebug.fileMetadataBreadcrumb(["error": error])
             return nil
         }
     }
@@ -49,6 +50,7 @@ public struct FileMetadata: FileMetadatable {
             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
             return attributes[FileAttributeKey.creationDate] as? Date
         } catch {
+            SentryDebug.fileMetadataBreadcrumb(["error": error])
             return nil
         }
     }
@@ -58,6 +60,7 @@ public struct FileMetadata: FileMetadatable {
             let fileAttributes = try FileManager.default.attributesOfItem(atPath: url.path)
             return fileAttributes[FileAttributeKey.size] as? UInt64
         } catch {
+            SentryDebug.fileMetadataBreadcrumb(["error": error])
             return nil
         }
     }

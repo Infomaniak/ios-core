@@ -51,7 +51,15 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
     ///   - preferredImageFileFormat: Specify an output image file format. Supports HEIC and JPG. Will convert only if
     /// itemProvider supports it.
     public init(from itemProvider: NSItemProvider, preferredImageFileFormat: UTI? = nil) throws {
-        guard let typeIdentifier = itemProvider.registeredTypeIdentifiers.first else {
+        var typeIdentifiers = itemProvider.registeredTypeIdentifiers
+        
+        // make sure live photo identifier is at the end of supported formats
+        if let matchIndex = typeIdentifiers.index(of: Self.livePhotoIdentifier) {
+            typeIdentifiers.remove(at: matchIndex)
+            typeIdentifiers.append(Self.livePhotoIdentifier)
+        }
+        
+        guard let typeIdentifier = typeIdentifiers.first else {
             throw ErrorDomain.UTINotFound
         }
 

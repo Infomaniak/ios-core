@@ -35,6 +35,9 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
 
     /// Shorthand for default FileManager
     private let fileManager = FileManager.default
+    
+    /// Identifier of a Live-Photo
+    private static let livePhotoIdentifier = "com.apple.live-photo-bundle"
 
     /// Domain specific errors
     public enum ErrorDomain: Error, Equatable {

@@ -87,6 +87,8 @@ public extension NSItemProvider {
             && !hasItemConformingToTypeIdentifier(UTI.fileURL.identifier)
             && canLoadObject(ofClass: String.self) {
             return .isText
+        } else if hasItemConformingToAnyOfTypeIdentifiers(Self.imageUTIIdentifiers) {
+            return .isImageData
         } else if hasItemConformingToAnyOfTypeIdentifiers(Self.directoryUTIIdentifiers) {
             return .isDirectory
         } else if hasItemConformingToAnyOfTypeIdentifiers(Self.compressedUTIIdentifiers) {
@@ -94,8 +96,6 @@ public extension NSItemProvider {
         } else if registeredTypeIdentifiers.count == 1 &&
             registeredTypeIdentifiers.first == UTI.image.identifier {
             return .isUIImage
-        } else if hasItemConformingToAnyOfTypeIdentifiers(Self.imageUTIIdentifiers) {
-            return .isImageData
         } else {
             return .isMiscellaneous(identifier: typeIdentifier)
         }

@@ -36,6 +36,12 @@ public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
         }
     }
 
+    public var keys: Dictionary<T, U>.Keys {
+        lock.sync {
+            return content.keys
+        }
+    }
+
     public var values: Dictionary<T, U>.Values {
         lock.sync {
             return content.values
@@ -74,6 +80,20 @@ public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
     public func removeAll(keepCapacity: Bool = false) {
         lock.sync {
             return content.removeAll(keepingCapacity: keepCapacity)
+        }
+    }
+
+    /// Get an `enumerator` on a snapshot of the content
+    public func enumerated() -> EnumeratedSequence<[T: U]> {
+        lock.sync {
+            return content.enumerated()
+        }
+    }
+
+    /// Get an `Iterator` on a snapshot of the content
+    public func makeIterator() -> Dictionary<T, U>.Iterator {
+        lock.sync {
+            return content.makeIterator()
         }
     }
 }

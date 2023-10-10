@@ -23,7 +23,10 @@ import Foundation
 /// Please prefer using first party structured concurrency. Use this for prototyping or dealing with race conditions.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
+    /// Serial locking queue
     let lock = DispatchQueue(label: "com.infomaniak.core.SendableDictionary.lock")
+
+    /// Internal collection
     private(set) var content: [T: U]
 
     public init(content: [T: U] = [:]) {

@@ -27,10 +27,10 @@ public final class SendableArray<T>: @unchecked Sendable, Sequence {
     let lock = DispatchQueue(label: "com.infomaniak.core.SendableArray.lock")
 
     /// Internal collection
-    private(set) var content = [T]()
+    private(set) var content: [T]
 
-    public init() {
-        // META: keep SonarCloud happy
+    public init(content: [T] = Array<T>()) {
+        self.content = content
     }
 
     public var count: Int {
@@ -111,6 +111,14 @@ public final class SendableArray<T>: @unchecked Sendable, Sequence {
         }
     }
 
+    /// Get an `enumerator` on a snapshot of the content
+    public func enumerated() -> EnumeratedSequence<[T]> {
+        lock.sync {
+            return content.enumerated()
+        }
+    }
+
+    /// Get an `Iterator` on a snapshot of the content
     public func makeIterator() -> IndexingIterator<[T]> {
         lock.sync {
             return content.makeIterator()

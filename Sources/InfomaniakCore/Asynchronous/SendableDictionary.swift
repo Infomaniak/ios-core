@@ -23,7 +23,10 @@ import Foundation
 /// Please prefer using first party structured concurrency. Use this for prototyping or dealing with race conditions.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
+    /// Serial locking queue
     let lock = DispatchQueue(label: "com.infomaniak.core.SendableDictionary.lock")
+
+    /// Internal collection
     private(set) var content: [T: U]
 
     public init(content: [T: U] = [:]) {
@@ -33,6 +36,12 @@ public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
     public var count: Int {
         lock.sync {
             return content.count
+        }
+    }
+
+    public var keys: Dictionary<T, U>.Keys {
+        lock.sync {
+            return content.keys
         }
     }
 
@@ -74,6 +83,20 @@ public final class SendableDictionary<T: Hashable, U>: @unchecked Sendable {
     public func removeAll(keepCapacity: Bool = false) {
         lock.sync {
             return content.removeAll(keepingCapacity: keepCapacity)
+        }
+    }
+
+    /// Get an `enumerator` on a snapshot of the content
+    public func enumerated() -> EnumeratedSequence<[T: U]> {
+        lock.sync {
+            return content.enumerated()
+        }
+    }
+
+    /// Get an `Iterator` on a snapshot of the content
+    public func makeIterator() -> Dictionary<T, U>.Iterator {
+        lock.sync {
+            return content.makeIterator()
         }
     }
 }

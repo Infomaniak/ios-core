@@ -43,6 +43,8 @@ final class UTCollectionTests: XCTestCase {
     }
 }
 
+// MARK: SendableArray
+
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class UTSendableArray: XCTestCase {
     func testInsertSubscript() async {
@@ -129,7 +131,77 @@ final class UTSendableArray: XCTestCase {
         // THEN
         XCTAssertFalse(collection.values.contains("b"))
     }
+    
+    func testIterator() async {
+        // GIVEN
+        let collection = SendableArray<String>()
+        collection.append("a")
+        collection.append("b")
+
+        var iterator = collection.makeIterator()
+
+        // WHEN
+        // We remove all items in the collection
+        let t = Task.detached {
+            collection.removeAll()
+        }
+
+        await t.finish()
+
+        // THEN
+        XCTAssertTrue(collection.values.isEmpty, "The collection is expected to be empty")
+
+        // We can work with the captured enumeration
+        var isEmpty = true
+        while let value = iterator.next() {
+            isEmpty = false
+
+            if value == "a" || value == "b" {
+                // OK
+            } else {
+                XCTFail("unexpected value:\(value)")
+            }
+        }
+
+        XCTAssertFalse(isEmpty, "the iterator is not supposed to be empty")
+    }
+
+    func testEnumerated() async {
+        // GIVEN
+        let collection = SendableArray<String>()
+        collection.append("a")
+        collection.append("b")
+
+        let collectionEnumerated = collection.enumerated()
+
+        // WHEN
+        // We remove all items in the collection
+        let t = Task.detached {
+            collection.removeAll()
+        }
+
+        await t.finish()
+
+        // THEN
+        XCTAssertTrue(collection.values.isEmpty, "The collection is expected to be empty")
+
+        // We can work with the captured enumeration
+        var isEmpty = true
+        for (index, value) in collectionEnumerated {
+            isEmpty = false
+
+            if value == "a" || value == "b" {
+                // OK
+            } else {
+                XCTFail("unexpected value:\(value) at index:\(index)")
+            }
+        }
+
+        XCTAssertFalse(isEmpty, "the iterator is not supposed to be empty")
+    }
 }
+
+// MARK: SendableDictionary
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class UTSendableDictionary: XCTestCase {
@@ -180,5 +252,80 @@ final class UTSendableDictionary: XCTestCase {
 
         // THEN
         XCTAssertTrue(collection.values.isEmpty)
+    }
+
+    func testIterator() async {
+        // GIVEN
+        let collection = SendableDictionary<String, Int>()
+        collection.setValue(1, for: "a")
+        collection.setValue(2, for: "b")
+
+        var iterator = collection.makeIterator()
+
+        // WHEN
+        // We remove all items in the collection
+        let t = Task.detached {
+            collection.removeAll()
+        }
+
+        await t.finish()
+
+        // THEN
+        XCTAssertTrue(collection.values.isEmpty, "The collection is expected to be empty")
+
+        // We can work with the captured enumeration
+        var isEmpty = true
+        while let (key, value) = iterator.next() {
+            isEmpty = false
+
+            if key == "a" {
+                XCTAssertEqual(value, 1)
+            } else if key == "b" {
+                XCTAssertEqual(value, 2)
+            } else {
+                XCTFail("unexpected key:\(key) value:\(value)")
+            }
+        }
+
+        XCTAssertFalse(isEmpty, "the iterator is not supposed to be empty")
+    }
+
+    func testEnumerated() async {
+        // GIVEN
+        let collection = SendableDictionary<String, Int>()
+        collection.setValue(1, for: "a")
+        collection.setValue(2, for: "b")
+
+        let collectionEnumerated = collection.enumerated()
+
+        // WHEN
+        // We remove all items in the collection
+        let t = Task.detached {
+            collection.removeAll()
+        }
+
+        await t.finish()
+
+        // THEN
+        XCTAssertTrue(collection.values.isEmpty, "The collection is expected to be empty")
+
+        // We can work with the captured enumeration
+        var isEmpty = true
+        for (index, node) in collectionEnumerated {
+            isEmpty = false
+
+            let key = node.0
+            let value = node.1
+
+            if key == "a" {
+                XCTAssertEqual(value, 1)
+            } else if key == "b" {
+                XCTAssertEqual(value, 2)
+            } else {
+                XCTFail("unexpected key:\(key) value:\(value) at index:\(index) ")
+            }
+        }
+
+        XCTAssertFalse(isEmpty, "the iterator is not supposed to be empty")
     }
 }

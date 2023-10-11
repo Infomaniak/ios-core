@@ -28,6 +28,8 @@ public protocol RefreshTokenDelegate: AnyObject {
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 open class ApiFetcher {
+    public typealias RequestModifier = (inout URLRequest) throws -> Void
+
     public var authenticatedSession: Session!
     public static var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -100,7 +102,7 @@ open class ApiFetcher {
                                    parameters: Parameters? = nil,
                                    encoding: ParameterEncoding = JSONEncoding.default,
                                    headers: HTTPHeaders? = nil,
-                                   requestModifier: ((inout URLRequest) throws -> Void)? = nil) -> DataRequest {
+                                   requestModifier: RequestModifier? = nil) -> DataRequest {
         return authenticatedSession
             .request(
                 endpoint.url,
@@ -114,9 +116,16 @@ open class ApiFetcher {
 
     open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint,
                                                           method: HTTPMethod = .get,
-                                                          parameters: Parameters? = nil) -> DataRequest {
+                                                          parameters: Parameters? = nil,
+                                                          requestModifier: RequestModifier? = nil) -> DataRequest {
         return authenticatedSession
-            .request(endpoint.url, method: method, parameters: parameters, encoder: JSONParameterEncoder.convertToSnakeCase)
+            .request(
+                endpoint.url,
+                method: method,
+                parameters: parameters,
+                encoder: JSONParameterEncoder.convertToSnakeCase,
+                requestModifier: requestModifier
+            )
     }
 
     open func perform<T: Decodable>(request: DataRequest,

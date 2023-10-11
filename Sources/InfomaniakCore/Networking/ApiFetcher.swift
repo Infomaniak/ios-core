@@ -99,9 +99,17 @@ open class ApiFetcher {
                                    method: HTTPMethod = .get,
                                    parameters: Parameters? = nil,
                                    encoding: ParameterEncoding = JSONEncoding.default,
-                                   headers: HTTPHeaders? = nil) -> DataRequest {
+                                   headers: HTTPHeaders? = nil,
+                                   requestModifier: ((inout URLRequest) throws -> Void)? = nil) -> DataRequest {
         return authenticatedSession
-            .request(endpoint.url, method: method, parameters: parameters, encoding: encoding, headers: headers)
+            .request(
+                endpoint.url,
+                method: method,
+                parameters: parameters,
+                encoding: encoding,
+                headers: headers,
+                requestModifier: requestModifier
+            )
     }
 
     open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint,
@@ -119,8 +127,9 @@ open class ApiFetcher {
         let apiResponse = try response.result.get()
         return try handleApiResponse(apiResponse, responseStatusCode: response.response?.statusCode ?? -1)
     }
-    
-    open func handleApiResponse<T: Decodable>(_ response: ApiResponse<T>, responseStatusCode: Int) throws -> (data: T, responseAt: Int?) {
+
+    open func handleApiResponse<T: Decodable>(_ response: ApiResponse<T>,
+                                              responseStatusCode: Int) throws -> (data: T, responseAt: Int?) {
         if let responseData = response.data {
             return (responseData, response.responseAt)
         } else if let apiError = response.error {

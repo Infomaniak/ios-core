@@ -19,22 +19,24 @@
 import Foundation
 
 public extension [NSExtensionItem] {
-    
     /// A type identifier that represents an URL
-    static let urlTypeIdentifier = "public.url"
-    
+    private static let urlTypeIdentifier = "public.url"
+
     /// A view on  underlying `NSItemProvider` suitable for kDrive and Mail shareExtensions
     ///
     /// If multiple results, all `NSItemProvider.type` that equals `public.url` are striped down.
     /// Eg. We remove the URL of the website when exporting an arbitrary file, like a PDF
     var filteredItemProviders: [NSItemProvider] {
         var itemProviders = compactMap(\.attachments).flatMap { $0 }
-        guard itemProviders.count > 1 else {
+        
+        // We only filter when we have exactly two items
+        guard itemProviders.count == 2 else {
             return itemProviders
         }
 
         itemProviders.removeAll { itemProvider in
-            itemProvider.registeredTypeIdentifiers.contains(Self.urlTypeIdentifier)
+            // We only check the first "main" type identifier, a PDF can also have an url pointing to the file.
+            itemProvider.registeredTypeIdentifiers.first == Self.urlTypeIdentifier
         }
 
         return itemProviders

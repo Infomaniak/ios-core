@@ -94,7 +94,15 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
             .replacingOccurrences(of: "/", with: "")
         let fileName: String
         if currentName.isEmpty {
-            fileName = "\(URL.defaultFileName()).webloc"
+            if #available(iOS 16.0, *),
+                  let hostName = url.host()?
+                    .replacingOccurrences(of: "www.", with: "")
+                    .replacingOccurrences(of: ".", with: "_"),
+                  !hostName.isEmpty {
+                fileName = "\(hostName).webloc"
+            } else {
+                fileName = "\(URL.defaultFileName()).webloc"
+            }
         } else {
             fileName = "\(currentName).webloc"
         }

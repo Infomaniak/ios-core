@@ -102,11 +102,13 @@ final class UTItemProviderURLRepresentation: XCTestCase {
             XCTFail("Unexpected \(error)")
         }
     }
-
+    
+    @available(iOS 16.0, *)
     func testWebloc_successWebMainPage() async {
         // GIVEN
         let someURL = URL(string: "https://infomaniak.com/")!
         let item = NSItemProvider(contentsOf: someURL)!
+        let expectedFileName = "infomaniak_com.webloc"
 
         do {
             let provider = try ItemProviderURLRepresentation(from: item)
@@ -115,22 +117,50 @@ final class UTItemProviderURLRepresentation: XCTestCase {
 
             // WHEN
             let success = try await provider.result.get()
+            let title = success.lastPathComponent
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertGreaterThanOrEqual(success.lastPathComponent.count, 17 + ".webloc".count, "non empty title")
-            XCTAssertLessThanOrEqual(success.lastPathComponent.count, 30 + ".webloc".count, "smaller than UUID")
-            XCTAssertTrue(success.lastPathComponent.hasSuffix(".webloc"))
+            XCTAssertTrue(title.hasSuffix(".webloc"), "Expecting a .webloc extension, got:\(title)")
+            XCTAssertEqual(title, expectedFileName)
+
+        } catch {
+            XCTFail("Unexpected \(error)")
+        }
+    }
+    
+    @available(iOS 16.0, *)
+    func testWebloc_successWebMainPageWWW() async {
+        // GIVEN
+        let someURL = URL(string: "https://www.infomaniak.com/")!
+        let item = NSItemProvider(contentsOf: someURL)!
+        let expectedFileName = "infomaniak_com.webloc"
+
+        do {
+            let provider = try ItemProviderURLRepresentation(from: item)
+            let progress = provider.progress
+            XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
+
+            // WHEN
+            let success = try await provider.result.get()
+            let title = success.lastPathComponent
+
+            // THEN
+            XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
+            XCTAssertTrue(title.hasSuffix(".webloc"), "Expecting a .webloc extension, got:\(title)")
+            XCTAssertEqual(title, expectedFileName)
 
         } catch {
             XCTFail("Unexpected \(error)")
         }
     }
 
+    @available(iOS 16.0, *)
     func testWebloc_successWebMainPageAlt() async {
         // GIVEN
         let someURL = URL(string: "https://infomaniak.com")!
         let item = NSItemProvider(contentsOf: someURL)!
+        let expectedFileName = "infomaniak_com.webloc"
 
         do {
             let provider = try ItemProviderURLRepresentation(from: item)
@@ -139,12 +169,12 @@ final class UTItemProviderURLRepresentation: XCTestCase {
 
             // WHEN
             let success = try await provider.result.get()
+            let title = success.lastPathComponent
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertGreaterThanOrEqual(success.lastPathComponent.count, 17 + ".webloc".count, "non empty title")
-            XCTAssertLessThanOrEqual(success.lastPathComponent.count, 30 + ".webloc".count, "smaller than UUID")
-            XCTAssertTrue(success.lastPathComponent.hasSuffix(".webloc"))
+            XCTAssertTrue(title.hasSuffix(".webloc"), "Expecting a .webloc extension, got:\(title)")
+            XCTAssertEqual(title, expectedFileName)
 
         } catch {
             XCTFail("Unexpected \(error)")
@@ -201,7 +231,7 @@ final class UTItemProviderURLRepresentation: XCTestCase {
             )
         }
     }
-    
+
     func testWebloc_malformedLocalFile() async {
         // GIVEN
         let someURL = URL(string: "file://infomaniak.com/index.html")!

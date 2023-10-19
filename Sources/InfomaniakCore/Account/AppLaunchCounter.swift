@@ -21,15 +21,19 @@ import Foundation
 public class AppLaunchCounter {
     public init() {}
 
-    var isFirstLaunch: Bool {
-        return UserDefaults.standard.launchCounter == 0
+    public var value: Int {
+        return UserDefaults.standard.launchCounter
     }
 
-    func increase() {
+    public var isFirstLaunch: Bool {
+        return value == 0
+    }
+
+    public func increase() {
         UserDefaults.standard.launchCounter += 1
     }
 
-    func reset() {
+    public func reset() {
         UserDefaults.standard.launchCounter = 0
     }
 }

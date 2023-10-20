@@ -36,6 +36,7 @@ open class ApiResponse<ResponseContent: Decodable>: Decodable {
     public let page: Int?
     public let itemsPerPage: Int?
     public let responseAt: Int?
+    public let cursor: String?
 
     enum CodingKeys: String, CodingKey {
         case result
@@ -46,6 +47,7 @@ open class ApiResponse<ResponseContent: Decodable>: Decodable {
         case page
         case itemsPerPage = "items_per_page"
         case responseAt = "response_at"
+        case cursor
     }
 
     public required init(from decoder: Decoder) throws {
@@ -64,5 +66,6 @@ open class ApiResponse<ResponseContent: Decodable>: Decodable {
         page = try container.decodeIfPresent(Int.self, forKey: .page)
         itemsPerPage = try container.decodeIfPresent(Int.self, forKey: .itemsPerPage)
         responseAt = try container.decodeIfPresent(Int.self, forKey: .responseAt)
+        cursor = try container.decodeIfPresent(String.self, forKey: .cursor)
     }
 }

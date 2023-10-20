@@ -137,7 +137,7 @@ open class ApiFetcher {
     }
 
     open func perform<T: Decodable>(request: DataRequest,
-                                    decoder: JSONDecoder = ApiFetcher.decoder) async throws -> (data: T, responseAt: Int?) {
+                                    decoder: JSONDecoder = ApiFetcher.decoder) async throws -> (data: T, response: ApiResponse<T>) {
         let validatedRequest = request.validate(statusCode: ApiFetcher.handledHttpStatus)
         let response = await validatedRequest.serializingDecodable(ApiResponse<T>.self,
                                                                    automaticallyCancelling: true,
@@ -147,9 +147,9 @@ open class ApiFetcher {
     }
 
     open func handleApiResponse<T: Decodable>(_ response: ApiResponse<T>,
-                                              responseStatusCode: Int) throws -> (data: T, responseAt: Int?) {
+                                              responseStatusCode: Int) throws -> (data: T, response: ApiResponse<T>) {
         if let responseData = response.data {
-            return (responseData, response.responseAt)
+            return (responseData, response)
         } else if let apiError = response.error {
             throw InfomaniakError.apiError(apiError)
         } else {

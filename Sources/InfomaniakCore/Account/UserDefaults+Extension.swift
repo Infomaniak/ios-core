@@ -26,25 +26,11 @@ public extension UserDefaults {
             self.rawValue = rawValue
         }
 
-        static let isFirstLaunch = Keys(rawValue: "isFirstLaunch")
         static let currentUserId = Keys(rawValue: "currentUserId")
     }
 
     func key(_ key: Keys) -> String {
         return key.rawValue
-    }
-
-    var isFirstLaunch: Bool {
-        get {
-            if object(forKey: key(.isFirstLaunch)) != nil {
-                return bool(forKey: key(.isFirstLaunch))
-            } else {
-                return true
-            }
-        }
-        set {
-            set(newValue, forKey: key(.isFirstLaunch))
-        }
     }
 
     var currentUserId: Int {
@@ -53,6 +39,23 @@ public extension UserDefaults {
         }
         set {
             set(newValue, forKey: key(.currentUserId))
+        }
+    }
+}
+
+// MARK: - Internal extension
+
+extension UserDefaults.Keys {
+    static let launchCounter = UserDefaults.Keys(rawValue: "launchCounter")
+}
+
+extension UserDefaults {
+    var launchCounter: Int {
+        get {
+            return integer(forKey: key(.launchCounter))
+        }
+        set {
+            set(newValue, forKey: key(.launchCounter))
         }
     }
 }

@@ -19,7 +19,7 @@
 import Foundation
 
 public class AppLaunchCounter {
-    public init() {}
+    public init() { /* Empty on purpose */ }
 
     public var value: Int {
         return UserDefaults.standard.launchCounter

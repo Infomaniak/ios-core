@@ -19,29 +19,29 @@
 import CryptoKit
 import Foundation
 
-// @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-// extension Digest: DigestStringRepresentable {}
-
-/// Hashing String helpers
+/// Hashing a Stream of Data.
+///
+/// Not thread safe, use within the same queue / actor.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class DataStreamHasher {
+public final class DataStreamHasher<Hasher: HashFunction> {
     /// The internal state of the stream hasher
     var state = StreamState.begin
 
+    /// Enum to represent the state of the stream hasher
     enum StreamState {
         case begin
         case progress(received: Int)
-        case done(digest: any Digest)
+        case done(digest: Hasher.Digest)
     }
 
-    /// the hasher
-    var sha: SHA256
+    /// internal hasher
+    var hasher: Hasher
 
     public init() {
         state = .begin
-        sha = SHA256()
+        hasher = Hasher()
     }
-    
+
     /// Returns true until finalize() is called
     private var isNotDone: Bool {
         switch state {
@@ -52,11 +52,13 @@ public final class DataStreamHasher {
         }
     }
 
+    /// Process the next batch of arbitrary data from a stream
+    /// - Parameter data: data of arbitrary length
     public func update(_ data: Data) {
         guard isNotDone else {
             return
         }
-        
+
         let offset: Int
         if case .progress(let value) = state {
             offset = value + data.count
@@ -66,19 +68,24 @@ public final class DataStreamHasher {
 
         state = .progress(received: offset)
 
-        sha.update(data: data)
+        hasher.update(data: data)
     }
 
+    /// Call this to compute the final digest
+    ///
+    /// You cannot call update() anymore, create a new instance instead.
     @discardableResult
-    public func finalize() -> (any Digest) {
+    public func finalize() -> Hasher.Digest {
         if case .done(let digest) = state {
             return digest
         }
 
-        let digest = sha.finalize()
+        let digest = hasher.finalize()
         state = .done(digest: digest)
         return digest
     }
+
+    // MARK: Access to digest result
 
     public var digestString: String? {
         guard case .done(let digest) = state else {
@@ -88,7 +95,7 @@ public final class DataStreamHasher {
         return digest.digestString
     }
 
-    public var digest: (any Digest)? {
+    public var digest: Hasher.Digest? {
         guard case .done(let digest) = state else {
             return nil
         }

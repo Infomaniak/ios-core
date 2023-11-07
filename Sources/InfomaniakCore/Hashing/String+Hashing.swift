@@ -1,5 +1,5 @@
 /*
- Infomaniak Core - iOS
+ Infomaniak kDrive - iOS App
  Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
@@ -19,28 +19,30 @@
 import CryptoKit
 import Foundation
 
-/// Hashing data helpers
+/// Hashing String helpers
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension Data {
-    
-    /// Get a `SHA256Digest` of the current Data
+public extension String {
+    private var dataToHash: Data {
+        data(using: .utf8) ?? Data()
+    }
+
+    /// Get a `SHA256Digest` of the current String
     var SHA256Digest: SHA256Digest {
-        SHA256.hash(data: self)
+        dataToHash.SHA256Digest
     }
-    
-    /// Get a `SHA512Digest` of the current Data
+
+    /// Get a `SHA512Digest` of the current String
     var SHA512Digest: SHA512Digest {
-        SHA512.hash(data: self)
+        dataToHash.SHA512Digest
     }
-    
-    /// Get a `SHA256` String of the current Data
+
+    /// Get a `SHA256` String of the current String
     var SHA256DigestString: String {
-        self.SHA256Digest.compactMap { String(format: "%02x", $0) }.joined()
+        dataToHash.SHA256DigestString
     }
-    
-    /// Get a `SHA512` String of the current Data
+
+    /// Get a `SHA512` String of the current String
     var SHA512DigestString: String {
-        self.SHA512Digest.compactMap { String(format: "%02x", $0) }.joined()
+        dataToHash.SHA512DigestString
     }
-    
 }

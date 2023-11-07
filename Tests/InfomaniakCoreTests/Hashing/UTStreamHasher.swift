@@ -21,7 +21,7 @@ import InfomaniakCore
 import XCTest
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-final class UTDataStreamHasher: XCTestCase {
+final class UTStreamHasher: XCTestCase {
     // MARK: - SHA256
 
     func testStreamHash256() {
@@ -42,7 +42,7 @@ final class UTDataStreamHasher: XCTestCase {
         let stream = bytes.chunked(into: 4) // A 2d Array of bytes to mimic a stream of data
         XCTAssertEqual(stream.count, 12, "Precondition on stream to be parsed")
 
-        let streamHasher = DataStreamHasher<SHA256>()
+        let streamHasher = StreamHasher<SHA256>()
 
         // WHEN
         for buffer in stream {
@@ -80,7 +80,7 @@ final class UTDataStreamHasher: XCTestCase {
         let stream = bytes.chunked(into: 4) // A 2d Array of bytes to mimic a stream of data
         XCTAssertEqual(stream.count, 12, "Precondition on stream to be parsed")
 
-        let streamHasher = DataStreamHasher<SHA256>()
+        let streamHasher = StreamHasher<SHA256>()
 
         // WHEN
         for buffer in stream {
@@ -120,7 +120,7 @@ final class UTDataStreamHasher: XCTestCase {
         let stream = bytes.chunked(into: 4) // A 2d Array of bytes to mimic a stream of data
         XCTAssertEqual(stream.count, 12, "Precondition on stream to be parsed")
 
-        let streamHasher = DataStreamHasher<SHA512>()
+        let streamHasher = StreamHasher<SHA512>()
 
         // WHEN
         for buffer in stream {
@@ -158,7 +158,7 @@ final class UTDataStreamHasher: XCTestCase {
         let stream = bytes.chunked(into: 4) // A 2d Array of bytes to mimic a stream of data
         XCTAssertEqual(stream.count, 12, "Precondition on stream to be parsed")
 
-        let streamHasher = DataStreamHasher<SHA512>()
+        let streamHasher = StreamHasher<SHA512>()
 
         // WHEN
         for buffer in stream {

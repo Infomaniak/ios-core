@@ -23,7 +23,7 @@ import Foundation
 ///
 /// Not thread safe, use within the same queue / actor.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class DataStreamHasher<Hasher: HashFunction> {
+public final class StreamHasher<Hasher: HashFunction> {
     /// The internal state of the stream hasher
     var state = StreamState.begin
 

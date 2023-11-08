@@ -19,10 +19,10 @@
 import CocoaLumberjackSwift
 import Foundation
 
-enum BackgroundExecutor {
-    typealias TaskCompletion = () -> Void
-    static func executeWithBackgroundTask(_ block: @escaping (@escaping TaskCompletion) -> Void,
-                                          onExpired: @escaping () -> Void) {
+public enum BackgroundExecutor {
+    public typealias TaskCompletion = () -> Void
+    public static func executeWithBackgroundTask(_ block: @escaping (@escaping TaskCompletion) -> Void,
+                                                 onExpired: @escaping () -> Void) {
         let taskName = "executeWithBackgroundTask \(UUID().uuidString)"
         let processInfos = ProcessInfo()
         let group = TolerantDispatchGroup()

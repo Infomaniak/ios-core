@@ -26,6 +26,8 @@ public extension UserDefaults {
             self.rawValue = rawValue
         }
 
+        // TODO: Clean hotfix
+        static let legacyIsFirstLaunch = Keys(rawValue: "isFirstLaunch")
         static let currentUserId = Keys(rawValue: "currentUserId")
     }
 
@@ -39,6 +41,20 @@ public extension UserDefaults {
         }
         set {
             set(newValue, forKey: key(.currentUserId))
+        }
+    }
+
+    // TODO: Clean hotfix
+    var legacyIsFirstLaunch: Bool {
+        get {
+            if object(forKey: key(.legacyIsFirstLaunch)) != nil {
+                return bool(forKey: key(.legacyIsFirstLaunch))
+            } else {
+                return true
+            }
+        }
+        set {
+            set(newValue, forKey: key(.legacyIsFirstLaunch))
         }
     }
 }

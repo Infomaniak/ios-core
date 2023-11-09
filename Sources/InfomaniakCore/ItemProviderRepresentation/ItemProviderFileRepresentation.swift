@@ -16,8 +16,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if canImport(MobileCoreServices)
-
 import Foundation
 import InfomaniakDI
 
@@ -145,5 +143,3 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
         }
     }
 }
-
-#endif

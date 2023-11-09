@@ -16,8 +16,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if canImport(MobileCoreServices)
-
 import Foundation
 import InfomaniakDI
 
@@ -94,7 +92,7 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
             .replacingOccurrences(of: "/", with: "")
         let fileName: String
         if currentName.isEmpty {
-            if #available(iOS 16.0, *),
+            if #available(iOS 16.0, macOS 13.0, *),
                   let hostName = url.host()?
                     .replacingOccurrences(of: "www.", with: "")
                     .replacingOccurrences(of: ".", with: "_"),
@@ -150,5 +148,3 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
         }
     }
 }
-
-#endif

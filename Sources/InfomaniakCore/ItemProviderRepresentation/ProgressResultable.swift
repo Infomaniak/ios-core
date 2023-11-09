@@ -16,8 +16,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if canImport(MobileCoreServices)
-
 import Foundation
 
 /// Some wrapper type that give initial access to a progress, and also to an async result
@@ -40,5 +38,3 @@ public protocol ProgressResultable {
     /// Re-processed each time
     var result: Result<Success, Failure> { get async }
 }
-
-#endif

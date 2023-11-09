@@ -16,8 +16,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if canImport(MobileCoreServices)
-
 import Foundation
 import InfomaniakDI
 
@@ -88,5 +86,3 @@ public extension URL {
         Self.defaultNameFormatter.string(from: date)
     }
 }
-
-#endif

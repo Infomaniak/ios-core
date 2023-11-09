@@ -26,6 +26,8 @@ public extension UserDefaults {
             self.rawValue = rawValue
         }
 
+        // TODO: Clean hotfix
+        static let legacyIsFirstLaunch = Keys(rawValue: "isFirstLaunch")
         static let currentUserId = Keys(rawValue: "currentUserId")
     }
 
@@ -34,6 +36,16 @@ public extension UserDefaults {
     }
 
     var currentUserId: Int {
+        get {
+            return integer(forKey: key(.currentUserId))
+        }
+        set {
+            set(newValue, forKey: key(.currentUserId))
+        }
+    }
+
+    // TODO: Clean hotfix
+    var legacyIsFirstLaunch: Int {
         get {
             return integer(forKey: key(.currentUserId))
         }

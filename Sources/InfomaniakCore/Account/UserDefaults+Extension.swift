@@ -45,12 +45,16 @@ public extension UserDefaults {
     }
 
     // TODO: Clean hotfix
-    var legacyIsFirstLaunch: Int {
+    var legacyIsFirstLaunch: Bool {
         get {
-            return integer(forKey: key(.currentUserId))
+            if object(forKey: key(.legacyIsFirstLaunch)) != nil {
+                return bool(forKey: key(.legacyIsFirstLaunch))
+            } else {
+                return true
+            }
         }
         set {
-            set(newValue, forKey: key(.currentUserId))
+            set(newValue, forKey: key(.legacyIsFirstLaunch))
         }
     }
 }

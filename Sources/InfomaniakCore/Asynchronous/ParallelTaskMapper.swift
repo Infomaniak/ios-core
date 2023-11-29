@@ -29,6 +29,7 @@ public typealias SequenceableCollection = Sequence & Collection
 /// Use default settings for optimised queue depth
 ///
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+@available(*, deprecated, message: "Use <Collection>.concurrentMap from the InfomaniakConcurrency package instead")
 public struct ParallelTaskMapper {
     /// private processing TaskQueue
     private let taskQueue: TaskQueue

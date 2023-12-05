@@ -16,11 +16,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if canImport(UIKit)
-
 import Foundation
 import MachO
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Something to construct a standard Infomaniak User-Agent
 public struct UserAgentBuilder {
@@ -56,8 +56,13 @@ public struct UserAgentBuilder {
         let hardwareDevice = modelIdentifier() ?? "unknownModel"
 
         let operatingSystemVersion = ProcessInfo.processInfo.operatingSystemVersion
+        #if canImport(UIKit)
+        let osName = UIDevice.current.systemName
+        #else
+        let osName = "macOS"
+        #endif
         let operatingSystemNameAndVersion =
-            "\(UIDevice.current.systemName) \(operatingSystemVersion.majorVersion).\(operatingSystemVersion.minorVersion).\(operatingSystemVersion.patchVersion)"
+            "\(osName) \(operatingSystemVersion.majorVersion).\(operatingSystemVersion.minorVersion).\(operatingSystemVersion.patchVersion)"
 
         let cpuArchitecture = microarchitecture() ?? "unknownArch"
 
@@ -67,5 +72,3 @@ public struct UserAgentBuilder {
         return "\(executableName)/\(appVersion) (\(hardwareDevice); \(operatingSystemNameAndVersion); \(cpuArchitecture))"
     }
 }
-
-#endif

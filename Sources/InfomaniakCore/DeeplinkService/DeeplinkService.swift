@@ -20,14 +20,13 @@ import Foundation
 import InfomaniakDI
 import Sentry
 
-@available(iOS 14, *)
 public struct DeeplinkService {
     @LazyInjectService private var urlOpener: URLOpenable
 
     private let group = "group.com.infomaniak"
     private let kdriveAppStore = "https://itunes.apple.com/app/id1482778676"
 
-    public init() { /*Empty on purpose*/ }
+    public init() { /* Empty on purpose */ }
 
     public func shareFileToKdrive(_ url: URL) throws {
         guard let destination = try GroupContainerService.writeToGroupContainer(group: group, file: url) else { return }

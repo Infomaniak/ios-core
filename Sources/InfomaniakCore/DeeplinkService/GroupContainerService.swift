@@ -18,13 +18,12 @@
 
 import Foundation
 
-@available(iOS 14, *)
 struct GroupContainerService {
     static func writeToGroupContainer(group: String, file: URL) throws -> URL? {
         guard let sharedContainerURL: URL = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: group) else { return nil }
 
-        let groupContainer = sharedContainerURL.appendingPathComponent("Library/Caches/file-sharing", conformingTo: .directory)
+        let groupContainer = sharedContainerURL.appendingPathComponent("Library/Caches/file-sharing", isDirectory: true)
         let destination = groupContainer.appendingPathComponent(file.lastPathComponent)
 
         if FileManager.default.fileExists(atPath: groupContainer.path) {

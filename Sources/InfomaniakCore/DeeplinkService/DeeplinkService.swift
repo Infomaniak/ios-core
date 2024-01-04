@@ -19,19 +19,14 @@ public struct DeeplinkService {
     public init() {}
 
     public func shareFileToKdrive(_ url: URL) throws {
-        do {
-            guard let destination = try GroupContainerService.writeToGroupContainer(group: group, file: url) else { return }
+        guard let destination = try GroupContainerService.writeToGroupContainer(group: group, file: url) else { return }
 
-            var targetUrl = URLComponents(string: "kdrive-file-sharing://file")
-            targetUrl?.queryItems = [URLQueryItem(name: "url", value: destination.path)]
-            if let targetAppUrl = targetUrl?.url, urlOpener.canOpen(url: targetAppUrl) {
-                urlOpener.openUrl(targetAppUrl)
-            } else {
-                urlOpener.openUrl(URL(string: "https://itunes.apple.com/app/id1482778676")!)
-            }
-        } catch {
-            SentrySDK.capture(error: error)
-            throw error
+        var targetUrl = URLComponents(string: "kdrive-file-sharing://file")
+        targetUrl?.queryItems = [URLQueryItem(name: "url", value: destination.path)]
+        if let targetAppUrl = targetUrl?.url, urlOpener.canOpen(url: targetAppUrl) {
+            urlOpener.openUrl(targetAppUrl)
+        } else {
+            urlOpener.openUrl(URL(string: "https://itunes.apple.com/app/id1482778676")!)
         }
     }
 }

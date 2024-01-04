@@ -46,9 +46,9 @@ public final class StreamHasher<Hasher: HashFunction> {
     private var isNotDone: Bool {
         switch state {
         case .begin, .progress:
-            true
+            return true
         case .done:
-            false
+            return false
         }
     }
 

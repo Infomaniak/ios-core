@@ -36,9 +36,6 @@ public protocol InfomaniakNetworkLoginable {
     /// Get an api token async (callback on background thread)
     func getApiTokenUsing(code: String, codeVerifier: String, completion: @escaping (ApiToken?, Error?) -> Void)
     
-    /// Get an api token async from an application password (callback on background thread)
-    func getApiToken(username: String, applicationPassword: String, completion: @escaping (ApiToken?, Error?) -> Void)
-    
     /// Refresh api token async (callback on background thread)
     func refreshToken(token: ApiToken, completion: @escaping (ApiToken?, Error?) -> Void)
 
@@ -73,23 +70,6 @@ public class InfomaniakNetworkLogin: InfomaniakNetworkLoginable {
             "code": code,
             "code_verifier": codeVerifier,
             "redirect_uri": redirectUri
-        ]
-        request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpBody = parameterDictionary.percentEncoded()
-
-        getApiToken(request: request, completion: completion)
-    }
-
-    public func getApiToken(username: String, applicationPassword: String, completion: @escaping (ApiToken?, Error?) -> Void) {
-        var request = URLRequest(url: URL(string: Self.GET_TOKEN_API_URL)!)
-
-        let parameterDictionary: [String: Any] = [
-            "grant_type": "password",
-            "access_type": "offline",
-            "client_id": clientId,
-            "username": username,
-            "password": applicationPassword
         ]
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")

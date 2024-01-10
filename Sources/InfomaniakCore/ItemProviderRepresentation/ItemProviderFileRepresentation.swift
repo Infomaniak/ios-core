@@ -43,7 +43,7 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
         case UnableToLoadFile
     }
 
-    public typealias Success = URL
+    public typealias Success = (url: URL, title: String)
     public typealias Failure = Error
 
     /// Init method
@@ -55,7 +55,7 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
         var typeIdentifiers = itemProvider.registeredTypeIdentifiers
         
         // make sure live photo identifier is at the end of supported formats
-        if let matchIndex = typeIdentifiers.index(of: Self.livePhotoIdentifier) {
+        if let matchIndex = typeIdentifiers.firstIndex(of: Self.livePhotoIdentifier) {
             typeIdentifiers.remove(at: matchIndex)
             typeIdentifiers.append(Self.livePhotoIdentifier)
         }
@@ -91,12 +91,13 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
                 @InjectService var pathProvider: AppGroupPathProvidable
                 let temporaryURL = try URL.temporaryUniqueFolderURL()
 
+                let title = (fileProviderURL.lastPathComponent as NSString).deletingPathExtension
                 let fileName = fileProviderURL.appendingPathExtension(for: uti).lastPathComponent
                 let temporaryFileURL = temporaryURL.appendingPathComponent(fileName)
                 try fileManager.copyItem(atPath: fileProviderURL.path, toPath: temporaryFileURL.path)
 
                 completionProgress.completedUnitCount += Self.progressStep
-                flowToAsync.sendSuccess(temporaryFileURL)
+                flowToAsync.sendSuccess((temporaryFileURL, title))
             } catch {
                 completionProgress.completedUnitCount += Self.progressStep
                 flowToAsync.sendFailure(error)
@@ -109,7 +110,7 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
 
     public var progress: Progress
 
-    public var result: Result<URL, Error> {
+    public var result: Result<Success, Failure> {
         get async {
             await flowToAsync.result
         }

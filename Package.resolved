@@ -28,6 +28,15 @@
       }
     },
     {
+      "identity" : "ios-login",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Infomaniak/ios-login",
+      "state" : {
+        "branch" : "login-refactor",
+        "revision" : "3c48ead189a5dc0602f53e32666f32d026599200"
+      }
+    },
+    {
       "identity" : "realm-core",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-core.git",

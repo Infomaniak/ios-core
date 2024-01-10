@@ -17,6 +17,7 @@
  */
 
 import Foundation
+import InfomaniakLogin
 
 public protocol AccountUpdateDelegate {
     func didUpdateCurrentAccount(_ account: Account)

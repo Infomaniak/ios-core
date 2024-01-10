@@ -19,6 +19,7 @@
 import Alamofire
 import Foundation
 import InfomaniakDI
+import InfomaniakLogin
 import Sentry
 
 public protocol RefreshTokenDelegate: AnyObject {
@@ -29,14 +30,14 @@ public protocol RefreshTokenDelegate: AnyObject {
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 open class ApiFetcher {
     public typealias RequestModifier = (inout URLRequest) throws -> Void
-    
+
     /// All status except 401 are handled by our code, 401 status is handled by Alamofire's Authenticator code
     private static var handledHttpStatus: Set<Int> = {
         var allStatus = Set(200 ... 500)
         allStatus.remove(401)
         return allStatus
     }()
-    
+
     public var authenticatedSession: Session!
     public static var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -139,8 +140,8 @@ open class ApiFetcher {
                                     decoder: JSONDecoder = ApiFetcher.decoder) async throws -> (data: T, responseAt: Int?) {
         let validatedRequest = request.validate(statusCode: ApiFetcher.handledHttpStatus)
         let response = await validatedRequest.serializingDecodable(ApiResponse<T>.self,
-                                                          automaticallyCancelling: true,
-                                                          decoder: decoder).response
+                                                                   automaticallyCancelling: true,
+                                                                   decoder: decoder).response
         let apiResponse = try response.result.get()
         return try handleApiResponse(apiResponse, responseStatusCode: response.response?.statusCode ?? -1)
     }

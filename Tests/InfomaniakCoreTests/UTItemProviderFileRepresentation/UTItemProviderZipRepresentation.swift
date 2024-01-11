@@ -58,6 +58,14 @@ final class UTItemProviderZipRepresentation: XCTestCase {
             // URL of a file somewhere we have access to
             let mockedFileURL = try await provider.result.get()
 
+            let pathComponents = mockedFileURL.pathComponents
+            let pathComponentsCount = pathComponents.count
+            let fileName = mockedFileURL.lastPathComponent
+            guard let folderName = mockedFileURL.pathComponents[safe: pathComponentsCount - 2] else {
+                XCTFail("Unexpected, should be able to get a folder name")
+                return
+            }
+
             // Sanity check
             XCTAssertTrue(mockedFileURL.lastPathComponent.hasSuffix("txt"))
             let folderToZipURL = mockedFileURL.deletingLastPathComponent()
@@ -72,29 +80,40 @@ final class UTItemProviderZipRepresentation: XCTestCase {
             XCTAssertFalse(progress.isFinished, "Expecting the progress to reflect that the task has not started yet")
 
             // WHEN We get the path of the zipped file
-            let successURL = try await zipFileRepresentation.result.get()
+            let success = try await zipFileRepresentation.result.get()
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertGreaterThanOrEqual(successURL.lastPathComponent.count, 30+".zip".count, "it should reflect the folder used, a UUID here")
-            XCTAssertEqual(successURL.pathExtension, "zip")
-            
+            XCTAssertEqual(success.title, folderName, "Expecting the generated zip file to match the compressed folder name")
+            XCTAssertGreaterThanOrEqual(
+                success.url.lastPathComponent.count,
+                30 + ".zip".count,
+                "it should reflect the folder used, a UUID here"
+            )
+            XCTAssertEqual(success.url.pathExtension, "zip")
+
             // We create a folder to unzip content
-            let unzipFolder = successURL.deletingLastPathComponent()
+            let unzipFolder = success.url.deletingLastPathComponent()
                 .appendingPathComponent("Unzip", isDirectory: true)
             try fileManager.createDirectory(at: unzipFolder, withIntermediateDirectories: true)
 
             // We build the URL of the unzipped folder
-            let fileName = successURL.lastPathComponent
-            let unzipFolderName = fileName.replacingOccurrences(of: ".zip", with: "")
+            let fileNameFromUrl = success.url.lastPathComponent
+            let unzipFolderName = fileNameFromUrl.replacingOccurrences(of: ".zip", with: "")
             let unzipFolderPath = unzipFolder.appendingPathComponent(unzipFolderName, isDirectory: true)
 
             // We perform the unzip
-            try fileManager.unzipItem(at: successURL, to: unzipFolder)
+            try fileManager.unzipItem(at: success.url, to: unzipFolder)
 
             // check the content of the unzipped folder
             let items = try fileManager.contentsOfDirectory(at: unzipFolderPath, includingPropertiesForKeys: nil)
             XCTAssertEqual(items.count, 1)
+            guard let unzippedItem = items.first else {
+                XCTFail("Unexpected empty folder")
+                return
+            }
+
+            XCTAssertEqual(unzippedItem.lastPathComponent, fileName, "file name should not change once unzipped")
 
             guard let unzipFileURL = items.first else {
                 XCTFail("Expecting to find exactly one file in unzipped folder")

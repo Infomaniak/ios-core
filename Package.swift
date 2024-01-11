@@ -16,12 +16,12 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/Infomaniak/ios-dependency-injection", .upToNextMajor(from: "1.1.10")),
-        .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.2.2")),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "8.3.1")),
-        .package(url: "https://github.com/realm/realm-swift", .upToNextMajor(from: "10.0.0")),
-        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack", .upToNextMajor(from: "3.7.0")),
-        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.0"))
+        .package(url: "https://github.com/Infomaniak/ios-dependency-injection", .upToNextMajor(from: "2.0.1")),
+        .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.8.1")),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "8.18.0")),
+        .package(url: "https://github.com/realm/realm-swift", .upToNextMajor(from: "10.45.3")),
+        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack", .upToNextMajor(from: "3.8.2")),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.17"))
     ],
     targets: [
         .target(

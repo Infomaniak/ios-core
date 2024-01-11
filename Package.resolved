@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire",
       "state" : {
-        "revision" : "bc268c28fb170f494de9e9927c371b8342979ece",
-        "version" : "5.7.1"
+        "revision" : "3dc6a42c7727c49bf26508e29b0a0b35f9c7e1ad",
+        "version" : "5.8.1"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/CocoaLumberjack/CocoaLumberjack.git",
       "state" : {
-        "revision" : "0188d31089b5881a269e01777be74c7316924346",
-        "version" : "3.8.0"
+        "revision" : "363ed23d19a931809ea834a7d722da830353806a",
+        "version" : "3.8.2"
       }
     },
     {
@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Infomaniak/ios-dependency-injection",
       "state" : {
-        "revision" : "41a99aeb652d5294355129bfa70d1ea8c17b9980",
-        "version" : "1.1.10"
+        "revision" : "8dc9e67e6d3d9f4f5bd02d693a7ce1f93b125bcd",
+        "version" : "2.0.1"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-core.git",
       "state" : {
-        "revision" : "f1434caadda443b4ed2261b91ea4f43ab1ee2aa5",
-        "version" : "13.15.1"
+        "revision" : "7227d6a447821c28895daa099b6c7cd4c99d461b",
+        "version" : "13.25.1"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-swift",
       "state" : {
-        "revision" : "b287dc102036ff425bd8a88483f0a5596871f05e",
-        "version" : "10.41.0"
+        "revision" : "836cc4b8619886f979f8961c3f592a82b0741591",
+        "version" : "10.45.3"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/getsentry/sentry-cocoa",
       "state" : {
-        "revision" : "e46936ed191c0112cd3276e1c10c0bb7f865268e",
-        "version" : "8.9.1"
+        "revision" : "3b9a8e69ca296bd8cd0e317ad7a448e5daf4a342",
+        "version" : "8.18.0"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/weichsel/ZIPFoundation.git",
       "state" : {
-        "revision" : "43ec568034b3731101dbf7670765d671c30f54f3",
-        "version" : "0.9.16"
+        "revision" : "a3f5c2bae0f04b0bce9ef3c4ba6bd1031a0564c4",
+        "version" : "0.9.17"
       }
     }
   ],

@@ -135,7 +135,7 @@ public final class ItemProviderTextRepresentation: NSObject, ProgressResultable 
 
     public var progress: Progress
 
-    public var result: Result<URL, Error> {
+    public var result: Result<Success, Failure> {
         get async {
             return await flowToAsync.result
         }

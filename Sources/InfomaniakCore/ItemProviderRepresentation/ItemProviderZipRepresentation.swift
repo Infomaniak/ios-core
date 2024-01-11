@@ -44,7 +44,7 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
         case notADirectory
     }
 
-    public typealias Success = URL
+    public typealias Success = (url: URL, title: String)
     public typealias Failure = Error
 
     public init(from itemProvider: NSItemProvider) throws {
@@ -87,7 +87,7 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
                     try self.fileManager.copyItem(at: zipURL, to: targetURL)
                     
                     completionProgress.completedUnitCount += Self.progressStep
-                    self.flowToAsync.sendSuccess(targetURL)
+                    self.flowToAsync.sendSuccess((targetURL, fileName))
                 } catch {
                     completionProgress.completedUnitCount += Self.progressStep
                     self.flowToAsync.sendFailure(error)
@@ -101,7 +101,7 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
 
     public var progress: Progress
 
-    public var result: Result<URL, Error> {
+    public var result: Result<Success, Failure> {
         get async {
             return await flowToAsync.result
         }

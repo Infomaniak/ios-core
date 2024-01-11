@@ -47,7 +47,7 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
         case localFileNotFound
     }
 
-    public typealias Success = URL
+    public typealias Success = (url: URL, title: String)
     public typealias Failure = Error
 
     public init(from itemProvider: NSItemProvider) throws {
@@ -91,18 +91,23 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
             .deletingPathExtension
             .replacingOccurrences(of: "/", with: "")
         let fileName: String
+        let fileTitle: String
         if currentName.isEmpty {
             if #available(iOS 16.0, macOS 13.0, *),
-                  let hostName = url.host()?
-                    .replacingOccurrences(of: "www.", with: "")
-                    .replacingOccurrences(of: ".", with: "_"),
-                  !hostName.isEmpty {
+               let hostName = url.host()?
+               .replacingOccurrences(of: "www.", with: "")
+               .replacingOccurrences(of: ".", with: "_"),
+               !hostName.isEmpty {
                 fileName = "\(hostName).webloc"
+                fileTitle = hostName
             } else {
-                fileName = "\(URL.defaultFileName()).webloc"
+                let defaultFileName = URL.defaultFileName()
+                fileName = "\(defaultFileName).webloc"
+                fileTitle = fileName
             }
         } else {
             fileName = "\(currentName).webloc"
+            fileTitle = currentName
         }
 
         let targetURL = try URL.temporaryUniqueFolderURL().appendingPathComponent(fileName)
@@ -111,7 +116,7 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
         try data.write(to: targetURL)
 
         completionProgress.completedUnitCount += Self.progressStep
-        flowToAsync.sendSuccess(targetURL)
+        flowToAsync.sendSuccess((targetURL, fileTitle))
     }
 
     /// Move a local file for later use
@@ -133,7 +138,9 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
         try fileManager.copyItem(at: url, to: targetURL)
 
         completionProgress.completedUnitCount += Self.progressStep
-        flowToAsync.sendSuccess(targetURL)
+        
+        let fileNameWithoutExtension = (fileName  as NSString).deletingPathExtension
+        flowToAsync.sendSuccess((targetURL, fileNameWithoutExtension))
 
         return true
     }
@@ -142,7 +149,7 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
 
     public var progress: Progress
 
-    public var result: Result<URL, Error> {
+    public var result: Result<Success, Failure> {
         get async {
             return await flowToAsync.result
         }

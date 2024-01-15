@@ -21,9 +21,8 @@ import InfomaniakDI
 
 /// Extending NSItemProvider for detecting file type, business logic.
 public extension NSItemProvider {
-    /// image identifiers supported by the app
+    /// image file identifiers supported by the app
     private static let imageUTIIdentifiers = [
-        UTI.image.identifier,
         UTI.jpeg.identifier,
         UTI.tiff.identifier,
         UTI.gif.identifier,
@@ -87,13 +86,13 @@ public extension NSItemProvider {
             return .isText
         } else if hasItemConformingToAnyOfTypeIdentifiers(Self.imageUTIIdentifiers) {
             return .isImageData
+        } else if registeredTypeIdentifiers.count == 1 &&
+            registeredTypeIdentifiers.first == UTI.image.identifier {
+            return .isUIImage
         } else if hasItemConformingToAnyOfTypeIdentifiers(Self.directoryUTIIdentifiers) {
             return .isDirectory
         } else if hasItemConformingToAnyOfTypeIdentifiers(Self.compressedUTIIdentifiers) {
             return .isCompressedData(identifier: typeIdentifier)
-        } else if registeredTypeIdentifiers.count == 1 &&
-            registeredTypeIdentifiers.first == UTI.image.identifier {
-            return .isUIImage
         } else {
             return .isMiscellaneous(identifier: typeIdentifier)
         }

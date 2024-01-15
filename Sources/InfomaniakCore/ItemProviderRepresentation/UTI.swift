@@ -311,6 +311,7 @@ public struct UTI: RawRepresentable {
 
     public static let webArchive = UTI(rawValue: kUTTypeWebArchive)
 
+    /// Typical for UIImage
     public static let image = UTI(rawValue: kUTTypeImage)
 
     public static let jpeg = UTI(rawValue: kUTTypeJPEG)

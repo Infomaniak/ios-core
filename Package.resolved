@@ -12,7 +12,7 @@
     {
       "identity" : "cocoalumberjack",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/CocoaLumberjack/CocoaLumberjack.git",
+      "location" : "https://github.com/CocoaLumberjack/CocoaLumberjack",
       "state" : {
         "revision" : "363ed23d19a931809ea834a7d722da830353806a",
         "version" : "3.8.2"
@@ -33,7 +33,7 @@
       "location" : "https://github.com/Infomaniak/ios-login",
       "state" : {
         "branch" : "login-refactor",
-        "revision" : "3c48ead189a5dc0602f53e32666f32d026599200"
+        "revision" : "9e34ff1ab1df7f8c841f368e8982e0024883579c"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
-        "revision" : "32e8d724467f8fe623624570367e3d50c5638e46",
-        "version" : "1.5.2"
+        "revision" : "532d8b529501fb73a2455b179e0bbb6d49b652ed",
+        "version" : "1.5.3"
       }
     },
     {

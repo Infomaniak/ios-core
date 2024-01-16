@@ -215,6 +215,9 @@ open class OAuthAuthenticator: Authenticator {
 
 extension ApiToken: AuthenticationCredential {
     public var requiresRefresh: Bool {
+        guard let expirationDate else {
+            return false
+        }
         return Date() > expirationDate
     }
 }

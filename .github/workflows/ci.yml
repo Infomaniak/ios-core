@@ -17,9 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: swift build
+        run: xcodebuild -scheme InfomaniakCore build -destination "platform=iOS Simulator,name=iPhone 13,OS=latest"
       - name: Test
-        run: swift test
+        run: xcodebuild -scheme InfomaniakCore test -destination "platform=iOS Simulator,name=iPhone 13,OS=latest"
 
   build_and_test_macOS:
     name: Build and Test project on macOS

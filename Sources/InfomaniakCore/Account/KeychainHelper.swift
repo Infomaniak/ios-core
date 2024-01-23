@@ -1,43 +1,44 @@
 /*
  Infomaniak Core - iOS
  Copyright (C) 2023 Infomaniak Network SA
- 
+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 import CocoaLumberjackSwift
 import Foundation
+import InfomaniakLogin
 import Sentry
 
 public class KeychainHelper {
     let accessGroup: String
     let tag = "ch.infomaniak.token".data(using: .utf8)!
     let keychainQueue = DispatchQueue(label: "com.infomaniak.keychain")
-    
+
     let lockedKey = "isLockedKey"
     let lockedValue = "locked".data(using: .utf8)!
     var accessibilityValueWritten = false
-    
+
     public init(accessGroup: String) {
         self.accessGroup = accessGroup
     }
-    
+
     public var isKeychainAccessible: Bool {
         if !accessibilityValueWritten {
             initKeychainAccessibility()
         }
-        
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: lockedKey,
@@ -47,13 +48,13 @@ public class KeychainHelper {
             kSecReturnRef as String: kCFBooleanTrue as Any,
             kSecMatchLimit as String: kSecMatchLimitAll
         ]
-        
+
         var result: AnyObject?
-        
+
         let resultCode = withUnsafeMutablePointer(to: &result) {
             SecItemCopyMatching(query as CFDictionary, UnsafeMutablePointer($0))
         }
-        
+
         if resultCode == noErr, let array = result as? [[String: Any]] {
             for item in array {
                 if let value = item[kSecValueData as String] as? Data {
@@ -66,7 +67,7 @@ public class KeychainHelper {
             return false
         }
     }
-    
+
     func initKeychainAccessibility() {
         accessibilityValueWritten = true
         let queryAdd: [String: Any] = [
@@ -81,7 +82,7 @@ public class KeychainHelper {
             "[Keychain] Successfully init KeychainHelper ? \(resultCode == noErr || resultCode == errSecDuplicateItem), \(resultCode)"
         )
     }
-    
+
     public func deleteToken(for userId: Int) {
         keychainQueue.sync {
             let queryDelete: [String: Any] = [
@@ -93,7 +94,7 @@ public class KeychainHelper {
             DDLogInfo("Successfully deleted token ? \(resultCode == noErr)")
         }
     }
-    
+
     public func deleteAllTokens() {
         keychainQueue.sync {
             let queryDelete: [String: Any] = [
@@ -104,27 +105,38 @@ public class KeychainHelper {
             DDLogInfo("Successfully deleted all tokens ? \(resultCode == noErr)")
         }
     }
-    
+
     public func storeToken(_ token: ApiToken) {
         var resultCode: OSStatus = noErr
 
         let tokenData = try! JSONEncoder().encode(token)
-        
+
         if let savedToken = getSavedToken(for: token.userId) {
             keychainQueue.sync {
+                let queryUpdate: [String: Any] = [
+                    kSecClass as String: kSecClassGenericPassword,
+                    kSecAttrAccount as String: "\(token.userId)"
+                ]
+
+                let attributes: [String: Any] = [
+                    kSecValueData as String: tokenData
+                ]
+
                 // Save token only if it's more recent
-                if savedToken.expirationDate <= token.expirationDate {
-                    let queryUpdate: [String: Any] = [
-                        kSecClass as String: kSecClassGenericPassword,
-                        kSecAttrAccount as String: "\(token.userId)"
-                    ]
-                    
-                    let attributes: [String: Any] = [
-                        kSecValueData as String: tokenData
-                    ]
+                if let savedTokenExpirationDate = savedToken.expirationDate,
+                   let newTokenExpirationDate = token.expirationDate,
+                   savedTokenExpirationDate <= newTokenExpirationDate {
                     resultCode = SecItemUpdate(queryUpdate as CFDictionary, attributes as CFDictionary)
                     DDLogInfo("Successfully updated token ? \(resultCode == noErr)")
                     SentrySDK.addBreadcrumb(token.generateBreadcrumb(level: .info, message: "Successfully updated token"))
+                } else if savedToken.expirationDate == nil || token.expirationDate == nil {
+                    // Or if one of them is now an infinite refresh token
+                    resultCode = SecItemUpdate(queryUpdate as CFDictionary, attributes as CFDictionary)
+                    DDLogInfo("Successfully updated unlimited token ? \(resultCode == noErr)")
+                    SentrySDK.addBreadcrumb(token.generateBreadcrumb(
+                        level: .info,
+                        message: "Successfully updated unlimited token"
+                    ))
                 }
             }
         } else {
@@ -149,7 +161,7 @@ public class KeychainHelper {
                     .generateBreadcrumb(level: .error, message: "Failed saving token", keychainError: resultCode))
         }
     }
-    
+
     public func getSavedToken(for userId: Int) -> ApiToken? {
         var savedToken: ApiToken?
         keychainQueue.sync {
@@ -164,11 +176,11 @@ public class KeychainHelper {
                 kSecMatchLimit as String: kSecMatchLimitOne
             ]
             var result: AnyObject?
-            
+
             let resultCode = withUnsafeMutablePointer(to: &result) {
                 SecItemCopyMatching(queryFindOne as CFDictionary, UnsafeMutablePointer($0))
             }
-            
+
             let jsonDecoder = JSONDecoder()
             if resultCode == noErr,
                let keychainItem = result as? [String: Any],
@@ -179,7 +191,7 @@ public class KeychainHelper {
         }
         return savedToken
     }
-    
+
     public func loadTokens() -> [ApiToken] {
         var values = [ApiToken]()
         keychainQueue.sync {
@@ -192,14 +204,14 @@ public class KeychainHelper {
                 kSecReturnRef as String: kCFBooleanTrue as Any,
                 kSecMatchLimit as String: kSecMatchLimitAll
             ]
-            
+
             var result: AnyObject?
-            
+
             let resultCode = withUnsafeMutablePointer(to: &result) {
                 SecItemCopyMatching(query as CFDictionary, UnsafeMutablePointer($0))
             }
             DDLogInfo("Successfully loaded tokens ? \(resultCode == noErr)")
-            
+
             guard resultCode == noErr else {
                 let crumb = Breadcrumb(level: .error, category: "Token")
                 crumb.type = "error"
@@ -208,7 +220,7 @@ public class KeychainHelper {
                 SentrySDK.addBreadcrumb(crumb)
                 return
             }
-            
+
             if let array = result as? [[String: Any]] {
                 let jsonDecoder = JSONDecoder()
                 for item in array {
@@ -224,5 +236,19 @@ public class KeychainHelper {
             }
         }
         return values
+    }
+}
+
+public extension ApiToken {
+    func generateBreadcrumb(level: SentryLevel, message: String, keychainError: OSStatus = noErr) -> Breadcrumb {
+        let crumb = Breadcrumb(level: level, category: "Token")
+        crumb.type = level == .info ? "info" : "error"
+        crumb.message = message
+        crumb.data = ["User id": userId,
+                      "Expiration date": expirationDate?.timeIntervalSince1970 ?? "infinite",
+                      "Access Token": truncatedAccessToken,
+                      "Refresh Token": truncatedRefreshToken,
+                      "Keychain error code": keychainError]
+        return crumb
     }
 }

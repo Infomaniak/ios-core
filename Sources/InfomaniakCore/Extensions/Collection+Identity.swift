@@ -1,5 +1,5 @@
 /*
- Infomaniak kDrive - iOS App
+ Infomaniak Core - iOS
  Copyright (C) 2023 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
@@ -17,15 +17,15 @@
  */
 
 import Foundation
+import SwiftUI
 
-public extension Array {
-    /// Subdivide an array into smaller parts
-    /// - Parameter size: the size of the sub-division
-    /// - Returns: The chunked structure
-    @available(*, deprecated, message: "Use chunks(ofCount: Int) form apple/swift-algorithms instead")
-    func chunked(into size: Int) -> [[Element]] {
-        return stride(from: 0, to: count, by: size).map {
-            Array(self[$0 ..< Swift.min($0 + size, count)])
-        }
+@available(iOS 13.0, *)
+public extension Collection where Element: Identifiable {
+    /// Compute a stable id for the given collection
+    func collectionId(baseId: AnyHashable? = nil) -> Int {
+        var hasher = Hasher()
+        hasher.combine(baseId)
+        forEach { hasher.combine($0.id) }
+        return hasher.finalize()
     }
 }

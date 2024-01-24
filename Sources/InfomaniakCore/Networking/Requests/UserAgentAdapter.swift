@@ -16,8 +16,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if canImport(UIKit)
-
 import Alamofire
 import Foundation
 
@@ -41,5 +39,3 @@ public class UserAgentAdapter: RequestAdapter {
         completion(.success(adaptedRequest))
     }
 }
-
-#endif

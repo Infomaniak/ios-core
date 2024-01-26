@@ -16,8 +16,14 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import InfomaniakCore
+@testable import InfomaniakCore
 import XCTest
+
+extension DispatchQoS: CaseIterable {
+    public static var allCases: [DispatchQoS] {
+        [.background, .utility, .default, .userInitiated, .userInteractive, .unspecified]
+    }
+}
 
 final class UTTolerantDispatchGroup: XCTestCase {
     func testCanInit() {
@@ -26,5 +32,29 @@ final class UTTolerantDispatchGroup: XCTestCase {
 
         // THEN
         XCTAssertNotNil(dispatchGroup)
+    }
+
+    func testPriorityDefault() {
+        // WHEN
+        let dispatchGroup = TolerantDispatchGroup()
+
+        // THEN
+        XCTAssertNotNil(dispatchGroup)
+        XCTAssertEqual(dispatchGroup.syncQueue.qos, DispatchQoS.default, "default constructor should have default priority")
+    }
+
+    func testPriorityAnyIsSet() {
+        // GIVEN
+        guard let expectedQoS = DispatchQoS.allCases.randomElement() else {
+            XCTFail("unexpected")
+            return
+        }
+
+        // WHEN
+        let dispatchGroup = TolerantDispatchGroup(qos: expectedQoS)
+
+        // THEN
+        XCTAssertNotNil(dispatchGroup)
+        XCTAssertEqual(dispatchGroup.syncQueue.qos, expectedQoS, "QoS should match")
     }
 }

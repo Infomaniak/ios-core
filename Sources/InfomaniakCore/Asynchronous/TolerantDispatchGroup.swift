@@ -20,12 +20,12 @@ import CocoaLumberjackSwift
 import Foundation
 
 public final class TolerantDispatchGroup {
-    private let syncQueue = DispatchQueue(label: "com.infomaniak.TolerantDispatchGroup")
+    let syncQueue: DispatchQueue
     private let dispatchGroup = DispatchGroup()
     private var callBalancer = 0
 
-    public init() {
-        // Meta: Keep Sonar Cloud happy
+    public init(qos: DispatchQoS = .default) {
+        syncQueue = DispatchQueue(label: "com.infomaniak.TolerantDispatchGroup", qos: qos)
     }
     
     public func enter() {

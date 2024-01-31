@@ -24,7 +24,9 @@ public final class TolerantDispatchGroup {
     private let dispatchGroup = DispatchGroup()
     private var callBalancer = 0
 
-    public init(qos: DispatchQoS = .default) {
+    /// Init method of TolerantDispatchGroup
+    /// - Parameter qos: The QoS of the underlying queue. Default to `.userInitiated` to prevent most priority inversions
+    public init(qos: DispatchQoS = .userInitiated) {
         syncQueue = DispatchQueue(label: "com.infomaniak.TolerantDispatchGroup", qos: qos)
     }
     

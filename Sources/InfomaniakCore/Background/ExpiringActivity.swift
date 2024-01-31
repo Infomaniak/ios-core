@@ -39,10 +39,10 @@ public final class ExpiringActivity: ExpiringActivityable {
     private var locks = [TolerantDispatchGroup]()
 
     /// QoS used by the underlying queues
-    private static let qos: DispatchQoS = .userInitiated
+    private let qos: DispatchQoS = .userInitiated
 
     /// For thread safety
-    private let queue = DispatchQueue(label: "com.infomaniak.ExpiringActivity.sync", qos: ExpiringActivity.qos)
+    private let queue: DispatchQueue
 
     /// Something to identify the background activity in debug
     let id: String
@@ -52,9 +52,14 @@ public final class ExpiringActivity: ExpiringActivityable {
 
     // MARK: Lifecycle
 
-    public init(id: String, delegate: ExpiringActivityDelegate?) {
+    public init(id: String, qos: DispatchQoS, delegate: ExpiringActivityDelegate?) {
         self.id = id
         self.delegate = delegate
+        queue = DispatchQueue(label: "com.infomaniak.ExpiringActivity.sync", qos: qos)
+    }
+    
+    convenience public init(id: String, delegate: ExpiringActivityDelegate?) {
+        self.init(id: id, qos: .userInitiated, delegate: delegate)
     }
 
     deinit {

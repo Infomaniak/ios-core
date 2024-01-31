@@ -34,13 +34,13 @@ final class UTTolerantDispatchGroup: XCTestCase {
         XCTAssertNotNil(dispatchGroup)
     }
 
-    func testPriorityDefault() {
+    func testDefaultPriorityIsHigh() {
         // WHEN
         let dispatchGroup = TolerantDispatchGroup()
 
         // THEN
         XCTAssertNotNil(dispatchGroup)
-        XCTAssertEqual(dispatchGroup.syncQueue.qos, DispatchQoS.default, "default constructor should have default priority")
+        XCTAssertEqual(dispatchGroup.syncQueue.qos, DispatchQoS.userInitiated, "default constructor should have default priority")
     }
 
     func testPriorityAnyIsSet() {

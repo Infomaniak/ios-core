@@ -19,18 +19,32 @@
 import CocoaLumberjackSwift
 import Foundation
 
-/// Something to wrap arbitrary code that should be performed on the background.
-public enum BackgroundExecutor {
-    public typealias TaskCompletion = () -> Void
+public typealias TaskCompletion = () -> Void
 
+/// Something that can perform arbitrary short background tasks, with closure API.
+protocol ClosureExpiringActivable {
     /// Perform a short task in the background, be notified when the system wants to expire the task.
     /// - Parameters:
-    ///   - qos: Optionally set a the QoS used by underlying GCD queues
     ///   - block: The work to be performed on the background
     ///   - onExpired: The closure called by the system when we should end.
-    public static func executeWithBackgroundTask(qos: DispatchQoS = .userInitiated,
-                                                 _ block: @escaping (@escaping TaskCompletion) -> Void,
-                                                 onExpired: @escaping () -> Void) {
+    func executeWithBackgroundTask(_ block: @escaping (@escaping TaskCompletion) -> Void,
+                                   onExpired: @escaping () -> Void)
+}
+
+/// Something to wrap arbitrary code that should be performed on the background.
+public struct ClosureExpiringActivity: ClosureExpiringActivable {
+    private let qos: DispatchQoS
+
+    /// Init method of `BackgroundExecutor`
+    /// - Parameter qos: QoS used by the underlying queues. Defaults to `.userInitiated` to prevent most priority inversions.
+    public init(qos: DispatchQoS = .userInitiated) {
+        self.qos = qos
+    }
+
+    // MARK: - BackgroundExecutable
+
+    public func executeWithBackgroundTask(_ block: @escaping (@escaping TaskCompletion) -> Void,
+                                          onExpired: @escaping () -> Void) {
         let taskName = "executeWithBackgroundTask \(UUID().uuidString)"
         let processInfos = ProcessInfo()
         let group = TolerantDispatchGroup(qos: qos)

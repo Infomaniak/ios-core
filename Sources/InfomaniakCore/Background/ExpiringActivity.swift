@@ -24,7 +24,19 @@ public protocol ExpiringActivityDelegate: AnyObject {
     func backgroundActivityExpiring()
 }
 
+/// Something that can perform arbitrary short background tasks, with a super simple API.
 public protocol ExpiringActivityable {
+    /// Common init method
+    /// - Parameters:
+    ///   - id: Something to identify the background activity in debug
+    ///   - qos: QoS used by the underlying queues
+    ///   - delegate: The delegate to notify we should terminate
+    init(id: String, qos: DispatchQoS, delegate: ExpiringActivityDelegate?)
+
+    /// init method
+    /// - Parameters:
+    ///   - id: Something to identify the background activity in debug
+    ///   - delegate: The delegate to notify we should terminate
     init(id: String, delegate: ExpiringActivityDelegate?)
 
     /// Register with the system an expiring activity
@@ -35,30 +47,26 @@ public protocol ExpiringActivityable {
 }
 
 public final class ExpiringActivity: ExpiringActivityable {
-    /// Keep track of the locks on blocks
     private var locks = [TolerantDispatchGroup]()
 
-    /// QoS used by the underlying queues
-    private let qos: DispatchQoS = .userInitiated
+    private let qos: DispatchQoS
 
-    /// For thread safety
     private let queue: DispatchQueue
 
-    /// Something to identify the background activity in debug
     let id: String
 
-    /// The delegate to notify we should terminate
     weak var delegate: ExpiringActivityDelegate?
 
     // MARK: Lifecycle
 
     public init(id: String, qos: DispatchQoS, delegate: ExpiringActivityDelegate?) {
         self.id = id
+        self.qos = qos
         self.delegate = delegate
         queue = DispatchQueue(label: "com.infomaniak.ExpiringActivity.sync", qos: qos)
     }
-    
-    convenience public init(id: String, delegate: ExpiringActivityDelegate?) {
+
+    public convenience init(id: String, delegate: ExpiringActivityDelegate?) {
         self.init(id: id, qos: .userInitiated, delegate: delegate)
     }
 
@@ -69,7 +77,7 @@ public final class ExpiringActivity: ExpiringActivityable {
     }
 
     public func start() {
-        let group = TolerantDispatchGroup(qos: Self.qos)
+        let group = TolerantDispatchGroup(qos: qos)
 
         queue.sync {
             self.locks.append(group)

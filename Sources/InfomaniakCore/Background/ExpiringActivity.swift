@@ -42,16 +42,16 @@ public protocol ExpiringActivityable {
     /// Register with the system an expiring activity
     func start()
 
-    /// Terminate the expiring activity if needed.
-    func end()
+    /// Terminate all the expiring activities
+    func endAll()
 }
 
 public final class ExpiringActivity: ExpiringActivityable {
-    private var locks = [TolerantDispatchGroup]()
-
     private let qos: DispatchQoS
 
     private let queue: DispatchQueue
+
+    var locks = [TolerantDispatchGroup]()
 
     let id: String
 
@@ -72,7 +72,7 @@ public final class ExpiringActivity: ExpiringActivityable {
 
     deinit {
         queue.sync {
-            assert(locks.isEmpty, "please make sure to balance 'start()' and 'end()' before releasing this object")
+            assert(locks.isEmpty, "please make sure to call 'endAll()' once explicitly before releasing this object")
         }
     }
 
@@ -98,7 +98,7 @@ public final class ExpiringActivity: ExpiringActivityable {
         }
     }
 
-    public func end() {
+    public func endAll() {
         queue.sync {
             // Release locks, oldest first
             for group in locks.reversed() {

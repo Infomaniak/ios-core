@@ -33,6 +33,8 @@ protocol ClosureExpiringActivable {
 
 /// Something to wrap arbitrary code that should be performed on the background.
 public struct ClosureExpiringActivity: ClosureExpiringActivable {
+    private let processInfo = ProcessInfo.processInfo
+
     private let qos: DispatchQoS
 
     /// Init method of `BackgroundExecutor`
@@ -46,21 +48,19 @@ public struct ClosureExpiringActivity: ClosureExpiringActivable {
     public func executeWithBackgroundTask(_ block: @escaping (@escaping TaskCompletion) -> Void,
                                           onExpired: @escaping () -> Void) {
         let taskName = "executeWithBackgroundTask \(UUID().uuidString)"
-        let processInfos = ProcessInfo()
-        let group = TolerantDispatchGroup(qos: qos)
-        group.enter()
+
         #if os(macOS)
         DDLogDebug("Starting task \(taskName) (No expiration handler as we are running on macOS)")
-        processInfos.performActivity(options: .suddenTerminationDisabled, reason: taskName) {
+        processInfo.performActivity(options: .suddenTerminationDisabled, reason: taskName) {
             block {
                 DDLogDebug("Ending task \(taskName)")
-                group.leave()
             }
-            group.wait()
         }
         #else
         DDLogDebug("Starting task \(taskName)")
-        processInfos.performExpiringActivity(withReason: taskName) { expired in
+        let group = TolerantDispatchGroup(qos: qos)
+        group.enter()
+        processInfo.performExpiringActivity(withReason: taskName) { expired in
             if expired {
                 onExpired()
                 DDLogDebug("Expired task \(taskName)")

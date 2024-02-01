@@ -51,6 +51,8 @@ public final class ExpiringActivity: ExpiringActivityable {
 
     private let queue: DispatchQueue
 
+    private let processInfo = ProcessInfo.processInfo
+
     var locks = [TolerantDispatchGroup]()
 
     let id: String
@@ -83,8 +85,18 @@ public final class ExpiringActivity: ExpiringActivityable {
             self.locks.append(group)
         }
 
+        #if os(macOS)
+        // We block a non cooperative queue that matches current QoS
+        DispatchQueue.global(qos: qos.qosClass).async {
+            self.processInfo.performActivity(options: .suddenTerminationDisabled, reason: self.id) {
+                // No expiration handler as we are running on macOS
+                group.enter()
+                group.wait()
+            }
+        }
+        #else
         // Make sure to not lock an unexpected thread that would deinit()
-        ProcessInfo.processInfo.performExpiringActivity(withReason: id) { [weak self] shouldTerminate in
+        processInfo.performExpiringActivity(withReason: id) { [weak self] shouldTerminate in
             guard let self else {
                 return
             }
@@ -96,6 +108,7 @@ public final class ExpiringActivity: ExpiringActivityable {
             group.enter()
             group.wait()
         }
+        #endif
     }
 
     public func endAll() {

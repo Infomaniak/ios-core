@@ -29,6 +29,10 @@ public protocol RefreshTokenDelegate: AnyObject {
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 open class ApiFetcher {
+    enum ErrorDomain: Error {
+        case noServerResponse
+    }
+    
     public typealias RequestModifier = (inout URLRequest) throws -> Void
 
     /// All status except 401 are handled by our code, 401 status is handled by Alamofire's Authenticator code
@@ -138,22 +142,43 @@ open class ApiFetcher {
 
     open func perform<T: Decodable>(request: DataRequest,
                                     decoder: JSONDecoder = ApiFetcher.decoder) async throws -> (data: T, responseAt: Int?) {
-        let validatedRequest = request.validate(statusCode: ApiFetcher.handledHttpStatus)
-        let response = await validatedRequest.serializingDecodable(ApiResponse<T>.self,
-                                                                   automaticallyCancelling: true,
-                                                                   decoder: decoder).response
-        let apiResponse = try response.result.get()
-        return try handleApiResponse(apiResponse, responseStatusCode: response.response?.statusCode ?? -1)
+        let validServerResponse: ValidServerResponse<T> = try await perform(request: request, decoder: decoder)
+        return (validServerResponse.validApiResponse.data, validServerResponse.validApiResponse.responseAt)
     }
 
-    open func handleApiResponse<T: Decodable>(_ response: ApiResponse<T>,
-                                              responseStatusCode: Int) throws -> (data: T, responseAt: Int?) {
-        if let responseData = response.data {
-            return (responseData, response.responseAt)
-        } else if let apiError = response.error {
+    open func perform<T: Decodable>(request: DataRequest,
+                                    decoder: JSONDecoder = ApiFetcher.decoder) async throws -> ValidServerResponse<T> {
+        let validatedRequest = request.validate(statusCode: ApiFetcher.handledHttpStatus)
+        let dataResponse = await validatedRequest.serializingDecodable(ApiResponse<T>.self,
+                                                                       automaticallyCancelling: true,
+                                                                       decoder: decoder).response
+        return try handleApiResponse(dataResponse)
+    }
+
+    open func handleApiResponse<T: Decodable>(_ dataResponse: DataResponse<ApiResponse<T>, AFError>) throws
+        -> ValidServerResponse<T> {
+        let apiResponse = try dataResponse.result.get()
+
+        // This value should not be null because dataResponse.result.get should throw before
+        guard let serverResponse = dataResponse.response else {
+            throw ErrorDomain.noServerResponse
+        }
+
+        if let responseData = apiResponse.data {
+            let validApiResponse = ValidApiResponse(
+                result: apiResponse.result,
+                data: responseData,
+                total: apiResponse.total,
+                pages: apiResponse.pages,
+                page: apiResponse.page,
+                itemsPerPage: apiResponse.itemsPerPage,
+                responseAt: apiResponse.responseAt
+            )
+            return ValidServerResponse(responseHeaders: serverResponse.headers, validApiResponse: validApiResponse)
+        } else if let apiError = apiResponse.error {
             throw InfomaniakError.apiError(apiError)
         } else {
-            throw InfomaniakError.serverError(statusCode: responseStatusCode)
+            throw InfomaniakError.serverError(statusCode: serverResponse.statusCode)
         }
     }
 

@@ -32,7 +32,7 @@ open class ApiFetcher {
     enum ErrorDomain: Error {
         case noServerResponse
     }
-    
+
     public typealias RequestModifier = (inout URLRequest) throws -> Void
 
     /// All status except 401 are handled by our code, 401 status is handled by Alamofire's Authenticator code
@@ -140,10 +140,16 @@ open class ApiFetcher {
             )
     }
 
+    @available(*, deprecated, message: "Use perform with ValidServerResponse instead")
     open func perform<T: Decodable>(request: DataRequest,
                                     decoder: JSONDecoder = ApiFetcher.decoder) async throws -> (data: T, responseAt: Int?) {
         let validServerResponse: ValidServerResponse<T> = try await perform(request: request, decoder: decoder)
         return (validServerResponse.validApiResponse.data, validServerResponse.validApiResponse.responseAt)
+    }
+
+    open func perform<T: Decodable>(request: DataRequest,
+                                    decoder: JSONDecoder = ApiFetcher.decoder) async throws -> T {
+        return try await perform(request: request, decoder: decoder).validApiResponse.data
     }
 
     open func perform<T: Decodable>(request: DataRequest,

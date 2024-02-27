@@ -70,7 +70,7 @@ extension ApiFetcher: RequestDispatchable {
                                            parameters: nil)
         }
 
-        return try await perform(request: request).data
+        return try await perform(request: request)
     }
 
     func dispatchNSURLSession<Result: Decodable>(_ requestable: Requestable) async throws -> Result {

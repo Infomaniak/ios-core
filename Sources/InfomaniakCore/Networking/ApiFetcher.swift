@@ -180,7 +180,11 @@ open class ApiFetcher {
                 itemsPerPage: apiResponse.itemsPerPage,
                 responseAt: apiResponse.responseAt
             )
-            return ValidServerResponse(responseHeaders: serverResponse.headers, validApiResponse: validApiResponse)
+            return ValidServerResponse(
+                statusCode: serverResponse.statusCode,
+                responseHeaders: serverResponse.headers,
+                validApiResponse: validApiResponse
+            )
         } else if let apiError = apiResponse.error {
             throw InfomaniakError.apiError(apiError)
         } else {
@@ -189,11 +193,11 @@ open class ApiFetcher {
     }
 
     public func userOrganisations() async throws -> [OrganisationAccount] {
-        try await perform(request: authenticatedRequest(.organisationAccounts)).data
+        try await perform(request: authenticatedRequest(.organisationAccounts))
     }
 
     public func userProfile() async throws -> UserProfile {
-        try await perform(request: authenticatedRequest(.profile)).data
+        try await perform(request: authenticatedRequest(.profile))
     }
 }
 

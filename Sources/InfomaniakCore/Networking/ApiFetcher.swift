@@ -180,7 +180,11 @@ open class ApiFetcher {
                 itemsPerPage: apiResponse.itemsPerPage,
                 responseAt: apiResponse.responseAt
             )
-            return ValidServerResponse(responseHeaders: serverResponse.headers, validApiResponse: validApiResponse)
+            return ValidServerResponse(
+                statusCode: serverResponse.statusCode,
+                responseHeaders: serverResponse.headers,
+                validApiResponse: validApiResponse
+            )
         } else if let apiError = apiResponse.error {
             throw InfomaniakError.apiError(apiError)
         } else {

@@ -193,11 +193,11 @@ open class ApiFetcher {
     }
 
     public func userOrganisations() async throws -> [OrganisationAccount] {
-        try await perform(request: authenticatedRequest(.organisationAccounts)).data
+        try await perform(request: authenticatedRequest(.organisationAccounts))
     }
 
     public func userProfile() async throws -> UserProfile {
-        try await perform(request: authenticatedRequest(.profile)).data
+        try await perform(request: authenticatedRequest(.profile))
     }
 }
 

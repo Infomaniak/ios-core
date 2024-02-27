@@ -16,11 +16,23 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+@testable import Alamofire
 @testable import InfomaniakCore
 import XCTest
 
 @available(iOS 13.0, *)
 final class UTDecodeApiResponse: XCTestCase {
+    func fakeDataResponse<T: Decodable>(decodedResponse: ApiResponse<T>) -> DataResponse<ApiResponse<T>, AFError> {
+        DataResponse(
+            request: nil,
+            response: HTTPURLResponse(),
+            data: nil,
+            metrics: nil,
+            serializationDuration: 0,
+            result: .success(decodedResponse)
+        )
+    }
+
     func testDecodeNullDataResponse() throws {
         // GIVEN
         let apiFetcher = ApiFetcher()
@@ -33,12 +45,12 @@ final class UTDecodeApiResponse: XCTestCase {
 
         // WHEN
         let decodedResponse = try? JSONDecoder().decode(ApiResponse<NullableResponse>.self, from: jsonData)
+        let dataResponse = fakeDataResponse(decodedResponse: decodedResponse!)
 
         // THEN
         XCTAssertNotNil(decodedResponse, "Response shouldn't be nil")
         XCTAssertNoThrow(
-            try apiFetcher.handleApiResponse(decodedResponse!, responseStatusCode: 0),
-            "handleApiResponse shouldn't throw"
+            try apiFetcher.handleApiResponse(dataResponse), "handleApiResponse shouldn't throw"
         )
     }
 
@@ -54,13 +66,11 @@ final class UTDecodeApiResponse: XCTestCase {
 
         // WHEN
         let decodedResponse = try? JSONDecoder().decode(ApiResponse<Int>.self, from: jsonData)
+        let dataResponse = fakeDataResponse(decodedResponse: decodedResponse!)
 
         // THEN
         XCTAssertNotNil(decodedResponse, "Response shouldn't be nil")
-        XCTAssertNoThrow(
-            try apiFetcher.handleApiResponse(decodedResponse!, responseStatusCode: 0),
-            "handleApiResponse shouldn't throw"
-        )
+        XCTAssertNoThrow(try apiFetcher.handleApiResponse(dataResponse), "handleApiResponse shouldn't throw")
     }
 
     func testDecodeErrorNullApiResponse() throws {
@@ -74,11 +84,12 @@ final class UTDecodeApiResponse: XCTestCase {
 
         // WHEN
         let decodedResponse = try? JSONDecoder().decode(ApiResponse<Int>.self, from: jsonData)
+        let dataResponse = fakeDataResponse(decodedResponse: decodedResponse!)
 
         // THEN
         XCTAssertNotNil(decodedResponse, "Response shouldn't be nil")
         do {
-            let _ = try apiFetcher.handleApiResponse(decodedResponse!, responseStatusCode: 0)
+            let _ = try apiFetcher.handleApiResponse(dataResponse)
         } catch {
             let ikError = error as? InfomaniakError
             XCTAssertNotNil(ikError, "Error should be InfomaniakError")
@@ -97,11 +108,12 @@ final class UTDecodeApiResponse: XCTestCase {
 
         // WHEN
         let decodedResponse = try? JSONDecoder().decode(ApiResponse<Int>.self, from: jsonData)
+        let dataResponse = fakeDataResponse(decodedResponse: decodedResponse!)
 
         // THEN
         XCTAssertNotNil(decodedResponse, "Response shouldn't be nil")
         do {
-            let _ = try apiFetcher.handleApiResponse(decodedResponse!, responseStatusCode: 0)
+            let _ = try apiFetcher.handleApiResponse(dataResponse)
         } catch {
             let ikError = error as? InfomaniakError
             XCTAssertNotNil(ikError, "Error should be InfomaniakError")
@@ -123,11 +135,12 @@ final class UTDecodeApiResponse: XCTestCase {
 
         // WHEN
         let decodedResponse = try? JSONDecoder().decode(ApiResponse<Int>.self, from: jsonData)
+        let dataResponse = fakeDataResponse(decodedResponse: decodedResponse!)
 
         // THEN
         XCTAssertNotNil(decodedResponse, "Response shouldn't be nil")
         do {
-            let _ = try apiFetcher.handleApiResponse(decodedResponse!, responseStatusCode: 0)
+            let _ = try apiFetcher.handleApiResponse(dataResponse)
         } catch {
             let ikError = error as? InfomaniakError
             XCTAssertNotNil(ikError, "Error should be InfomaniakError")

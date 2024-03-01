@@ -25,7 +25,7 @@ extension UserDefaults.Keys {
     static let appReview = UserDefaults.Keys(rawValue: "appReview")
 }
 
-extension UserDefaults {
+public extension UserDefaults {
     var openingUntilReview: Int {
         get {
             return integer(forKey: key(.openingUntilReview))

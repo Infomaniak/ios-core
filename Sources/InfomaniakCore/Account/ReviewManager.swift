@@ -59,17 +59,13 @@ public protocol ReviewManageable {
 
 public class ReviewManager: ReviewManageable {
     let userDefaults: UserDefaults
-    var openingBeforeReview: Int
-  // var openingBeforeSecondReview: Int
+    let openingBeforeNextReviews: Int
 
-    // si openingBeforeReview = 50 ou += 500 alors on affiche la modal
-
-    public init(userDefaults: UserDefaults, openingBeforeReview: Int = 3 /*, openingBeforeSecondReview: Int = 5*/) {
+    public init(userDefaults: UserDefaults, openingBeforeFirstReview: Int = 3, openingBeforeNextReviews: Int = 5) {
         self.userDefaults = userDefaults
-        self.openingBeforeReview = openingBeforeReview
-       // self.openingBeforeSecondReview = openingBeforeSecondReview
+        self.openingBeforeNextReviews = openingBeforeNextReviews
         if userDefaults.object(forKey: userDefaults.key(.openingUntilReview)) == nil {
-            userDefaults.set(openingBeforeReview, forKey: userDefaults.key(.openingUntilReview))
+            userDefaults.set(openingBeforeFirstReview, forKey: userDefaults.key(.openingUntilReview))
         }
     }
 
@@ -82,16 +78,13 @@ public class ReviewManager: ReviewManageable {
         case .none, .feedback:
             let request = userDefaults.openingUntilReview <= 0
             if request {
-                userDefaults.openingUntilReview = openingBeforeReview
-//                if openingBeforeReview == 2 {
-//                    openingBeforeReview = openingBeforeSecondReview
-//                }
+                userDefaults.openingUntilReview = openingBeforeNextReviews
                 return true
             }
             return false
         case .readyForReview:
             if userDefaults.openingUntilReview <= 0 {
-                userDefaults.openingUntilReview = openingBeforeReview
+                userDefaults.openingUntilReview = openingBeforeNextReviews
                 requestReview()
             }
             return false

@@ -52,6 +52,7 @@ public enum ReviewType: String {
 }
 
 public protocol ReviewManageable {
+    func decreaseOpeningUntilReview()
     func shouldRequestReview() -> Bool
     func requestReview()
 }
@@ -70,6 +71,10 @@ public class ReviewManager: ReviewManageable {
         if userDefaults.object(forKey: userDefaults.key(.openingUntilReview)) == nil {
             userDefaults.set(openingBeforeReview, forKey: userDefaults.key(.openingUntilReview))
         }
+    }
+
+    public func decreaseOpeningUntilReview() {
+        userDefaults.openingUntilReview -= 1
     }
 
     public func shouldRequestReview() -> Bool {

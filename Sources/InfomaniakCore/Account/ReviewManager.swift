@@ -58,11 +58,15 @@ public protocol ReviewManageable {
 
 public class ReviewManager: ReviewManageable {
     let userDefaults: UserDefaults
-    let openingBeforeReview: Int
+    var openingBeforeReview: Int
+  // var openingBeforeSecondReview: Int
 
-    public init(userDefaults: UserDefaults, openingBeforeReview: Int = 50) {
+    // si openingBeforeReview = 50 ou += 500 alors on affiche la modal
+
+    public init(userDefaults: UserDefaults, openingBeforeReview: Int = 3 /*, openingBeforeSecondReview: Int = 5*/) {
         self.userDefaults = userDefaults
         self.openingBeforeReview = openingBeforeReview
+       // self.openingBeforeSecondReview = openingBeforeSecondReview
         if userDefaults.object(forKey: userDefaults.key(.openingUntilReview)) == nil {
             userDefaults.set(openingBeforeReview, forKey: userDefaults.key(.openingUntilReview))
         }
@@ -74,6 +78,9 @@ public class ReviewManager: ReviewManageable {
             let request = userDefaults.openingUntilReview <= 0
             if request {
                 userDefaults.openingUntilReview = openingBeforeReview
+//                if openingBeforeReview == 2 {
+//                    openingBeforeReview = openingBeforeSecondReview
+//                }
                 return true
             }
             return false

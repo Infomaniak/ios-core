@@ -65,7 +65,7 @@ public class ReviewManager: ReviewManageable {
         return userDefaults.appReview == .readyForReview
     }
 
-    public init(userDefaults: UserDefaults, openingBeforeFirstReview: Int = 3, openingBeforeNextReviews: Int = 5) {
+    public init(userDefaults: UserDefaults, openingBeforeFirstReview: Int = 50, openingBeforeNextReviews: Int = 500) {
         self.userDefaults = userDefaults
         self.openingBeforeNextReviews = openingBeforeNextReviews
         if userDefaults.object(forKey: userDefaults.key(.openingUntilReview)) == nil {

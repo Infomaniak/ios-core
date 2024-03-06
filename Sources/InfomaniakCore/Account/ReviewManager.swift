@@ -52,39 +52,46 @@ public enum ReviewType: String {
 }
 
 public protocol ReviewManageable {
+    func decreaseOpeningUntilReview()
     func shouldRequestReview() -> Bool
     func requestReview()
 }
 
 public class ReviewManager: ReviewManageable {
     let userDefaults: UserDefaults
-    let openingBeforeReview: Int
+    let openingBeforeNextReviews: Int
 
-    public init(userDefaults: UserDefaults, openingBeforeReview: Int = 50) {
+    private var userHasAlreadyAnsweredYes: Bool {
+        return userDefaults.appReview == .readyForReview
+    }
+
+    public init(userDefaults: UserDefaults, openingBeforeFirstReview: Int = 50, openingBeforeNextReviews: Int = 500) {
         self.userDefaults = userDefaults
-        self.openingBeforeReview = openingBeforeReview
+        self.openingBeforeNextReviews = openingBeforeNextReviews
         if userDefaults.object(forKey: userDefaults.key(.openingUntilReview)) == nil {
-            userDefaults.set(openingBeforeReview, forKey: userDefaults.key(.openingUntilReview))
+            userDefaults.set(openingBeforeFirstReview, forKey: userDefaults.key(.openingUntilReview))
         }
+    }
+
+    public func decreaseOpeningUntilReview() {
+        userDefaults.openingUntilReview -= 1
     }
 
     public func shouldRequestReview() -> Bool {
-        switch userDefaults.appReview {
-        case .none, .feedback:
-            let request = userDefaults.openingUntilReview <= 0
-            if request {
-                userDefaults.openingUntilReview = openingBeforeReview
+            guard userDefaults.openingUntilReview <= 0 else {
+                return false
+            }
+
+            userDefaults.openingUntilReview = openingBeforeNextReviews
+
+            if userHasAlreadyAnsweredYes {
+                // If the user has already answered yes, we will directly present the SKStoreReviewController
+                requestReview()
+                return false
+            } else {
                 return true
             }
-            return false
-        case .readyForReview:
-            if userDefaults.openingUntilReview <= 0 {
-                userDefaults.openingUntilReview = openingBeforeReview
-                requestReview()
-            }
-            return false
         }
-    }
 
     public func requestReview() {
         DispatchQueue.main.async {

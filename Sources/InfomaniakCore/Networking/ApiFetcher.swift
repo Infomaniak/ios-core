@@ -178,7 +178,9 @@ open class ApiFetcher {
                 pages: apiResponse.pages,
                 page: apiResponse.page,
                 itemsPerPage: apiResponse.itemsPerPage,
-                responseAt: apiResponse.responseAt
+                responseAt: apiResponse.responseAt,
+                cursor: nil,
+                hasMore: false
             )
             return ValidServerResponse(
                 statusCode: serverResponse.statusCode,

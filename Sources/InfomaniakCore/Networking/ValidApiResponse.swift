@@ -32,4 +32,6 @@ public struct ValidApiResponse<ResponseContent> {
     public let page: Int?
     public let itemsPerPage: Int?
     public let responseAt: Int?
+    public let cursor: String?
+    public let hasMore: Bool
 }

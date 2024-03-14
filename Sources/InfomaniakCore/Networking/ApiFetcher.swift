@@ -182,8 +182,8 @@ open class ApiFetcher {
                 page: apiResponse.page,
                 itemsPerPage: apiResponse.itemsPerPage,
                 responseAt: apiResponse.responseAt,
-                cursor: nil,
-                hasMore: false
+                cursor: apiResponse.cursor,
+                hasMore: apiResponse.hasMore
             )
             return ValidServerResponse(
                 statusCode: serverResponse.statusCode,

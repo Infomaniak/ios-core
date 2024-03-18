@@ -23,7 +23,7 @@ public class UserProfile: Codable, InfomaniakUser {
     public var firstName: String
     public var lastName: String
     public var email: String
-    public var avatar: String
+    public var avatar: String?
     public var login: String
     public var sessions: [UserSession]
     public var preferences: UserPreferences
@@ -73,7 +73,7 @@ public class UserProfile: Codable, InfomaniakUser {
             firstName = try container.decode(String.self, forKey: .firstName)
             lastName = try container.decode(String.self, forKey: .lastName)
             email = try container.decode(String.self, forKey: .email)
-            avatar = try container.decode(String.self, forKey: .avatar)
+            avatar = try container.decodeIfPresent(String.self, forKey: .avatar)
             login = try container.decode(String.self, forKey: .login)
             sessions = try container.decodeIfPresent([UserSession].self, forKey: .sessions) ?? []
             preferences = try container.decodeIfPresent(UserPreferences.self, forKey: .preferences) ?? UserPreferences()

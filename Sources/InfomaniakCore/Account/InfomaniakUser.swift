@@ -22,5 +22,5 @@ public protocol InfomaniakUser {
     var id: Int { get }
     var email: String { get }
     var displayName: String { get }
-    var avatar: String { get }
+    var avatar: String? { get }
 }

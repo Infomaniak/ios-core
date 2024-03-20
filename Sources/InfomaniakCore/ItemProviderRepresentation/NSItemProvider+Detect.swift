@@ -65,6 +65,8 @@ public extension NSItemProvider {
         case isDirectory
         /// The item is a compressed file
         case isCompressedData(identifier: String)
+        /// The item is a property list
+        case isPropertyList
         /// The item is of a miscellaneous type
         case isMiscellaneous(identifier: String)
         /// This should not happen, no type identifier was found
@@ -93,6 +95,8 @@ public extension NSItemProvider {
             return .isDirectory
         } else if hasItemConformingToAnyOfTypeIdentifiers(Self.compressedUTIIdentifiers) {
             return .isCompressedData(identifier: typeIdentifier)
+        } else if hasItemConformingToTypeIdentifier(UTI.propertyList.identifier) {
+            return .isPropertyList
         } else {
             return .isMiscellaneous(identifier: typeIdentifier)
         }

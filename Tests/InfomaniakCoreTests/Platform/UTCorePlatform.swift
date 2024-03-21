@@ -19,16 +19,36 @@
 import InfomaniakCore
 import XCTest
 
-final class UTCorePlatform: XCTestCase {
+// MARK: - appVersionLabel
 
-    func testVersionLabel() {
+#if canImport(UIKit)
+
+@available(iOS 13.0, *) final class UTCorePlatform: XCTestCase {
+    func testVersionLabel_ios() {
+        // GIVEN
+        let expectedPrefix = "xctest iOS version"
+
+        // WHEN
+        let versionLabel = CorePlatform.appVersionLabel(fallbackAppName: "xctest")
+
+        // THEN
+        XCTAssertTrue(versionLabel.hasPrefix(expectedPrefix), "wrong text, got :\(versionLabel)")
+    }
+}
+
+#else
+
+@available(macOS 10.15, *) final class UTCorePlatform: XCTestCase {
+    func testVersionLabel_mac() {
         // GIVEN
         let expectedPrefix = "xctest macOS version"
 
         // WHEN
         let versionLabel = CorePlatform.appVersionLabel(fallbackAppName: "xctest")
-        
+
         // THEN
-        XCTAssertTrue(versionLabel.hasPrefix(expectedPrefix))
+        XCTAssertTrue(versionLabel.hasPrefix(expectedPrefix), "wrong text, got :\(versionLabel)")
     }
 }
+
+#endif

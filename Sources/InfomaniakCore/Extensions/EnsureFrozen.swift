@@ -19,29 +19,21 @@
 import Foundation
 import RealmSwift
 
-
-/// This property wrapper ensures that the passed object is frozen. In case the given object isn't frozen an assert is raised.
+/// This property wrapper ensures that the passed object (or collection) is frozen. In case the given object isn't frozen an assert is raised.
 @propertyWrapper
-public struct EnsureFrozen<Value: ThreadConfined> {
+public struct EnsureFrozen<Value> {
     public let wrappedValue: Value
 
     public init(wrappedValue: Value) {
         #if DEBUG
-        assert(wrappedValue.isFrozen, "Object should be frozen")
-        #endif
-        self.wrappedValue = wrappedValue
-    }
-}
-
-/// This property wrapper ensures that the passed object collection is frozen. In case  all the objects in the given collection
-/// aren't frozen an assert is raised.
-@propertyWrapper
-public struct EnsureFrozenCollection<Value: Collection<ThreadConfined>> {
-    public let wrappedValue: Value
-
-    public init(wrappedValue: Value) {
-        #if DEBUG
-        assert(wrappedValue.allSatisfy { $0.isFrozen }, "All objects in collection should be frozen")
+        if let threadConfined = wrappedValue as? ThreadConfined {
+            assert(threadConfined.isFrozen, "Object should be frozen")
+        } else if let collection = wrappedValue as? (any Collection) {
+            assert(
+                collection.compactMap { $0 as? ThreadConfined }.allSatisfy { $0.isFrozen },
+                "All objects in collection should be frozen"
+            )
+        }
         #endif
         self.wrappedValue = wrappedValue
     }

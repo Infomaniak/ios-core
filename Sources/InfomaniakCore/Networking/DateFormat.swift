@@ -19,5 +19,6 @@
 import Foundation
 
 public enum DateFormat: String {
-    case iso8601, json
+    case iso8601
+    case json = "application/json"    
 }

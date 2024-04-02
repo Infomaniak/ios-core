@@ -94,14 +94,17 @@ public extension Endpoint {
         return Endpoint(path: "/2")
     }
 
-    static var profile: Endpoint {
-        return .baseV2.appending(path: "/profile", queryItems: [URLQueryItem(name: "with", value: "emails,phones")])
-    }
-
     static var organisationAccounts: Endpoint {
         return .baseV1.appending(path: "/account", queryItems: [
             URLQueryItem(name: "with", value: "logo"),
             URLQueryItem(name: "order_by", value: "name")
         ])
     }
+    
+    static func profile(ignoreDefaultAvatar: Bool) -> Endpoint {
+            return .baseV2.appending(path: "/profile", queryItems: [
+                URLQueryItem(name: "no_avatar_default", value: ignoreDefaultAvatar ? "1" : "0"),
+                URLQueryItem(name: "with", value: "emails,phones")
+            ])
+        }
 }

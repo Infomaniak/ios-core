@@ -75,7 +75,7 @@ public class UserProfile: Codable, InfomaniakUser {
             firstName = try container.decode(String.self, forKey: .firstname)
             lastName = try container.decode(String.self, forKey: .lastname)
             email = try container.decode(String.self, forKey: .email)
-            avatar = try container.decodeIfPresent(String.self, forKey: .avatar) ?? ""
+            avatar = try container.decodeIfPresent(String.self, forKey: .avatar)
             login = try container.decode(String.self, forKey: .login)
             sessions = []
             preferences = UserPreferences()

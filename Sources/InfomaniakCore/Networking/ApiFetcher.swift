@@ -198,8 +198,8 @@ open class ApiFetcher {
         try await perform(request: authenticatedRequest(.organisationAccounts))
     }
 
-    public func userProfile() async throws -> UserProfile {
-        try await perform(request: authenticatedRequest(.profile))
+    public func userProfile(ignoreDefaultAvatar: Bool = false) async throws -> UserProfile {
+        try await perform(request: authenticatedRequest(.profile(ignoreDefaultAvatar: ignoreDefaultAvatar)))
     }
 }
 

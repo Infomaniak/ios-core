@@ -69,7 +69,7 @@ public struct Endpoint {
         self.path = path
         self.queryItems = queryItems
     }
-    
+
     public init(host: String,
                 path: String,
                 queryItems: [URLQueryItem]? = nil) {
@@ -80,6 +80,10 @@ public struct Endpoint {
 
     public func appending(path: String, queryItems: [URLQueryItem]? = nil) -> Endpoint {
         return Endpoint(host: host, path: self.path + path, queryItems: queryItems)
+    }
+
+    public static func noAvatarDefault(_ value: Bool = true) -> URLQueryItem {
+        return URLQueryItem(name: "no_avatar_default", value: value ? "1" : "0")
     }
 }
 
@@ -94,14 +98,17 @@ public extension Endpoint {
         return Endpoint(path: "/2")
     }
 
-    static var profile: Endpoint {
-        return .baseV2.appending(path: "/profile", queryItems: [URLQueryItem(name: "with", value: "emails,phones")])
-    }
-
     static var organisationAccounts: Endpoint {
         return .baseV1.appending(path: "/account", queryItems: [
             URLQueryItem(name: "with", value: "logo"),
             URLQueryItem(name: "order_by", value: "name")
+        ])
+    }
+
+    static func profile(ignoreDefaultAvatar: Bool) -> Endpoint {
+        return .baseV2.appending(path: "/profile", queryItems: [
+            noAvatarDefault(ignoreDefaultAvatar),
+            URLQueryItem(name: "with", value: "emails,phones")
         ])
     }
 }

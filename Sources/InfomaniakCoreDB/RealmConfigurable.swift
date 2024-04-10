@@ -21,9 +21,8 @@ import RealmSwift
 
 /// Something that can access a realm
 ///
-/// For compatibility only, prefer { RealmConfigurable + Transactionable } conformance in your app
+/// Do not expose a realm directly, use Transactionable instead
 ///
-@available(*, deprecated, message: "Do not expose a realm directly, use Transactionable instead")
 public protocol RealmAccessible {
     /// Fetches an up to date realm for a given configuration, or fail in a controlled manner
     func getRealm() -> Realm

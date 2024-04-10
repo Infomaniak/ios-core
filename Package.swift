@@ -13,6 +13,10 @@ let package = Package(
         .library(
             name: "InfomaniakCore",
             targets: ["InfomaniakCore"]
+        ),
+        .library(
+            name: "InfomaniakCoreDB",
+            targets: ["InfomaniakCoreDB"]
         )
     ],
     dependencies: [
@@ -28,6 +32,19 @@ let package = Package(
     targets: [
         .target(
             name: "InfomaniakCore",
+            dependencies: [
+                "InfomaniakCoreDB",
+                "Alamofire",
+                .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
+                .product(name: "InfomaniakLogin", package: "ios-login"),
+                .product(name: "Sentry", package: "sentry-cocoa"),
+                .product(name: "RealmSwift", package: "realm-swift"),
+                .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
+                .product(name: "OSInfo", package: "OSInfo"),
+            ]
+        ),
+        .target(
+            name: "InfomaniakCoreDB",
             dependencies: [
                 "Alamofire",
                 .product(name: "InfomaniakDI", package: "ios-dependency-injection"),

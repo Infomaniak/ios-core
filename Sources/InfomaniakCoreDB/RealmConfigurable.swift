@@ -21,14 +21,14 @@ import RealmSwift
 
 /// Something that can access a realm
 ///
-/// Do not expose a realm directly, use Transactionable instead
+/// Do not expose a realm directly in your app, use Transactionable instead
 ///
 public protocol RealmAccessible {
     /// Fetches an up to date realm for a given configuration, or fail in a controlled manner
     func getRealm() -> Realm
 }
 
-/// Something that can access a realm configuration
+/// Something that can provide a realm configuration
 public protocol RealmConfigurable {
     /// Configuration for a given realm
     var realmConfiguration: Realm.Configuration { get }

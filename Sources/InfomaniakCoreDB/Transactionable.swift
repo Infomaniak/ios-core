@@ -19,31 +19,48 @@
 import Foundation
 import RealmSwift
 
-/// Something that standardises the transactions API, on a specific realm.
+/// Something that standardises the DB transactions API across mobile apps.
+///
+/// Still using Realm types, but this "seam" would be a perfect place to abstract DB vendor.
+///
 public protocol Transactionable {
-    /// Provides a writable realm within a closure. Forwards swift errors.
-    /// - Parameter realmClosure: The closure to put the transaction into
-    func writeTransaction(withRealm realmClosure: (Realm) throws -> Void) throws
-
-    /// Fetches one object form a realm. Closure style can adapt to existing code.
+    /// Fetches one object form a DB from primary key.
     ///
-    /// The realm is never writable, will throw if mutation occurs within `realmClosure`
+    /// The realm is now completely hidden.
     ///
     /// - Parameters:
     ///   - type: The type of the object queried. Defines the return type.
-    ///   - realmClosure:  The closure to put the fetch, filter, sort operations
+    ///   - key: The primary key used to identify a specific element.
     /// - Returns: A matched entity if any
-    func fetchObject<Element: Object>(ofType type: Element.Type,
-                                      withRealm realmClosure: (Realm) -> Element?) -> Element?
+    func fetchObject<Element: Object, KeyType>(ofType type: Element.Type,
+                                               forPrimaryKey key: KeyType) -> Element?
 
-    /// Fetches a faulted realm collection. Closure style can adapt to existing code.
+    /// Fetches one object form a DB by filtering.
     ///
-    /// The realm is never writable, will throw if mutation occurs within `realmClosure`
+    /// The realm is now completely hidden.
     ///
     /// - Parameters:
     ///   - type: The type of the object queried. Defines the return type.
-    ///   - realmClosure: The closure to put the fetch, filter, sort operations
+    ///   - filtering: The closure to filter the one element to be returned.
+    /// - Returns: A matched entity if any
+    func fetchObject<Element: RealmFetchable>(ofType type: Element.Type,
+                                              filtering: (Results<Element>) -> Element?) -> Element?
+
+    /// Fetches a faulted realm collection.
+    ///
+    /// The realm is now completely hidden.
+    ///
+    /// - Parameters:
+    ///   - type: The type of the object queried. Defines the return type.
+    ///   - filtering: The closure to filter, sort faulted elements.
     /// - Returns: A faulted realm collection.
     func fetchResults<Element: RealmFetchable>(ofType type: Element.Type,
-                                               withRealm realmClosure: (Realm) -> Results<Element>) -> Results<Element>
+                                               filtering: (Results<Element>) -> Results<Element>) -> Results<Element>
+
+    /// Provides a writable realm within a closure. Forwards swift errors.
+    ///
+    /// Not masking realm yet. For write transactions this is only a first step.
+    ///
+    /// - Parameter realmClosure: The closure to put the transaction into
+    func writeTransaction(withRealm realmClosure: (Realm) throws -> Void) throws
 }

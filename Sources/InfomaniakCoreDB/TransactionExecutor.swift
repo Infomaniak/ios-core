@@ -21,11 +21,45 @@ import InfomaniakCore
 import RealmSwift
 
 /// Shared protected DB transaction implementation.
+///
+///  Only write transactions are protected from sudden termination, will extend to read if required.
 public struct TransactionExecutor: Transactionable {
     let realmAccessible: RealmAccessible
 
     public init(realmAccessible: RealmAccessible) {
         self.realmAccessible = realmAccessible
+    }
+
+    // MARK: Transactionable
+
+    public func fetchObject<Element: Object, KeyType>(ofType type: Element.Type, forPrimaryKey key: KeyType) -> Element? {
+        autoreleasepool {
+            let realm = realmAccessible.getRealm()
+            let object = realm.object(ofType: type, forPrimaryKey: key)
+            return object
+        }
+    }
+
+    public func fetchObject<Element: RealmFetchable>(ofType type: Element.Type,
+                                                     filtering: (Results<Element>) -> Element?) -> Element? {
+        autoreleasepool {
+            let realm = realmAccessible.getRealm()
+            let objects = realm.objects(type)
+            let filteredObject = filtering(objects)
+            return filteredObject
+        }
+    }
+
+    public func fetchResults<Element: RealmFetchable>(
+        ofType type: Element.Type,
+        filtering: (RealmSwift.Results<Element>) -> RealmSwift.Results<Element>
+    ) -> RealmSwift.Results<Element> {
+        autoreleasepool {
+            let realm = realmAccessible.getRealm()
+            let objects = realm.objects(type)
+            let filteredCollection = filtering(objects)
+            return filteredCollection
+        }
     }
 
     public func writeTransaction(withRealm realmClosure: (Realm) throws -> Void) throws {
@@ -40,22 +74,6 @@ public struct TransactionExecutor: Transactionable {
             try realm.safeWrite {
                 try realmClosure(realm)
             }
-        }
-    }
-
-    public func fetchObject<Element: Object>(ofType type: Element.Type,
-                                             withRealm realmClosure: (Realm) -> Element?) -> Element? {
-        autoreleasepool {
-            let realm = realmAccessible.getRealm()
-            return realmClosure(realm)
-        }
-    }
-
-    public func fetchResults<Element: RealmFetchable>(ofType type: Element.Type,
-                                                      withRealm realmClosure: (Realm) -> Results<Element>) -> Results<Element> {
-        autoreleasepool {
-            let realm = realmAccessible.getRealm()
-            return realmClosure(realm)
         }
     }
 }

@@ -33,7 +33,6 @@ let package = Package(
         .target(
             name: "InfomaniakCore",
             dependencies: [
-                "InfomaniakCoreDB",
                 "Alamofire",
                 .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
                 .product(name: "InfomaniakLogin", package: "ios-login"),
@@ -46,18 +45,14 @@ let package = Package(
         .target(
             name: "InfomaniakCoreDB",
             dependencies: [
-                "Alamofire",
+                "InfomaniakCore",
                 .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
-                .product(name: "InfomaniakLogin", package: "ios-login"),
-                .product(name: "Sentry", package: "sentry-cocoa"),
                 .product(name: "RealmSwift", package: "realm-swift"),
-                .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
-                .product(name: "OSInfo", package: "OSInfo"),
             ]
         ),
         .testTarget(
             name: "InfomaniakCoreTests",
-            dependencies: ["InfomaniakCore","ZIPFoundation"],
+            dependencies: ["InfomaniakCore", "InfomaniakCoreDB" ,"ZIPFoundation"],
             resources: [Resource.copy("Resources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.heic"),
                         Resource.copy("Resources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.jpg"),
                         Resource.copy("Resources/dummy.pdf")]

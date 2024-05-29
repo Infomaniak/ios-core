@@ -18,13 +18,16 @@
 
 import Foundation
 
+/// Making a property thread safe, while not requiring `await`. Conforms to Sendable.
+///
+/// Please prefer using first party structured concurrency. Use this for prototyping or dealing with race conditions.
 @propertyWrapper
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class SendableProperty<Property>: @unchecked Sendable {
     /// Serial locking queue
     let lock = DispatchQueue(label: "com.infomaniak.core.SendableProperty.lock")
 
-    /// Store the resolved service
+    /// Store property
     var property: Property?
 
     public init() {

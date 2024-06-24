@@ -1,6 +1,6 @@
 /*
  Infomaniak Core - iOS
- Copyright (C) 2023 Infomaniak Network SA
+ Copyright (C) 2024 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -16,29 +16,21 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import InfomaniakCore
-import XCTest
+import Foundation
+import RealmSwift
 
-final class UTCollectionTests: XCTestCase {
-    func testSafeIndexSuccess() {
-        // GIVEN
-        let shortArray = [1]
-
-        // WHEN
-        let fetched = shortArray[safe: 0]
-
-        // THEN
-        XCTAssertEqual(fetched, 1)
+public extension Realm {
+    /// Only emits a write signal if not already within a write transaction
+    func safeWrite(_ block: () throws -> Void) throws {
+        if isInWriteTransaction {
+            try block()
+        } else {
+            try write(block)
+        }
     }
 
-    func testSafeIndexNil() {
-        // GIVEN
-        let shortArray = [1]
-
-        // WHEN
-        let fetched = shortArray[safe: 1]
-
-        // THEN
-        XCTAssertNil(fetched)
+    /// Shorthand for object from primary key
+    func getObject<RealmObject: Object, KeyType>(id: KeyType) -> RealmObject? {
+        object(ofType: RealmObject.self, forPrimaryKey: id)
     }
 }

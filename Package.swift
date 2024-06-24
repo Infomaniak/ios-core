@@ -13,6 +13,10 @@ let package = Package(
         .library(
             name: "InfomaniakCore",
             targets: ["InfomaniakCore"]
+        ),
+        .library(
+            name: "InfomaniakCoreDB",
+            targets: ["InfomaniakCoreDB"]
         )
     ],
     dependencies: [
@@ -38,9 +42,17 @@ let package = Package(
                 .product(name: "OSInfo", package: "OSInfo"),
             ]
         ),
+        .target(
+            name: "InfomaniakCoreDB",
+            dependencies: [
+                "InfomaniakCore",
+                .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
+                .product(name: "RealmSwift", package: "realm-swift"),
+            ]
+        ),
         .testTarget(
             name: "InfomaniakCoreTests",
-            dependencies: ["InfomaniakCore","ZIPFoundation"],
+            dependencies: ["InfomaniakCore", "InfomaniakCoreDB" ,"ZIPFoundation"],
             resources: [Resource.copy("Resources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.heic"),
                         Resource.copy("Resources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.jpg"),
                         Resource.copy("Resources/dummy.pdf")]

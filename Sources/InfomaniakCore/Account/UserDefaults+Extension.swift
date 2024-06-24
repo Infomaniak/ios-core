@@ -26,15 +26,19 @@ public extension UserDefaults {
             self.rawValue = rawValue
         }
 
-        // TODO: Clean hotfix
         static let legacyIsFirstLaunch = Keys(rawValue: "isFirstLaunch")
         static let currentUserId = Keys(rawValue: "currentUserId")
+        static let appRestorationVersion = Keys(rawValue: "appRestorationVersion")
     }
 
     func key(_ key: Keys) -> String {
         return key.rawValue
     }
+}
 
+// MARK: - Public extension
+
+public extension UserDefaults {
     var currentUserId: Int {
         get {
             return integer(forKey: key(.currentUserId))
@@ -44,17 +48,25 @@ public extension UserDefaults {
         }
     }
 
-    // TODO: Clean hotfix
     var legacyIsFirstLaunch: Bool {
         get {
-            if object(forKey: key(.legacyIsFirstLaunch)) != nil {
-                return bool(forKey: key(.legacyIsFirstLaunch))
-            } else {
+            guard let isFirstLaunch = object(forKey: key(.legacyIsFirstLaunch)) as? Bool else {
                 return true
             }
+
+            return isFirstLaunch
         }
         set {
             set(newValue, forKey: key(.legacyIsFirstLaunch))
+        }
+    }
+
+    var appRestorationVersion: Int? {
+        get {
+            return object(forKey: key(.appRestorationVersion)) as? Int
+        }
+        set {
+            set(newValue, forKey: key(.appRestorationVersion))
         }
     }
 }

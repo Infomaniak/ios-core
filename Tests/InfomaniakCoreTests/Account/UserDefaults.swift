@@ -1,35 +1,58 @@
-//
-//  UserDefaults.swift
-//  
-//
-//  Created by adrien on 24.06.2024.
-//
+/*
+ Infomaniak Core - iOS
+ Copyright (C) 2023 Infomaniak Network SA
 
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import InfomaniakCore
 import XCTest
 
-final class UserDefaults: XCTestCase {
+final class UTUserDefaults: XCTestCase {
+    func testCurrentUserId() {
+        // GIVEN
+        let userDefaults = UserDefaults()
+        userDefaults.currentUserId = 1337
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        // WHEN
+        let currentUserId = userDefaults.currentUserId
+
+        // THEN
+        XCTAssertEqual(currentUserId, 1337)
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testLegacyIsFirstLaunch() {
+        // GIVEN
+        let userDefaults = UserDefaults()
+        userDefaults.legacyIsFirstLaunch = true
+
+        // WHEN
+        let legacyIsFirstLaunch = userDefaults.legacyIsFirstLaunch
+
+        // THEN
+        XCTAssertEqual(legacyIsFirstLaunch, true)
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
+    func testAppRestorationVersion() {
+        // GIVEN
+        let userDefaults = UserDefaults()
+        userDefaults.appRestorationVersion = 1337
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
+        // WHEN
+        let appRestorationVersion = userDefaults.appRestorationVersion
 
+        // THEN
+        XCTAssertEqual(appRestorationVersion, 1337)
+    }
 }

@@ -19,26 +19,40 @@
 import InfomaniakCore
 import XCTest
 
-final class UTCollectionTests: XCTestCase {
-    func testSafeIndexSuccess() {
+final class UTUserDefaults: XCTestCase {
+    func testCurrentUserId() {
         // GIVEN
-        let shortArray = [1]
+        let userDefaults = UserDefaults()
+        userDefaults.currentUserId = 1337
 
         // WHEN
-        let fetched = shortArray[safe: 0]
+        let currentUserId = userDefaults.currentUserId
 
         // THEN
-        XCTAssertEqual(fetched, 1)
+        XCTAssertEqual(currentUserId, 1337)
     }
 
-    func testSafeIndexNil() {
+    func testLegacyIsFirstLaunch() {
         // GIVEN
-        let shortArray = [1]
+        let userDefaults = UserDefaults()
+        userDefaults.legacyIsFirstLaunch = true
 
         // WHEN
-        let fetched = shortArray[safe: 1]
+        let legacyIsFirstLaunch = userDefaults.legacyIsFirstLaunch
 
         // THEN
-        XCTAssertNil(fetched)
+        XCTAssertEqual(legacyIsFirstLaunch, true)
+    }
+
+    func testAppRestorationVersion() {
+        // GIVEN
+        let userDefaults = UserDefaults()
+        userDefaults.appRestorationVersion = 1337
+
+        // WHEN
+        let appRestorationVersion = userDefaults.appRestorationVersion
+
+        // THEN
+        XCTAssertEqual(appRestorationVersion, 1337)
     }
 }

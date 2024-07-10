@@ -29,7 +29,7 @@ public final class SendableArray<T>: @unchecked Sendable, Sequence {
     /// Internal collection
     private(set) var content: [T]
 
-    public init(content: [T] = Array<T>()) {
+    public init(content: [T] = [T]()) {
         self.content = content
     }
 

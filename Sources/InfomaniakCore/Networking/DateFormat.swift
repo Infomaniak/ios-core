@@ -1,6 +1,6 @@
 /*
  Infomaniak Core - iOS
- Copyright (C) 2023 Infomaniak Network SA
+ Copyright (C) 2022 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -18,11 +18,7 @@
 
 import Foundation
 
-public struct UserSession: Codable {
-    public var browser: String
-    public var lastAccessedAt: Date
-    public var device: String
-    public var location: String
-    public var ip: String
-    public var userAgent: String
+public enum DateFormat: String {
+    case iso8601
+    case json = "application/json"
 }

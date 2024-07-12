@@ -46,6 +46,7 @@ open class ApiFetcher {
     public static var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .secondsSince1970
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }()
 
@@ -129,6 +130,7 @@ open class ApiFetcher {
     open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint,
                                                           method: HTTPMethod = .get,
                                                           parameters: Parameters? = nil,
+                                                          headers: HTTPHeaders? = nil,
                                                           requestModifier: RequestModifier? = nil) -> DataRequest {
         return authenticatedSession
             .request(
@@ -136,6 +138,7 @@ open class ApiFetcher {
                 method: method,
                 parameters: parameters,
                 encoder: JSONParameterEncoder.convertToSnakeCase,
+                headers: headers,
                 requestModifier: requestModifier
             )
     }
@@ -198,8 +201,8 @@ open class ApiFetcher {
         try await perform(request: authenticatedRequest(.organisationAccounts))
     }
 
-    public func userProfile(ignoreDefaultAvatar: Bool = false) async throws -> UserProfile {
-        try await perform(request: authenticatedRequest(.profile(ignoreDefaultAvatar: ignoreDefaultAvatar)))
+    public func userProfile(ignoreDefaultAvatar: Bool = false, dateFormat: DateFormat = .json) async throws -> UserProfile {
+        try await perform(request: authenticatedRequest(.profile(ignoreDefaultAvatar: ignoreDefaultAvatar), headers: ["X-Date-Format": dateFormat.rawValue]))
     }
 }
 

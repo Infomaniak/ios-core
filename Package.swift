@@ -6,8 +6,8 @@ import PackageDescription
 let package = Package(
     name: "InfomaniakCore",
     platforms: [
-        .iOS(.v12),
-        .macOS(.v11)
+        .iOS(.v13),
+        .macOS(.v10_15)
     ],
     products: [
         .library(
@@ -21,7 +21,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Infomaniak/ios-dependency-injection", .upToNextMajor(from: "2.0.0")),
-        .package(url: "https://github.com/Infomaniak/ios-login", .upToNextMajor(from: "6.0.0")),
+        .package(url: "https://github.com/Infomaniak/ios-login", .upToNextMajor(from: "7.0.0")),
         .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.8.0")),
         .package(url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "8.18.0")),
         .package(url: "https://github.com/realm/realm-swift", .upToNextMajor(from: "10.45.0")),

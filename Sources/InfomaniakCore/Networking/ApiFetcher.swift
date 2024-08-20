@@ -202,7 +202,10 @@ open class ApiFetcher {
     }
 
     public func userProfile(ignoreDefaultAvatar: Bool = false, dateFormat: DateFormat = .json) async throws -> UserProfile {
-        try await perform(request: authenticatedRequest(.profile(ignoreDefaultAvatar: ignoreDefaultAvatar), headers: ["X-Date-Format": dateFormat.rawValue]))
+        try await perform(request: authenticatedRequest(
+            .profile(ignoreDefaultAvatar: ignoreDefaultAvatar),
+            headers: ["X-Date-Format": dateFormat.rawValue]
+        ))
     }
 }
 
@@ -223,12 +226,13 @@ open class OAuthAuthenticator: Authenticator {
     }
 
     open func refresh(_ credential: Credential, for session: Session, completion: @escaping (Result<Credential, Error>) -> Void) {
-        networkLogin.refreshToken(token: credential) { token, error in
-            // New token has been fetched correctly
-            if let token = token {
+        networkLogin.refreshToken(token: credential) { result in
+            switch result {
+            case .success(let token):
+                // New token has been fetched correctly
                 self.refreshTokenDelegate?.didUpdateToken(newToken: token, oldToken: credential)
                 completion(.success(token))
-            } else {
+            case .failure(let error):
                 // Couldn't refresh the token, API says it's invalid
                 if let error = error as NSError?, error.domain == "invalid_grant" {
                     self.refreshTokenDelegate?.didFailRefreshToken(credential)

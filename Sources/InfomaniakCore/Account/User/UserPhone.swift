@@ -18,7 +18,7 @@
 
 import Foundation
 
-public struct UserPhone: Codable {
+@frozen public struct UserPhone: Codable {
     public var id: Int
     public var phone: String
     public var createdAt: Date?

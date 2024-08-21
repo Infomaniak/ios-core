@@ -18,7 +18,7 @@
 
 import Foundation
 
-public struct UserSession: Codable {
+@frozen public struct UserSession: Codable {
     public var browser: String
     public var lastAccessedAt: Date
     public var device: String

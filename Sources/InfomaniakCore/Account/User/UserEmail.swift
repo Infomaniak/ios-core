@@ -18,7 +18,7 @@
 
 import Foundation
 
-public struct UserEmail: Codable {
+@frozen public struct UserEmail: Codable {
     public var id: Int
     public var email: String
     public var createdAt: Date

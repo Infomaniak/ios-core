@@ -19,10 +19,10 @@
 import Foundation
 
 @frozen public struct UserEmail: Codable {
-    public var id: Int
-    public var email: String
-    public var createdAt: Date
-    public var reminder: Bool
-    public var checked: Bool
-    public var type: String
+    public let id: Int
+    public let email: String
+    public let createdAt: Date
+    public let reminder: Bool
+    public let checked: Bool
+    public let type: String
 }

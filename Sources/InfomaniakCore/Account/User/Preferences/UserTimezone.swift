@@ -18,8 +18,8 @@
 
 import Foundation
 
-public struct UserTimezone: Codable {
-    public var id: Int
-    public var name: String
-    public var gmt: String
+@frozen public struct UserTimezone: Codable {
+    public let id: Int
+    public let name: String
+    public let gmt: String
 }

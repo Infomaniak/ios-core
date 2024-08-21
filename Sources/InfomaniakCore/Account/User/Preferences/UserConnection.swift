@@ -18,9 +18,9 @@
 
 import Foundation
 
-public struct UserConnection: Codable {
-    public var unsuccessfulLimit: Bool
-    public var unsuccessfulRateLimit: Int
-    public var unsuccessfulNotification: Bool
-    public var successfulNotification: Bool
+@frozen public struct UserConnection: Codable {
+    public let unsuccessfulLimit: Bool
+    public let unsuccessfulRateLimit: Int
+    public let unsuccessfulNotification: Bool
+    public let successfulNotification: Bool
 }

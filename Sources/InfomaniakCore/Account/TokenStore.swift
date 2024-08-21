@@ -68,4 +68,8 @@ public class TokenStore {
         keychainHelper.storeToken(newToken)
         tokens[newToken.userId] = newToken
     }
+    
+    public func getAllTokens() -> [UserId: ApiToken] {
+        return tokens.content
+    }
 }

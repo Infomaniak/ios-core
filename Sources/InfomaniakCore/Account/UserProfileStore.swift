@@ -24,6 +24,8 @@ public actor UserProfileStore {
     public typealias UserId = Int
 
     let preferencesURL: URL
+    let storeFileURL: URL
+
     var profiles: [UserId: UserProfile]?
 
     public init() {
@@ -32,6 +34,7 @@ public actor UserProfileStore {
             "preferences/",
             isDirectory: true
         )
+        storeFileURL = preferencesURL.appendingPathComponent("users.json")
     }
 
     @discardableResult
@@ -60,7 +63,7 @@ public actor UserProfileStore {
         do {
             let usersData = try encoder.encode(profiles)
             try FileManager.default.createDirectory(atPath: preferencesURL.path, withIntermediateDirectories: true)
-            try usersData.write(to: preferencesURL.appendingPathComponent("users.json"))
+            try usersData.write(to: storeFileURL)
         } catch {
             DDLogError("[UserProfileStore] Error saving accounts :\(error)")
         }
@@ -76,7 +79,7 @@ public actor UserProfileStore {
         let decoder = JSONDecoder()
 
         do {
-            let data = try Data(contentsOf: preferencesURL.appendingPathComponent("accounts.json"))
+            let data = try Data(contentsOf: storeFileURL)
             let savedUsers = try decoder.decode([UserId: UserProfile].self, from: data)
 
             profiles = savedUsers

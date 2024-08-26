@@ -18,7 +18,7 @@
 
 import Foundation
 
-@frozen public struct UserAuthDevice: Codable {
+@frozen public struct UserAuthDevice: Codable, Hashable {
     public let id: Int
     public let name: Int
     public let lastConnexion: Date

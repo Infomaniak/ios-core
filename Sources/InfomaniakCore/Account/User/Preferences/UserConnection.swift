@@ -18,7 +18,7 @@
 
 import Foundation
 
-@frozen public struct UserConnection: Codable {
+@frozen public struct UserConnection: Codable, Hashable {
     public let unsuccessfulLimit: Bool
     public let unsuccessfulRateLimit: Int
     public let unsuccessfulNotification: Bool

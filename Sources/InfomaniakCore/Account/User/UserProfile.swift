@@ -17,7 +17,7 @@
  */
 import Foundation
 
-@frozen public struct UserProfile: Codable, InfomaniakUser {
+@frozen public struct UserProfile: Codable, InfomaniakUser, Hashable {
     public let id: Int
     public let displayName: String
     public let firstName: String

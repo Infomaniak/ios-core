@@ -18,7 +18,7 @@
 
 import Foundation
 
-@frozen public struct UserPreferences: Codable {
+@frozen public struct UserPreferences: Codable, Hashable {
     /// Only returned with the `security` parameter
     public let security: UserSecurity?
     // public var account: String?

@@ -18,7 +18,7 @@
 
 import Foundation
 
-@frozen public struct UserCountry: Codable {
+@frozen public struct UserCountry: Codable, Hashable {
     public let id: Int
     public let name: String
     public let shortName: String

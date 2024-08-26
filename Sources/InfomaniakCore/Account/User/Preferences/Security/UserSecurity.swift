@@ -18,7 +18,7 @@
 
 import Foundation
 
-@frozen public struct UserSecurity: Codable {
+@frozen public struct UserSecurity: Codable, Hashable {
     /// One-time password
     public let otp: Bool
     public let sms: Bool

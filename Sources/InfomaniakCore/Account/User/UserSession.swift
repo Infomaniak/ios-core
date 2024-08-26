@@ -18,7 +18,7 @@
 
 import Foundation
 
-@frozen public struct UserSession: Codable {
+@frozen public struct UserSession: Codable, Hashable {
     public let browser: String
     public let lastAccessedAt: Date
     public let device: String

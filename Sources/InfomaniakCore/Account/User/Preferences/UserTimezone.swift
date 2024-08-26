@@ -18,7 +18,7 @@
 
 import Foundation
 
-@frozen public struct UserTimezone: Codable {
+@frozen public struct UserTimezone: Codable, Hashable {
     public let id: Int
     public let name: String
     public let gmt: String

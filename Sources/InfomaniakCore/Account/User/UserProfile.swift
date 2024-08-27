@@ -24,9 +24,9 @@ import Foundation
     public let lastName: String
     public let email: String
     public let avatar: String?
-    public let login: String
+    public let login: String?
     public let sessions: [UserSession]
-    public let preferences: UserPreferences
+    public let preferences: UserPreferences?
     public let phones: [UserPhone]
     public let emails: [UserEmail]
     public let isStaff: Bool?
@@ -108,6 +108,30 @@ import Foundation
         self.preferences = preferences
         self.phones = phones
         self.emails = emails
+        self.isStaff = isStaff
+    }
+
+    public init(
+        id: Int,
+        displayName: String,
+        firstName: String,
+        lastName: String,
+        email: String,
+        avatar: String? = nil,
+        login: String? = nil,
+        isStaff: Bool? = nil
+    ) {
+        self.id = id
+        self.displayName = displayName
+        self.firstName = firstName
+        self.lastName = lastName
+        self.email = email
+        self.avatar = avatar
+        self.login = login
+        sessions = []
+        preferences = nil
+        phones = []
+        emails = []
         self.isStaff = isStaff
     }
 }

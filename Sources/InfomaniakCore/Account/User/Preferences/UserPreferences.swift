@@ -18,12 +18,20 @@
 
 import Foundation
 
-public struct UserPreferences: Codable {
+@frozen public struct UserPreferences: Codable, Hashable {
     /// Only returned with the `security` parameter
-    public var security: UserSecurity?
+    public let security: UserSecurity?
     // public var account: String?
-    public var connection: UserConnection?
-    public var language: UserLanguage?
-    public var country: UserCountry?
-    public var timezone: UserTimezone?
+    public let connection: UserConnection?
+    public let language: UserLanguage?
+    public let country: UserCountry?
+    public let timezone: UserTimezone?
+
+    init() {
+        security = nil
+        connection = nil
+        language = nil
+        country = nil
+        timezone = nil
+    }
 }

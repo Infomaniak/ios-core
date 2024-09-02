@@ -17,19 +17,19 @@
  */
 import Foundation
 
-public class UserProfile: Codable, InfomaniakUser {
-    public var id: Int
-    public var displayName: String
-    public var firstName: String
-    public var lastName: String
-    public var email: String
-    public var avatar: String?
-    public var login: String
-    public var sessions: [UserSession]
-    public var preferences: UserPreferences
-    public var phones: [UserPhone]
-    public var emails: [UserEmail]
-    public var isStaff: Bool?
+@frozen public struct UserProfile: Codable, InfomaniakUser, Hashable {
+    public let id: Int
+    public let displayName: String
+    public let firstName: String
+    public let lastName: String
+    public let email: String
+    public let avatar: String?
+    public let login: String?
+    public let sessions: [UserSession]
+    public let preferences: UserPreferences?
+    public let phones: [UserPhone]
+    public let emails: [UserEmail]
+    public let isStaff: Bool?
 
     private enum OldCodingKeys: String, CodingKey {
         case id
@@ -51,7 +51,20 @@ public class UserProfile: Codable, InfomaniakUser {
         case emails
     }
 
-    public required init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
+        var id: Int
+        var displayName: String
+        var firstName: String
+        var lastName: String
+        var email: String
+        var avatar: String?
+        var login: String
+        var sessions: [UserSession]
+        var preferences: UserPreferences
+        var phones: [UserPhone]
+        var emails: [UserEmail]
+        var isStaff: Bool
+
         // Custom decoder to allow decoding old model (for account decoding)
         do {
             let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -66,7 +79,7 @@ public class UserProfile: Codable, InfomaniakUser {
             preferences = try container.decodeIfPresent(UserPreferences.self, forKey: .preferences) ?? UserPreferences()
             phones = try container.decodeIfPresent([UserPhone].self, forKey: .phones) ?? []
             emails = try container.decodeIfPresent([UserEmail].self, forKey: .emails) ?? []
-            isStaff = try container.decodeIfPresent(Bool.self, forKey: .isStaff)
+            isStaff = try container.decodeIfPresent(Bool.self, forKey: .isStaff) ?? false
         } catch DecodingError.keyNotFound {
             // Try old coding keys
             let container = try decoder.container(keyedBy: OldCodingKeys.self)
@@ -81,6 +94,44 @@ public class UserProfile: Codable, InfomaniakUser {
             preferences = UserPreferences()
             phones = []
             emails = []
+            isStaff = false
         }
+
+        self.id = id
+        self.displayName = displayName
+        self.firstName = firstName
+        self.lastName = lastName
+        self.email = email
+        self.avatar = avatar
+        self.login = login
+        self.sessions = sessions
+        self.preferences = preferences
+        self.phones = phones
+        self.emails = emails
+        self.isStaff = isStaff
+    }
+
+    public init(
+        id: Int,
+        displayName: String,
+        firstName: String,
+        lastName: String,
+        email: String,
+        avatar: String? = nil,
+        login: String? = nil,
+        isStaff: Bool? = nil
+    ) {
+        self.id = id
+        self.displayName = displayName
+        self.firstName = firstName
+        self.lastName = lastName
+        self.email = email
+        self.avatar = avatar
+        self.login = login
+        sessions = []
+        preferences = nil
+        phones = []
+        emails = []
+        self.isStaff = isStaff
     }
 }

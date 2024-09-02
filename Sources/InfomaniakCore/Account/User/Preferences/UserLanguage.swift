@@ -18,10 +18,10 @@
 
 import Foundation
 
-public struct UserLanguage: Codable {
-    public var id: Int
-    public var name: String
-    public var shortName: String
-    public var locale: String
-    public var shortLocale: String
+@frozen public struct UserLanguage: Codable, Hashable {
+    public let id: Int
+    public let name: String
+    public let shortName: String
+    public let locale: String
+    public let shortLocale: String
 }

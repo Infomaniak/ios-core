@@ -18,20 +18,20 @@
 
 import Foundation
 
-public struct UserSecurity: Codable {
+@frozen public struct UserSecurity: Codable, Hashable {
     /// One-time password
-    public var otp: Bool
-    public var sms: Bool
-    public var smsPhone: String
-    public var yubikey: Bool
-    public var infomaniakApplication: Bool
+    public let otp: Bool
+    public let sms: Bool
+    public let smsPhone: String
+    public let yubikey: Bool
+    public let infomaniakApplication: Bool
     /// Double auth
-    public var doubleAuth: Bool
-    public var remainingRescueCode: Int
+    public let doubleAuth: Bool
+    public let remainingRescueCode: Int
     /// Date User Profile has been logged
-    public var lastLoginAt: Date
-    public var dateLastChangedPassword: Int
+    public let lastLoginAt: Date
+    public let dateLastChangedPassword: Int
     /// Double auth method
-    public var doubleAuthMethod: String
-    public var authDevices: [UserAuthDevice]?
+    public let doubleAuthMethod: String
+    public let authDevices: [UserAuthDevice]?
 }

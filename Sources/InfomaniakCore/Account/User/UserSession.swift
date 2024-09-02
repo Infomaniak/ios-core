@@ -18,11 +18,11 @@
 
 import Foundation
 
-public struct UserSession: Codable {
-    public var browser: String
-    public var lastAccessedAt: Date
-    public var device: String
-    public var location: String
-    public var ip: String
-    public var userAgent: String
+@frozen public struct UserSession: Codable, Hashable {
+    public let browser: String
+    public let lastAccessedAt: Date
+    public let device: String
+    public let location: String
+    public let ip: String
+    public let userAgent: String
 }

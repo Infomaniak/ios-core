@@ -18,11 +18,11 @@
 
 import Foundation
 
-public struct UserPhone: Codable {
-    public var id: Int
-    public var phone: String
-    public var createdAt: Date?
-    public var reminder: Bool
-    public var checked: Bool
-    public var type: String
+@frozen public struct UserPhone: Codable, Hashable {
+    public let id: Int
+    public let phone: String
+    public let createdAt: Date?
+    public let reminder: Bool
+    public let checked: Bool
+    public let type: String
 }

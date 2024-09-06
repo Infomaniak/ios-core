@@ -19,7 +19,7 @@ jobs:
       - name: Build
         run: xcodebuild -scheme InfomaniakCore build -destination "platform=iOS Simulator,name=iPhone 16,OS=latest"
       - name: Test
-        run: xcodebuild -scheme InfomaniakCore-Package test -destination "platform=iOS Simulator,name=iPhone 16,OS=latest"
+        run: Scripts/prepareForTesting.sh && xcodebuild -scheme InfomaniakCore-Package test -destination "platform=iOS Simulator,name=iPhone 16,OS=latest"
 
   build_and_test_macOS:
     name: Build and Test project on macOS
@@ -35,4 +35,4 @@ jobs:
       - name: Build
         run: swift build
       - name: Test
-        run: swift test
+        run: Scripts/prepareForTesting.sh && swift test

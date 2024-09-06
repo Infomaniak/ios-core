@@ -1,7 +1,22 @@
 // swift-tools-version:5.7
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import Foundation
 import PackageDescription
+
+let resolveDependenciesForTesting = false
+
+let realmDependencies: [Target.Dependency]
+if resolveDependenciesForTesting {
+    realmDependencies = [
+        .product(name: "RealmSwift", package: "realm-swift")
+    ]
+} else {
+    realmDependencies = [
+        .product(name: "Realm", package: "realm-swift"),
+        .product(name: "RealmSwift", package: "realm-swift")
+    ]
+}
 
 let package = Package(
     name: "InfomaniakCore",
@@ -36,9 +51,9 @@ let package = Package(
                 "Alamofire",
                 .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
                 .product(name: "InfomaniakLogin", package: "ios-login"),
-                .product(name: "Sentry", package: "sentry-cocoa"),
-                .product(name: "RealmSwift", package: "realm-swift"),
+                .product(name: "Sentry-Dynamic", package: "sentry-cocoa"),
                 .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
+                .product(name: "CocoaLumberjack", package: "CocoaLumberjack"),
                 .product(name: "OSInfo", package: "OSInfo")
             ]
         ),
@@ -46,9 +61,8 @@ let package = Package(
             name: "InfomaniakCoreDB",
             dependencies: [
                 "InfomaniakCore",
-                .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
-                .product(name: "RealmSwift", package: "realm-swift")
-            ]
+                .product(name: "InfomaniakDI", package: "ios-dependency-injection")
+            ] + realmDependencies
         ),
         .testTarget(
             name: "InfomaniakCoreTests",

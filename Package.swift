@@ -38,8 +38,10 @@ let package = Package(
                 .product(name: "InfomaniakLogin", package: "ios-login"),
                 .product(name: "Sentry", package: "sentry-cocoa"),
                 .product(name: "RealmSwift", package: "realm-swift"),
+                .product(name: "Realm", package: "realm-swift"),
                 .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
-                .product(name: "OSInfo", package: "OSInfo"),
+                .product(name: "CocoaLumberjack", package: "CocoaLumberjack"),
+                .product(name: "OSInfo", package: "OSInfo")
             ]
         ),
         .target(
@@ -48,6 +50,7 @@ let package = Package(
                 "InfomaniakCore",
                 .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
                 .product(name: "RealmSwift", package: "realm-swift"),
+                .product(name: "Realm", package: "realm-swift")
             ]
         ),
         .testTarget(

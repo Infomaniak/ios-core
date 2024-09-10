@@ -68,8 +68,14 @@ public class TokenStore {
         keychainHelper.storeToken(newToken)
         tokens[newToken.userId] = newToken
     }
-    
+
     public func getAllTokens() -> [UserId: ApiToken] {
         return tokens.content
+    }
+
+    public func removeAllTokens() {
+        for token in tokens.values {
+            removeTokenFor(userId: token.userId)
+        }
     }
 }

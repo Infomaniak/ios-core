@@ -20,11 +20,11 @@ import Foundation
 import Network
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif os(iOS) || os(tvOS)
-    import UIKit
+import UIKit
 #elseif os(watchOS)
-    import WatchKit
+import WatchKit
 #endif
 
 @available(tvOS 12.0, watchOS 5.0, *)
@@ -64,18 +64,18 @@ public class ReachabilityListener {
             if !Bundle.main.isExtension {
                 DispatchQueue.main.sync {
                     #if os(macOS)
-                        fatalError("unimplemented")
+                    fatalError("unimplemented")
                     #elseif os(iOS) || os(tvOS)
-                        inBackground = UIApplication.shared.applicationState == .background
+                    inBackground = UIApplication.shared.applicationState == .background
                     #elseif os(watchOS)
-                        inBackground = WKExtension.shared().applicationState == .background
+                    inBackground = WKExtension.shared().applicationState == .background
                     #endif
                 }
             }
             if newStatus != self.currentStatus && !inBackground {
                 self.currentStatus = newStatus
                 self.observersQueue.sync {
-                    self.didChangeNetworkStatus.values.forEach { closure in
+                    for closure in self.didChangeNetworkStatus.values {
                         closure(self.currentStatus)
                     }
                 }

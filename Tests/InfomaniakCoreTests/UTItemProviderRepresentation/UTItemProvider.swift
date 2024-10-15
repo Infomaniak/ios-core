@@ -42,7 +42,7 @@ final class UTItemProvider: XCTestCase {
 
     /// Image from wikimedia under CC.
     static let imageFile = "Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons"
-    
+
     // MARK: hasItemConformingToAnyOfTypeIdentifiers
 
     func testHasItemConformingToAnyOfTypeIdentifiers_image_conformImage() {

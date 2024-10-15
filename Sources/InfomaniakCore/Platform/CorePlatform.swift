@@ -20,7 +20,6 @@ import Foundation
 import OSInfo
 
 public enum CorePlatform {
-
     /// Unified version descriptor for IK platform apps
     public static func appVersionLabel(fallbackAppName: String) -> String {
         let appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as! String? ?? fallbackAppName

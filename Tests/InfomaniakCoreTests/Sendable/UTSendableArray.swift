@@ -105,7 +105,7 @@ final class UTSendableArray: XCTestCase {
         // THEN
         XCTAssertFalse(collection.values.contains("b"))
     }
-    
+
     func testIterator() async {
         // GIVEN
         let collection = SendableArray<String>()

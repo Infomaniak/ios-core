@@ -109,7 +109,12 @@ public class KeychainHelper {
     public func storeToken(_ token: ApiToken) {
         var resultCode: OSStatus = noErr
 
-        let tokenData = try! JSONEncoder().encode(token)
+        let tokenData: Data
+        do {
+            tokenData = try JSONEncoder().encode(token)
+        } catch {
+            fatalError("Failed to encode token: \(error)")
+        }
 
         if let savedToken = getSavedToken(for: token.userId) {
             keychainQueue.sync {

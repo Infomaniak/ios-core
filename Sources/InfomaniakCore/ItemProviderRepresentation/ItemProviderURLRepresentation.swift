@@ -138,8 +138,8 @@ public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
         try fileManager.copyItem(at: url, to: targetURL)
 
         completionProgress.completedUnitCount += Self.progressStep
-        
-        let fileNameWithoutExtension = (fileName  as NSString).deletingPathExtension
+
+        let fileNameWithoutExtension = (fileName as NSString).deletingPathExtension
         flowToAsync.sendSuccess((targetURL, fileNameWithoutExtension))
 
         return true

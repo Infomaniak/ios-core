@@ -20,13 +20,13 @@ import Foundation
 
 public extension String {
     var initials: String {
-        let words = self.split(separator: " ")
-        guard words.count > 0, let firstLetter = words[0].first else {
+        let words = split(separator: " ")
+        guard !words.isEmpty, let firstLetter = words[0].first else {
             return ""
         }
         var returnedInitials = String(firstLetter).capitalized
         if words.count > 1, let secondLetter = words[1].first {
-            returnedInitials = returnedInitials + String(secondLetter).capitalized
+            returnedInitials += String(secondLetter).capitalized
         }
         return returnedInitials
     }

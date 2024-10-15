@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Some of the conforming types are Array, ArraySlice, Dictionary …
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public typealias SequenceableCollection = Sequence & Collection
+public typealias SequenceableCollection = Collection & Sequence
 
 /// A concurrent way to map some computation with a closure to a collection of generic items.
 ///

@@ -20,6 +20,6 @@ import Foundation
 
 public protocol URLOpenable {
     func canOpen(url: URL) -> Bool
-    
+
     func openUrl(_ url: URL)
 }

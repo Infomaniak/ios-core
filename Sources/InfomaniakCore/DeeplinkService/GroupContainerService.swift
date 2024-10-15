@@ -18,7 +18,7 @@
 
 import Foundation
 
-struct GroupContainerService {
+enum GroupContainerService {
     static func writeToGroupContainer(group: String, file: URL) throws -> URL? {
         guard let sharedContainerURL: URL = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: group) else { return nil }

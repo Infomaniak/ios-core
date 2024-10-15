@@ -24,10 +24,9 @@ import Foundation
 ///  while working with the easy to use `Result` type.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public protocol ProgressResultable {
-    
     /// Success type
     associatedtype Success
-    
+
     /// Error type
     associatedtype Failure: Error
 

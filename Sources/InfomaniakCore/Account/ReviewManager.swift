@@ -78,20 +78,20 @@ public class ReviewManager: ReviewManageable {
     }
 
     public func shouldRequestReview() -> Bool {
-            guard userDefaults.openingUntilReview <= 0 else {
-                return false
-            }
-
-            userDefaults.openingUntilReview = openingBeforeNextReviews
-
-            if userHasAlreadyAnsweredYes {
-                // If the user has already answered yes, we will directly present the SKStoreReviewController
-                requestReview()
-                return false
-            } else {
-                return true
-            }
+        guard userDefaults.openingUntilReview <= 0 else {
+            return false
         }
+
+        userDefaults.openingUntilReview = openingBeforeNextReviews
+
+        if userHasAlreadyAnsweredYes {
+            // If the user has already answered yes, we will directly present the SKStoreReviewController
+            requestReview()
+            return false
+        } else {
+            return true
+        }
+    }
 
     public func requestReview() {
         DispatchQueue.main.async {

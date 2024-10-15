@@ -106,9 +106,9 @@ public extension NSItemProvider {
     /// - Parameter collection: A collection of identifiers
     /// - Returns: `true` if matches for at least one identifier
     func hasItemConformingToAnyOfTypeIdentifiers(_ collection: [String]) -> Bool {
-        let hasItem = collection.contains(where: { identifier in
+        let hasItem = collection.contains { identifier in
             self.hasItemConformingToTypeIdentifier(identifier)
-        })
+        }
 
         return hasItem
     }

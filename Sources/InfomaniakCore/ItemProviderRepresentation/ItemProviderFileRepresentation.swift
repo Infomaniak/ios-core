@@ -24,16 +24,16 @@ import InfomaniakDI
 public final class ItemProviderFileRepresentation: NSObject, ProgressResultable {
     /// Progress increment size
     private static let progressStep: Int64 = 1
-    
+
     /// Number of steps to complete the task
     private static let totalSteps: Int64 = 2
-    
+
     /// Something to transform events to a nice `async Result`
     private let flowToAsync = FlowToAsyncResult<Success>()
 
     /// Shorthand for default FileManager
     private let fileManager = FileManager.default
-    
+
     /// Identifier of a Live-Photo
     private static let livePhotoIdentifier = "com.apple.live-photo-bundle"
 
@@ -53,13 +53,13 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
     /// itemProvider supports it.
     public init(from itemProvider: NSItemProvider, preferredImageFileFormat: UTI? = nil) throws {
         var typeIdentifiers = itemProvider.registeredTypeIdentifiers
-        
+
         // make sure live photo identifier is at the end of supported formats
         if let matchIndex = typeIdentifiers.firstIndex(of: Self.livePhotoIdentifier) {
             typeIdentifiers.remove(at: matchIndex)
             typeIdentifiers.append(Self.livePhotoIdentifier)
         }
-        
+
         guard let typeIdentifier = typeIdentifiers.first else {
             throw ErrorDomain.UTINotFound
         }
@@ -78,31 +78,32 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
         // Set progress and hook completion closure
         let completionProgress = Progress(totalUnitCount: Self.progressStep)
         progress.addChild(completionProgress, withPendingUnitCount: Self.progressStep)
-        
-        let loadURLProgress = itemProvider.loadFileRepresentation(forTypeIdentifier: fileIdentifierToUse) { [self] fileProviderURL, error in
-            guard let fileProviderURL, error == nil else {
-                completionProgress.completedUnitCount += Self.progressStep
-                flowToAsync.sendFailure(error ?? ErrorDomain.UnableToLoadFile)
-                return
+
+        let loadURLProgress = itemProvider
+            .loadFileRepresentation(forTypeIdentifier: fileIdentifierToUse) { [self] fileProviderURL, error in
+                guard let fileProviderURL, error == nil else {
+                    completionProgress.completedUnitCount += Self.progressStep
+                    flowToAsync.sendFailure(error ?? ErrorDomain.UnableToLoadFile)
+                    return
+                }
+
+                do {
+                    let uti = UTI(rawValue: fileIdentifierToUse as CFString)
+                    @InjectService var pathProvider: AppGroupPathProvidable
+                    let temporaryURL = try URL.temporaryUniqueFolderURL()
+
+                    let title = (fileProviderURL.lastPathComponent as NSString).deletingPathExtension
+                    let fileName = fileProviderURL.appendingPathExtension(for: uti).lastPathComponent
+                    let temporaryFileURL = temporaryURL.appendingPathComponent(fileName)
+                    try fileManager.copyItem(atPath: fileProviderURL.path, toPath: temporaryFileURL.path)
+
+                    completionProgress.completedUnitCount += Self.progressStep
+                    flowToAsync.sendSuccess((temporaryFileURL, title))
+                } catch {
+                    completionProgress.completedUnitCount += Self.progressStep
+                    flowToAsync.sendFailure(error)
+                }
             }
-
-            do {
-                let uti = UTI(rawValue: fileIdentifierToUse as CFString)
-                @InjectService var pathProvider: AppGroupPathProvidable
-                let temporaryURL = try URL.temporaryUniqueFolderURL()
-
-                let title = (fileProviderURL.lastPathComponent as NSString).deletingPathExtension
-                let fileName = fileProviderURL.appendingPathExtension(for: uti).lastPathComponent
-                let temporaryFileURL = temporaryURL.appendingPathComponent(fileName)
-                try fileManager.copyItem(atPath: fileProviderURL.path, toPath: temporaryFileURL.path)
-
-                completionProgress.completedUnitCount += Self.progressStep
-                flowToAsync.sendSuccess((temporaryFileURL, title))
-            } catch {
-                completionProgress.completedUnitCount += Self.progressStep
-                flowToAsync.sendFailure(error)
-            }
-        }
         progress.addChild(loadURLProgress, withPendingUnitCount: Self.progressStep)
     }
 

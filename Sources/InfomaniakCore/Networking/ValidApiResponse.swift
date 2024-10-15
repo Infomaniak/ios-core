@@ -18,10 +18,10 @@
 
 import Alamofire
 
-public struct ValidServerResponse<ValidApiResponseContent> {
+public struct ValidServerResponse<ResponseContent> {
     public let statusCode: Int
     public let responseHeaders: HTTPHeaders
-    public let validApiResponse: ValidApiResponse<ValidApiResponseContent>
+    public let validApiResponse: ValidApiResponse<ResponseContent>
 }
 
 public struct ValidApiResponse<ResponseContent> {

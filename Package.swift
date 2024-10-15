@@ -39,7 +39,7 @@ let package = Package(
                 .product(name: "Sentry", package: "sentry-cocoa"),
                 .product(name: "RealmSwift", package: "realm-swift"),
                 .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
-                .product(name: "OSInfo", package: "OSInfo"),
+                .product(name: "OSInfo", package: "OSInfo")
             ]
         ),
         .target(
@@ -47,7 +47,7 @@ let package = Package(
             dependencies: [
                 "InfomaniakCore",
                 .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
-                .product(name: "RealmSwift", package: "realm-swift"),
+                .product(name: "RealmSwift", package: "realm-swift")
             ]
         ),
         .testTarget(

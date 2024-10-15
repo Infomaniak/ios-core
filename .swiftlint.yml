@@ -10,6 +10,7 @@ disabled_rules:
  - inclusive_language
  - for_where
  - optional_data_string_conversion
+ - non_optional_string_data_conversion
 opt_in_rules:
  - closure_end_indentation
  - closure_spacing
@@ -38,3 +39,4 @@ excluded:
  - DerivedData/
  - Derived/
  - Tuist/.build/
+ - Tests/*

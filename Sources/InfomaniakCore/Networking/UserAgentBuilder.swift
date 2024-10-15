@@ -24,11 +24,10 @@ import UIKit
 
 /// Something to construct a standard Infomaniak User-Agent
 public struct UserAgentBuilder {
-    
     public init() {
         // META: Keep SonarCloud happy
     }
-    
+
     func modelIdentifier() -> String? {
         if let simulatorModelIdentifier = ProcessInfo()
             .environment["SIMULATOR_MODEL_IDENTIFIER"] { return simulatorModelIdentifier }

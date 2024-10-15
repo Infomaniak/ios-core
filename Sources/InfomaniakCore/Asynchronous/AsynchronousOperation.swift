@@ -29,7 +29,8 @@ open class AsynchronousOperation: Operation {
 
     private let stateQueue = DispatchQueue(
         label: "com.infomaniak.drive.async-operation-state",
-        attributes: .concurrent)
+        attributes: .concurrent
+    )
 
     private var rawState = OperationState.ready
 
@@ -40,7 +41,8 @@ open class AsynchronousOperation: Operation {
         set {
             willChangeValue(forKey: "state")
             stateQueue.sync(
-                flags: .barrier) { rawState = newValue }
+                flags: .barrier
+            ) { rawState = newValue }
             didChangeValue(forKey: "state")
         }
     }

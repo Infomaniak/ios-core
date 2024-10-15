@@ -65,7 +65,7 @@ public struct Endpoint {
                 path: String,
                 queryItems: [URLQueryItem]? = nil,
                 apiEnvironment: ApiEnvironment = .current) {
-        self.host = apiEnvironment[keyPath: hostKeypath]
+        host = apiEnvironment[keyPath: hostKeypath]
         self.path = path
         self.queryItems = queryItems
     }

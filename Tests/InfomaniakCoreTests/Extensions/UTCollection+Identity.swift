@@ -52,16 +52,16 @@ final class UTCollectionIdentity: XCTestCase {
         // THEN
         XCTAssertEqual(lhsId, rhsId, "We expect the ids to be the same")
     }
-    
+
     func testIntReversedArrayDifferentHash() {
         // GIVEN
         let lhsArray = [1, 2, 3, 4]
         let rhsArray = [1, 2, 3, 4].reversed()
-        
+
         // WHEN
         let lhsId = lhsArray.collectionId()
         let rhsId = rhsArray.collectionId()
-        
+
         // THEN
         XCTAssertNotEqual(lhsId, rhsId, "We expect the ids to not be the same")
     }

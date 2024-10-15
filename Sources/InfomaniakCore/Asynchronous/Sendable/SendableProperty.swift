@@ -30,7 +30,7 @@ public final class SendableProperty<Property>: @unchecked Sendable {
     /// Store property
     var property: Property?
 
-    public init() { }
+    public init() {}
 
     public var wrappedValue: Property? {
         get {

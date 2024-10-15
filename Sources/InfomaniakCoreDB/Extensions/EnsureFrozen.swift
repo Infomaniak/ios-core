@@ -19,7 +19,8 @@
 import Foundation
 import RealmSwift
 
-/// This property wrapper ensures that the passed object (or collection) is frozen. In case the given object isn't frozen an assert is raised.
+/// This property wrapper ensures that the passed object (or collection) is frozen. In case the given object isn't frozen an
+/// assert is raised.
 @propertyWrapper
 public struct EnsureFrozen<Value> {
     public let wrappedValue: Value

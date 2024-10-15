@@ -52,10 +52,14 @@ let package = Package(
         ),
         .testTarget(
             name: "InfomaniakCoreTests",
-            dependencies: ["InfomaniakCore", "InfomaniakCoreDB" ,"ZIPFoundation"],
-            resources: [Resource.copy("Resources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.heic"),
-                        Resource.copy("Resources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.jpg"),
-                        Resource.copy("Resources/dummy.pdf")]
+            dependencies: ["InfomaniakCore", "InfomaniakCoreDB", "ZIPFoundation"],
+            resources: [
+                Resource
+                    .copy("Resources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.heic"),
+                Resource
+                    .copy("Resources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.jpg"),
+                Resource.copy("Resources/dummy.pdf")
+            ]
         )
     ]
 )

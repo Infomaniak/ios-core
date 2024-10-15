@@ -60,10 +60,10 @@ extension ApiFetcher: RequestDispatchable {
         case .requestBody(let data):
             let headers: HTTPHeaders = [Self.contentType: Self.octetStream]
             request = authenticatedRequest(endpoint,
-                                             method: method,
-                                             parameters: nil,
-                                             encoding: BodyDataEncoding(data: data),
-                                             headers: headers)
+                                           method: method,
+                                           parameters: nil,
+                                           encoding: BodyDataEncoding(data: data),
+                                           headers: headers)
         case .none:
             request = authenticatedRequest(endpoint,
                                            method: method,
@@ -77,8 +77,7 @@ extension ApiFetcher: RequestDispatchable {
         var endpoint = requestable.route.url
         if let parameters = requestable.GETParameters,
            let queryItems = parameters.urlComponents.queryItems {
-
-            if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0 , *) {
+            if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
                 endpoint.append(queryItems: queryItems)
             } else {
                 if var components = URLComponents(url: endpoint, resolvingAgainstBaseURL: false) {

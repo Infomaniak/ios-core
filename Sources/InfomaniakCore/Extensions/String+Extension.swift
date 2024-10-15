@@ -20,7 +20,7 @@ import Foundation
 
 public extension String {
     var initials: String {
-        let words = self.split(separator: " ")
+        let words = split(separator: " ")
         guard words.count > 0, let firstLetter = words[0].first else {
             return ""
         }

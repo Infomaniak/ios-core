@@ -29,7 +29,7 @@ public final class TolerantDispatchGroup {
     public init(qos: DispatchQoS = .userInitiated) {
         syncQueue = DispatchQueue(label: "com.infomaniak.TolerantDispatchGroup", qos: qos)
     }
-    
+
     public func enter() {
         syncQueue.sync {
             dispatchGroup.enter()

@@ -83,6 +83,6 @@ public extension URL {
     ///
     /// Not safe against collisions.
     static func defaultFileName(date: Date = Date()) -> String {
-        Self.defaultNameFormatter.string(from: date)
+        defaultNameFormatter.string(from: date)
     }
 }

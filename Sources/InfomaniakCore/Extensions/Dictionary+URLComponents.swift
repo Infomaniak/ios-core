@@ -19,15 +19,14 @@
 import Foundation
 
 public extension Dictionary where Key == String {
-    
     var urlComponents: URLComponents {
         var components = URLComponents()
-        components.queryItems = self.map {
+        components.queryItems = map {
             URLQueryItem(name: $0, value: "\($1)")
         }
         return components
     }
-    
+
     /// Renders an URL Encoded string of the content of the present Dictionary
     ///
     /// Uses the URLComponents API
@@ -35,17 +34,17 @@ public extension Dictionary where Key == String {
         let url = urlComponents.url
         return url
     }
-    
+
     var urlEncodedData: Data? {
-        guard let url = self.urlEncoded else {
+        guard let url = urlEncoded else {
             return nil
         }
-        
+
         let string = url.absoluteString
         guard let data = string.data(using: .utf8) else {
             return nil
         }
-        
+
         return data
     }
 }

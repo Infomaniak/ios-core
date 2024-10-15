@@ -16,8 +16,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Foundation
 import Alamofire
+import Foundation
 
 /// Wrapping HTTP POST and GET parameters in this type
 public typealias Parameters = [String: Any]
@@ -54,13 +54,12 @@ public enum Method: String {
 /// Bridge to Alamofire
 extension Method {
     var alamofireMethod: Alamofire.HTTPMethod {
-        Alamofire.HTTPMethod(rawValue: self.rawValue)
+        Alamofire.HTTPMethod(rawValue: rawValue)
     }
 }
 
 /// Wrapping data into an AFi encoder
 struct BodyDataEncoding: ParameterEncoding {
-
     private let data: Data
 
     init(data: Data) {
@@ -76,14 +75,13 @@ struct BodyDataEncoding: ParameterEncoding {
 }
 
 public struct Request: Requestable {
-    
     public init(method: Method, route: InfomaniakCore.Endpoint, GETParameters: Parameters?, body: RequestBody?) {
         self.method = method
         self.route = route
         self.GETParameters = GETParameters
         self.body = body
     }
-    
+
     public var method: Method
 
     public var route: InfomaniakCore.Endpoint

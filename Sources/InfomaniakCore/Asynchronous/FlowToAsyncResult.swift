@@ -25,15 +25,14 @@ import Foundation
 /// The *first* event received will be forwarded. Thread safe.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class FlowToAsyncResult<Success> {
-    
     /// Something to deal with live observation
     typealias CompletionClosure = (Result<Success, Error>) -> Void
 
     // MARK: Private
-    
+
     /// Serial locking queue
     private let lock = DispatchQueue(label: "com.infomaniak.core.FlowToAsyncResult.lock")
-    
+
     /// The internal state of `FlowToAsyncResult`
     private enum State {
         /// Waiting for input events

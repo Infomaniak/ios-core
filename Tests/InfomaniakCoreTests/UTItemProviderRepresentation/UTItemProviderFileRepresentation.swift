@@ -78,7 +78,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertNotEqual(NSString(string: success.title).pathExtension , UTI.text.preferredFilenameExtension)
+            XCTAssertNotEqual(NSString(string: success.title).pathExtension, UTI.text.preferredFilenameExtension)
             XCTAssertEqual(success.url.pathExtension.lowercased(), "txt")
 
             let stringResult = try String(contentsOf: success.url, encoding: .utf8) as NSString // for NSCoding
@@ -115,7 +115,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertNotEqual(NSString(string: success.title).pathExtension , "jpeg")
+            XCTAssertNotEqual(NSString(string: success.title).pathExtension, "jpeg")
             XCTAssertEqual(success.url.pathExtension.lowercased(), "jpeg")
 
             let imageData = try Data(contentsOf: success.url)
@@ -147,7 +147,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertNotEqual(NSString(string: success.title).pathExtension , "heic")
+            XCTAssertNotEqual(NSString(string: success.title).pathExtension, "heic")
             XCTAssertEqual(success.url.pathExtension.lowercased(), "heic")
 
             let imageData = try Data(contentsOf: success.url)
@@ -185,7 +185,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertNotEqual(NSString(string: success.title).pathExtension , "jpeg")
+            XCTAssertNotEqual(NSString(string: success.title).pathExtension, "jpeg")
             XCTAssertEqual(success.url.pathExtension.lowercased(), "jpeg")
         } catch {
             XCTFail("Unexpected \(error)")
@@ -218,7 +218,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertNotEqual(NSString(string: success.title).pathExtension , "jpeg")
+            XCTAssertNotEqual(NSString(string: success.title).pathExtension, "jpeg")
             XCTAssertEqual(success.url.pathExtension.lowercased(), "jpeg")
         } catch {
             XCTFail("Unexpected \(error)")
@@ -252,7 +252,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertNotEqual(NSString(string: success.title).pathExtension , "heic")
+            XCTAssertNotEqual(NSString(string: success.title).pathExtension, "heic")
 
             // We expect a HEIC fallback when no JPG is available
             XCTAssertEqual(success.url.pathExtension.lowercased(), "heic")
@@ -286,7 +286,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
 
             // THEN
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertNotEqual(NSString(string: success.title).pathExtension , "jpeg")
+            XCTAssertNotEqual(NSString(string: success.title).pathExtension, "jpeg")
 
             // We expect a JPEG fallback when no HEIC is available
             XCTAssertEqual(success.url.pathExtension.lowercased(), "jpeg")
@@ -326,7 +326,7 @@ final class UTItemProviderFileRepresentation: XCTestCase {
 
             // THEN we still get an unchanged TXT file
             XCTAssertTrue(progress.isFinished, "Expecting the progress to reflect that the task is finished")
-            XCTAssertNotEqual(NSString(string: success.title).pathExtension , UTI.text.preferredFilenameExtension)
+            XCTAssertNotEqual(NSString(string: success.title).pathExtension, UTI.text.preferredFilenameExtension)
             XCTAssertEqual(success.url.pathExtension.lowercased(), "txt")
 
             let stringResult = try String(contentsOf: success.url, encoding: .utf8) as NSString // for NSCoding

@@ -25,13 +25,13 @@ final class UTCompression: XCTestCase {
         // GIVEN
         let lowEntropy = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
         let lowEntropyData = lowEntropy.data(using: .utf8)!
-        
+
         // WHEN
         guard let highEntropy = lowEntropy.compressed() else {
             XCTFail("Unexpected")
             return
         }
-        
+
         // THEN
         XCTAssertLessThan(highEntropy.count, lowEntropyData.count, "Compressed message should be smaller")
     }
@@ -39,15 +39,15 @@ final class UTCompression: XCTestCase {
     func testCompressionDecompression() {
         // GIVEN
         let lowEntropy = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-        
+
         // WHEN
         guard let highEntropy = lowEntropy.compressed() else {
             XCTFail("Unexpected")
             return
         }
-        
+
         let decompressedString = highEntropy.decompressedString()
-        
+
         // THEN
         XCTAssertEqual(lowEntropy, decompressedString)
     }

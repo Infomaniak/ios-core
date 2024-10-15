@@ -23,7 +23,10 @@ enum GroupContainerService {
         guard let sharedContainerURL: URL = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: group) else { return nil }
 
-        let groupContainer = sharedContainerURL.appendingPathComponent("Library/Caches/file-sharing", isDirectory: true)
+        let groupContainer = sharedContainerURL.appendingPathComponent(
+            "Library/Caches/file-sharing/\(UUID().uuidString)/",
+            isDirectory: true
+        )
         let destination = groupContainer.appendingPathComponent(file.lastPathComponent)
 
         if FileManager.default.fileExists(atPath: groupContainer.path) {

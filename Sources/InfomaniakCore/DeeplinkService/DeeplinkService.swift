@@ -28,11 +28,20 @@ public struct DeeplinkService {
 
     public init() { /* Empty on purpose */ }
 
+    @available(*, deprecated, message: "Use shareFilesToKdrive([URL]) instead")
     public func shareFileToKdrive(_ url: URL) throws {
-        guard let destination = try GroupContainerService.writeToGroupContainer(group: group, file: url) else { return }
+        try shareFilesToKdrive([url])
+    }
 
+    public func shareFilesToKdrive(_ urls: [URL]) throws {
+        let destinations = try urls.compactMap { url in
+            try GroupContainerService.writeToGroupContainer(group: group, file: url)
+        }
         var targetUrl = URLComponents(string: "kdrive-file-sharing://file")
-        targetUrl?.queryItems = [URLQueryItem(name: "url", value: destination.path)]
+        targetUrl?.queryItems = destinations.map { destination in
+            URLQueryItem(name: "url", value: destination.path)
+        }
+
         if let targetAppUrl = targetUrl?.url, urlOpener.canOpen(url: targetAppUrl) {
             urlOpener.openUrl(targetAppUrl)
         } else {

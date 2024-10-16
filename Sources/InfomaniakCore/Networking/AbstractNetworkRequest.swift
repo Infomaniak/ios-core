@@ -66,8 +66,8 @@ struct BodyDataEncoding: ParameterEncoding {
         self.data = data
     }
 
-    func encode(_ urlRequest: URLRequestConvertible,
-                with parameters: Parameters?) throws -> URLRequest {
+    func encode(_ urlRequest: Alamofire.URLRequestConvertible,
+                with parameters: Alamofire.Parameters?) throws -> URLRequest {
         var request = try urlRequest.asURLRequest()
         request.httpBody = data
         return request

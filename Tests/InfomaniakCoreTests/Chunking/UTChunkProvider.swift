@@ -21,7 +21,7 @@ import Foundation
 import XCTest
 
 /// Unit Tests of the ChunkProvider
-@available(iOS 13.4, *)
+@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 final class UTChunkProvider: XCTestCase {
     // MARK: - next
 

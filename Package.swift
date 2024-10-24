@@ -4,20 +4,6 @@
 import Foundation
 import PackageDescription
 
-let resolveDependenciesForTesting = false
-
-let realmDependencies: [Target.Dependency]
-if resolveDependenciesForTesting {
-    realmDependencies = [
-        .product(name: "RealmSwift", package: "realm-swift")
-    ]
-} else {
-    realmDependencies = [
-        .product(name: "Realm", package: "realm-swift"),
-        .product(name: "RealmSwift", package: "realm-swift")
-    ]
-}
-
 let package = Package(
     name: "InfomaniakCore",
     platforms: [
@@ -61,8 +47,9 @@ let package = Package(
             name: "InfomaniakCoreDB",
             dependencies: [
                 "InfomaniakCore",
-                .product(name: "InfomaniakDI", package: "ios-dependency-injection")
-            ] + realmDependencies
+                .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
+                .product(name: "RealmSwift", package: "realm-swift")
+            ]
         ),
         .testTarget(
             name: "InfomaniakCoreTests",

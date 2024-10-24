@@ -24,7 +24,7 @@ final class UTRangeProvider: XCTestCase {
     func testAllRanges_zeroes() throws {
         // GIVEN
         let stubURL = URL(string: "file:///Arcalod_2117.jpg")!
-        var rangeProvider = RangeProvider(fileURL: stubURL)
+        var rangeProvider = RangeProvider(fileURL: stubURL, config: TestRangeProviderConfig.default)
         let mckGuts = MCKRangeProviderGutsable( /* all zeroes by default */ )
 
         rangeProvider.guts = mckGuts
@@ -42,9 +42,9 @@ final class UTRangeProvider: XCTestCase {
     func testAllRanges_FileTooLarge() throws {
         // GIVEN
         let stubURL = URL(string: "file:///Arcalod_2117.jpg")!
-        var rangeProvider = RangeProvider(fileURL: stubURL)
+        var rangeProvider = RangeProvider(fileURL: stubURL, config: TestRangeProviderConfig.default)
         let mckGuts = MCKRangeProviderGutsable()
-        mckGuts.readFileByteSizeReturnValue = RangeProvider.APIConstants.fileMaxSizeClient + 1
+        mckGuts.readFileByteSizeReturnValue = TestRangeProviderConfig.default.fileMaxSizeClient + 1
         rangeProvider.guts = mckGuts
 
         // WHEN
@@ -67,9 +67,9 @@ final class UTRangeProvider: XCTestCase {
     func testAllRanges_Success() throws {
         // GIVEN
         let stubURL = URL(string: "file:///Arcalod_2117.jpg")!
-        var rangeProvider = RangeProvider(fileURL: stubURL)
+        var rangeProvider = RangeProvider(fileURL: stubURL, config: TestRangeProviderConfig.default)
         let mckGuts = MCKRangeProviderGutsable()
-        mckGuts.readFileByteSizeReturnValue = RangeProvider.APIConstants.chunkMinSize + 1
+        mckGuts.readFileByteSizeReturnValue = TestRangeProviderConfig.default.chunkMinSize + 1
         mckGuts.preferredChunkSizeReturnValue = 1 * 1024 * 1024
 
         rangeProvider.guts = mckGuts

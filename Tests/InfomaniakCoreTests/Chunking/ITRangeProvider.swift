@@ -41,7 +41,7 @@ final class ITRangeProvider: XCTestCase {
             return
         }
 
-        let rangeProvider = RangeProvider(fileURL: pathURL)
+        let rangeProvider = RangeProvider(fileURL: pathURL, config: TestRangeProviderConfig.default)
 
         // WHEN
         do {

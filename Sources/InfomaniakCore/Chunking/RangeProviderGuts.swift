@@ -45,9 +45,11 @@ public protocol RangeProviderGutsable {
 }
 
 /// Subdivided **RangeProvider**, so it is easier to test
-public struct RangeProviderGuts: RangeProviderGutsable {
+@frozen public struct RangeProviderGuts: RangeProviderGutsable {
     /// The URL of the local file to scan
     public let fileURL: URL
+
+    public let config: RangeProvider.Config
 
     public func buildRanges(fileSize: UInt64, totalChunksCount: UInt64, chunkSize: UInt64) throws -> [DataRange] {
         // malformed requests
@@ -109,23 +111,23 @@ public struct RangeProviderGuts: RangeProviderGutsable {
     public func preferredChunkSize(for fileSize: UInt64) -> UInt64 {
         // In extension to reduce memory footprint, we reduce drastically chunk size
         guard !Bundle.main.isExtension else {
-            let capChunkSize = min(fileSize, RangeProvider.APIConstants.chunkMinSize)
+            let capChunkSize = min(fileSize, config.chunkMinSize)
             return capChunkSize
         }
 
-        let potentialChunkSize = fileSize / RangeProvider.APIConstants.optimalChunkCount
+        let potentialChunkSize = fileSize / config.optimalChunkCount
 
         let chunkSize: UInt64
         switch potentialChunkSize {
-        case 0 ..< RangeProvider.APIConstants.chunkMinSize:
-            chunkSize = RangeProvider.APIConstants.chunkMinSize
+        case 0 ..< config.chunkMinSize:
+            chunkSize = config.chunkMinSize
 
-        case RangeProvider.APIConstants.chunkMinSize ... RangeProvider.APIConstants.chunkMaxSizeClient:
+        case config.chunkMinSize ... config.chunkMaxSizeClient:
             chunkSize = potentialChunkSize
 
         /// Strictly higher than `APIConstants.chunkMaxSize`
         default:
-            chunkSize = RangeProvider.APIConstants.chunkMaxSizeClient
+            chunkSize = config.chunkMaxSizeClient
         }
 
         /// Set a lower bound to chunk size

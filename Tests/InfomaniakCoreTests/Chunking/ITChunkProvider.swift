@@ -36,7 +36,7 @@ final class ITChunkProvider: XCTestCase {
 
         do {
             let expectedData = try Data(contentsOf: pathURL)
-            let rangeProvider = RangeProvider(fileURL: pathURL)
+            let rangeProvider = RangeProvider(fileURL: pathURL, config: TestRangeProviderConfig.default)
             let ranges = try rangeProvider.allRanges
             guard let chunkProvider = ChunkProvider(fileURL: pathURL, ranges: ranges) else {
                 XCTFail("Unexpected")

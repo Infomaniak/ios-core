@@ -36,21 +36,36 @@ public protocol RangeProvidable {
     var fileSize: UInt64 { get throws }
 }
 
-public struct RangeProvider: RangeProvidable {
-    /// Encapsulating API parameters used to compute ranges
-    public enum APIConstants {
-        static let chunkMinSize: UInt64 = 1 * 1024 * 1024
-        static let chunkMaxSizeClient: UInt64 = 50 * 1024 * 1024
-        static let chunkMaxSizeServer: UInt64 = 1 * 1024 * 1024 * 1024
-        static let optimalChunkCount: UInt64 = 200
-        static let maxTotalChunks: UInt64 = 10000
-        static let minTotalChunks: UInt64 = 1
+@frozen public struct RangeProvider: RangeProvidable {
+    @frozen public struct Config {
+        public let chunkMinSize: UInt64
+        public let chunkMaxSizeClient: UInt64
+        public let chunkMaxSizeServer: UInt64
+        public let optimalChunkCount: UInt64
+        public let maxTotalChunks: UInt64
+        public let minTotalChunks: UInt64
 
-        /// the limit supported by the app
-        static let fileMaxSizeClient = APIConstants.maxTotalChunks * APIConstants.chunkMaxSizeClient
+        public let fileMaxSizeClient: UInt64
+        public let fileMaxSizeServer: UInt64
 
-        /// the limit supported by the server
-        static let fileMaxSizeServer = APIConstants.maxTotalChunks * APIConstants.chunkMaxSizeServer
+        public init(
+            chunkMinSize: UInt64,
+            chunkMaxSizeClient: UInt64,
+            chunkMaxSizeServer: UInt64,
+            optimalChunkCount: UInt64,
+            maxTotalChunks: UInt64,
+            minTotalChunks: UInt64
+        ) {
+            self.chunkMinSize = chunkMinSize
+            self.chunkMaxSizeClient = chunkMaxSizeClient
+            self.chunkMaxSizeServer = chunkMaxSizeServer
+            self.optimalChunkCount = optimalChunkCount
+            self.maxTotalChunks = maxTotalChunks
+            self.minTotalChunks = minTotalChunks
+
+            fileMaxSizeClient = maxTotalChunks * chunkMaxSizeClient
+            fileMaxSizeServer = maxTotalChunks * chunkMaxSizeServer
+        }
     }
 
     enum ErrorDomain: Error {
@@ -73,8 +88,11 @@ public struct RangeProvider: RangeProvidable {
     /// The internal methods split into another type, make testing easier
     var guts: RangeProviderGutsable
 
-    public init(fileURL: URL) {
-        guts = RangeProviderGuts(fileURL: fileURL)
+    let config: Config
+
+    public init(fileURL: URL, config: Config) {
+        guts = RangeProviderGuts(fileURL: fileURL, config: config)
+        self.config = config
     }
 
     public var fileSize: UInt64 {
@@ -89,8 +107,8 @@ public struct RangeProvider: RangeProvidable {
             let size = try fileSize
 
             // Check for files too large to be processed by mobile app or the server
-            guard size < APIConstants.fileMaxSizeClient,
-                  size < APIConstants.fileMaxSizeServer else {
+            guard size < config.fileMaxSizeClient,
+                  size < config.fileMaxSizeServer else {
                 // TODO: notify Sentry
                 throw ErrorDomain.FileTooLarge
             }

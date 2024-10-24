@@ -30,7 +30,7 @@ final class ITRangeProviderGuts: XCTestCase {
         let expectedFileBytes = UInt64(4_865_229)
         let bundle = Bundle.module
         let pathURL = bundle.url(forResource: file, withExtension: "jpg")!
-        let guts = RangeProviderGuts(fileURL: pathURL)
+        let guts = RangeProviderGuts(fileURL: pathURL, config: TestRangeProviderConfig.default)
 
         // WHEN
         do {
@@ -46,7 +46,7 @@ final class ITRangeProviderGuts: XCTestCase {
     func testReadFileByteSize_FileDoesNotExists() {
         // GIVEN
         let notThereFileURL = URL(string: "file:///Arcalod_2117.jpg")!
-        let rangeProvider = RangeProviderGuts(fileURL: notThereFileURL)
+        let rangeProvider = RangeProviderGuts(fileURL: notThereFileURL, config: TestRangeProviderConfig.default)
 
         // WHEN
         do {
@@ -68,7 +68,7 @@ final class ITRangeProviderGuts: XCTestCase {
         // GIVEN
         let bundle = Bundle.module
         let pathURL = bundle.url(forResource: file, withExtension: "jpg")!
-        let guts = RangeProviderGuts(fileURL: pathURL)
+        let guts = RangeProviderGuts(fileURL: pathURL, config: TestRangeProviderConfig.default)
         let fileChunks = UInt64(4)
         let expectedChunks = 5
         let chunksSize = UInt64(1 * 1024 * 1024)
@@ -98,7 +98,7 @@ final class ITRangeProviderGuts: XCTestCase {
 
     func testBuildRanges_fromEmptyFile() {
         // GIVEN
-        let guts = RangeProviderGuts(fileURL: URL(string: "http://infomaniak.ch")!)
+        let guts = RangeProviderGuts(fileURL: URL(string: "http://infomaniak.ch")!, config: TestRangeProviderConfig.default)
         let emptyFileSize = UInt64(0)
         let fileChunks = UInt64(1)
         let chunksSize = UInt64(1)
@@ -122,7 +122,7 @@ final class ITRangeProviderGuts: XCTestCase {
         // GIVEN
         let bundle = Bundle.module
         let pathURL = bundle.url(forResource: file, withExtension: "jpg")!
-        let guts = RangeProviderGuts(fileURL: pathURL)
+        let guts = RangeProviderGuts(fileURL: pathURL, config: TestRangeProviderConfig.default)
 
         // WHEN
         do {
@@ -134,8 +134,8 @@ final class ITRangeProviderGuts: XCTestCase {
             XCTAssertTrue(preferredChunkSize <= size)
 
             // this should not be strictly imposed but I can quickly check behaviour here
-            // XCTAssertTrue(preferredChunkSize >= RangeProvider.APIConstants.chunkMinSize)
-            // XCTAssertTrue(preferredChunkSize <= RangeProvider.APIConstants.chunkMaxSize)
+            // XCTAssertTrue(preferredChunkSize >= TestRangeProviderConfig.default.chunkMinSize)
+            // XCTAssertTrue(preferredChunkSize <= TestRangeProviderConfig.default.chunkMaxSize)
         } catch {
             XCTFail("Unexpected \(error)")
         }
@@ -143,7 +143,7 @@ final class ITRangeProviderGuts: XCTestCase {
 
     func testPreferredChunkSize_0() {
         // GIVEN
-        let guts = RangeProviderGuts(fileURL: URL(string: "http://infomaniak.ch")!)
+        let guts = RangeProviderGuts(fileURL: URL(string: "http://infomaniak.ch")!, config: TestRangeProviderConfig.default)
 
         // WHEN
         let preferredChunkSize = guts.preferredChunkSize(for: 0)
@@ -154,7 +154,7 @@ final class ITRangeProviderGuts: XCTestCase {
 
     func testPreferredChunkSize_notLargerThanFileSize() {
         // GIVEN
-        let guts = RangeProviderGuts(fileURL: URL(string: "http://infomaniak.ch")!)
+        let guts = RangeProviderGuts(fileURL: URL(string: "http://infomaniak.ch")!, config: TestRangeProviderConfig.default)
         let superSmallFileSize: UInt64 = 10
 
         // WHEN

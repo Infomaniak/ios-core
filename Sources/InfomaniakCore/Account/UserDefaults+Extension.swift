@@ -19,7 +19,7 @@
 import Foundation
 
 public extension UserDefaults {
-    struct Keys {
+    struct Keys: Sendable {
         public let rawValue: String
 
         public init(rawValue: String) {

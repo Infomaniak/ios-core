@@ -32,7 +32,7 @@ enum GroupContainerService {
         if FileManager.default.fileExists(atPath: groupContainer.path) {
             try FileManager.default.removeItem(at: groupContainer)
         }
-        try FileManager.default.createDirectory(at: groupContainer, withIntermediateDirectories: false)
+        try FileManager.default.createDirectory(at: groupContainer, withIntermediateDirectories: true)
         try FileManager.default.copyItem(
             at: file,
             to: destination

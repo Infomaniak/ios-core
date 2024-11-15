@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire",
       "state" : {
-        "revision" : "ea6a94b7dddffd0ca4d0f29252d95310b84dec84",
-        "version" : "5.10.0"
+        "revision" : "e16d3481f5ed35f0472cb93350085853d754913f",
+        "version" : "5.10.1"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-core.git",
       "state" : {
-        "revision" : "c2552e1d36867cb42b28130e894a81fc17081062",
-        "version" : "14.12.0"
+        "revision" : "85eeca41654cc9070ad81a21a4b1d153ad467c33",
+        "version" : "14.13.1"
       }
     },
     {
@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-swift",
       "state" : {
-        "revision" : "5221a83dc720823e3017493394d00d49ccf13446",
-        "version" : "10.52.3"
+        "revision" : "5553cfd1c789efdb3d6daf7f0cc0733cfe601846",
+        "version" : "10.54.1"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/getsentry/sentry-cocoa",
       "state" : {
-        "revision" : "54cc2e3e4fcbf9d4c7708ce00d3b6eee29aecbb1",
-        "version" : "8.38.0"
+        "revision" : "0ffc3c6287461962cb2a81e57fc0ee0335d8d56a",
+        "version" : "8.40.1"
       }
     },
     {

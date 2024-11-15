@@ -13,7 +13,6 @@ if resolveDependenciesForTesting {
     ]
 } else {
     realmDependencies = [
-        .product(name: "Realm", package: "realm-swift"),
         .product(name: "RealmSwift", package: "realm-swift")
     ]
 }

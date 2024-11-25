@@ -161,6 +161,9 @@ open class ApiFetcher {
         let dataResponse = await validatedRequest.serializingDecodable(ApiResponse<T>.self,
                                                                        automaticallyCancelling: true,
                                                                        decoder: decoder).response
+
+        SentryDebug.httpResponseBreadcrumb(urlRequest: request.convertible.urlRequest, urlResponse: dataResponse.response)
+
         return try handleApiResponse(dataResponse)
     }
 

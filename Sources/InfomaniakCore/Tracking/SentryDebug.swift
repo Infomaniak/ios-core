@@ -19,9 +19,10 @@
 import Foundation
 import Sentry
 
-enum SentryDebug {
+public enum SentryDebug {
     enum Category {
         static let fileMetadata = "FileMetadata"
+        static let networking = "Networking"
     }
 
     // MARK: FileMetadata
@@ -32,5 +33,37 @@ enum SentryDebug {
         breadcrumb.message = caller
         breadcrumb.data = metadata
         SentrySDK.addBreadcrumb(breadcrumb)
+    }
+
+    public static func httpRequestBreadcrumb(requestId: String?, url: URL, method: String, statusCode: Int?) {
+        let breadcrumb = Breadcrumb(level: .info, category: Category.networking)
+        breadcrumb.type = "http"
+        breadcrumb.message = ""
+
+        var data = [
+            "url": url.absoluteString,
+            "method": method,
+            "status_code": statusCode ?? -1
+        ] as [String: Any]
+
+        if let requestId {
+            data["request_id"] = requestId
+        }
+
+        breadcrumb.data = data
+
+        SentrySDK.addBreadcrumb(breadcrumb)
+    }
+
+    public static func httpResponseBreadcrumb(urlRequest: URLRequest?, urlResponse: HTTPURLResponse?) {
+        guard let url = urlRequest?.url,
+              let method = urlRequest?.httpMethod else { return }
+
+        httpRequestBreadcrumb(
+            requestId: urlResponse?.value(forHTTPHeaderField: "x-request-id"),
+            url: url,
+            method: method,
+            statusCode: urlResponse?.statusCode
+        )
     }
 }

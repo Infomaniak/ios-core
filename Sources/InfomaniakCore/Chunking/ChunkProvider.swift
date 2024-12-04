@@ -32,31 +32,24 @@ public protocol ChunkProvidable: IteratorProtocol {
 public final class ChunkProvider: ChunkProvidable {
     public typealias Element = Data
 
-    let fileHandle: FileHandlable
+    let chunkReader: ChunkReader
 
     var ranges: [DataRange]
-
-    deinit {
-        do {
-            // For the sake of consistency
-            try fileHandle.close()
-        } catch {}
-    }
 
     public init?(fileURL: URL, ranges: [DataRange]) {
         self.ranges = ranges
 
-        do {
-            fileHandle = try FileHandle(forReadingFrom: fileURL)
-        } catch {
+        guard let chunkReader = ChunkReader(fileURL: fileURL) else {
             return nil
         }
+
+        self.chunkReader = chunkReader
     }
 
     /// Internal testing method
     init(mockedHandlable: FileHandlable, ranges: [DataRange]) {
         self.ranges = ranges
-        fileHandle = mockedHandlable
+        chunkReader = ChunkReader(mockedHandlable: mockedHandlable)
     }
 
     /// Will provide chunks one by one, using the IteratorProtocol
@@ -69,22 +62,11 @@ public final class ChunkProvider: ChunkProvidable {
         let range = ranges.removeFirst()
 
         do {
-            let chunk = try readChunk(range: range)
+            let chunk = try chunkReader.readChunk(range: range)
             return chunk
         } catch {
             return nil
         }
-    }
-
-    // MARK: Internal
-
-    func readChunk(range: DataRange) throws -> Data? {
-        let offset = range.lowerBound
-        try fileHandle.seek(toOffset: offset)
-
-        let byteCount = Int(range.upperBound - range.lowerBound) + 1
-        let chunk = try fileHandle.read(upToCount: byteCount)
-        return chunk
     }
 }
 

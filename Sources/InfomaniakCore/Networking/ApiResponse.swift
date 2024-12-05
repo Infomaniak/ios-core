@@ -46,10 +46,10 @@ open class ApiResponse<ResponseContent: Decodable>: Decodable {
         case total
         case pages
         case page
-        case itemsPerPage = "items_per_page"
-        case responseAt = "response_at"
+        case itemsPerPage
+        case responseAt
         case cursor
-        case hasMore = "has_more"
+        case hasMore
     }
 
     public required init(from decoder: Decoder) throws {

@@ -43,11 +43,6 @@ open class Account: Codable {
         token = apiToken
         userId = apiToken.userId
     }
-
-    enum CodingKeys: CodingKey {
-        case userId
-        case user
-    }
 }
 
 extension Account: Equatable {

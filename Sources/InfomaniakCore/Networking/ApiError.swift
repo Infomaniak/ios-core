@@ -27,11 +27,6 @@ public enum InfomaniakError: Error {
 @objc public class LoginApiError: NSObject, Codable {
     @objc public let error: String
     @objc public let errorDescription: String?
-
-    enum CodingKeys: String, CodingKey {
-        case error
-        case errorDescription
-    }
 }
 
 open class ApiError: Codable, Error {

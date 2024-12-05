@@ -30,7 +30,7 @@ public enum InfomaniakError: Error {
 
     enum CodingKeys: String, CodingKey {
         case error
-        case errorDescription = "error_description"
+        case errorDescription
     }
 }
 

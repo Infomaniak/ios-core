@@ -62,7 +62,7 @@ extension ApiFetcher: RequestDispatchable {
             request = authenticatedRequest(endpoint,
                                            method: method,
                                            parameters: nil,
-                                           encoding: BodyDataEncoding(data: data),
+                                           overrideEncoding: BodyDataEncoding(data: data),
                                            headers: headers)
         case .none:
             request = authenticatedRequest(endpoint,

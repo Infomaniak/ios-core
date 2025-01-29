@@ -43,12 +43,10 @@ open class ApiFetcher {
     }()
 
     public var authenticatedSession: Session!
-    public static var decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .secondsSince1970
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return decoder
-    }()
+
+    private let decoder: JSONDecoder
+    private let urlEncoder: any ParameterEncoding
+    private let bodyEncoder: any ParameterEncoder
 
     public var currentToken: ApiToken? {
         get {
@@ -62,8 +60,21 @@ open class ApiFetcher {
     private weak var refreshTokenDelegate: RefreshTokenDelegate?
     private var authenticationInterceptor: AuthenticationInterceptor<OAuthAuthenticator>!
 
-    public init() {
-        // Allow overriding
+    public init(
+        decoder: JSONDecoder? = nil,
+        urlEncoder: any ParameterEncoding = JSONEncoding.default,
+        bodyEncoder: any ParameterEncoder = JSONParameterEncoder.convertToSnakeCase
+    ) {
+        if let decoder {
+            self.decoder = decoder
+        } else {
+            let defaultDecoder = JSONDecoder()
+            defaultDecoder.dateDecodingStrategy = .secondsSince1970
+            defaultDecoder.keyDecodingStrategy = .convertFromSnakeCase
+            self.decoder = defaultDecoder
+        }
+        self.urlEncoder = urlEncoder
+        self.bodyEncoder = bodyEncoder
     }
 
     /// Creates a new authenticated session for the given token.
@@ -110,12 +121,13 @@ open class ApiFetcher {
 
     // MARK: - Request helpers
 
-    open func authenticatedRequest(_ endpoint: Endpoint,
-                                   method: HTTPMethod = .get,
-                                   parameters: Parameters? = nil,
-                                   encoding: ParameterEncoding = JSONEncoding.default,
-                                   headers: HTTPHeaders? = nil,
-                                   requestModifier: RequestModifier? = nil) -> DataRequest {
+    public func authenticatedRequest(_ endpoint: Endpoint,
+                                     method: HTTPMethod = .get,
+                                     parameters: Parameters? = nil,
+                                     overrideEncoding: ParameterEncoding? = nil,
+                                     headers: HTTPHeaders? = nil,
+                                     requestModifier: RequestModifier? = nil) -> DataRequest {
+        let encoding = overrideEncoding ?? urlEncoder
         return authenticatedSession
             .request(
                 endpoint.url,
@@ -127,37 +139,33 @@ open class ApiFetcher {
             )
     }
 
-    open func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint,
-                                                          method: HTTPMethod = .get,
-                                                          parameters: Parameters? = nil,
-                                                          headers: HTTPHeaders? = nil,
-                                                          requestModifier: RequestModifier? = nil) -> DataRequest {
+    public func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint,
+                                                            method: HTTPMethod = .get,
+                                                            parameters: Parameters? = nil,
+                                                            overrideEncoder: ParameterEncoder? = nil,
+                                                            headers: HTTPHeaders? = nil,
+                                                            requestModifier: RequestModifier? = nil) -> DataRequest {
+        let encoder = overrideEncoder ?? bodyEncoder
         return authenticatedSession
             .request(
                 endpoint.url,
                 method: method,
                 parameters: parameters,
-                encoder: JSONParameterEncoder.convertToSnakeCase,
+                encoder: encoder,
                 headers: headers,
                 requestModifier: requestModifier
             )
     }
 
-    @available(*, deprecated, message: "Use perform with ValidServerResponse instead")
-    open func perform<T: Decodable>(request: DataRequest,
-                                    decoder: JSONDecoder = ApiFetcher.decoder) async throws -> (data: T, responseAt: Int?) {
-        let validServerResponse: ValidServerResponse<T> = try await perform(request: request, decoder: decoder)
-        return (validServerResponse.validApiResponse.data, validServerResponse.validApiResponse.responseAt)
+    open func perform<T: Decodable>(request: DataRequest, overrideDecoder: JSONDecoder? = nil) async throws -> T {
+        return try await perform(request: request, overrideDecoder: overrideDecoder).validApiResponse.data
     }
 
     open func perform<T: Decodable>(request: DataRequest,
-                                    decoder: JSONDecoder = ApiFetcher.decoder) async throws -> T {
-        return try await perform(request: request, decoder: decoder).validApiResponse.data
-    }
-
-    open func perform<T: Decodable>(request: DataRequest,
-                                    decoder: JSONDecoder = ApiFetcher.decoder) async throws -> ValidServerResponse<T> {
+                                    overrideDecoder: JSONDecoder? = nil) async throws -> ValidServerResponse<T> {
         let validatedRequest = request.validate(statusCode: ApiFetcher.handledHttpStatus)
+
+        let decoder = overrideDecoder ?? decoder
         let dataResponse = await validatedRequest.serializingDecodable(ApiResponse<T>.self,
                                                                        automaticallyCancelling: true,
                                                                        decoder: decoder).response

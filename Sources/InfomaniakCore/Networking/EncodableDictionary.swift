@@ -18,10 +18,10 @@
 
 import Foundation
 
-struct EncodableDictionary: Encodable {
-    private let dictionary: [String: Encodable]
+struct EncodableDictionary: Encodable, Sendable {
+    private let dictionary: [String: Encodable & Sendable]
 
-    init(_ dictionary: [String: Encodable]) {
+    init(_ dictionary: [String: Encodable & Sendable]) {
         self.dictionary = dictionary
     }
 

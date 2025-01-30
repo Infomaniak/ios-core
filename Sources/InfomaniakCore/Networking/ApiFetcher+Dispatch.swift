@@ -59,11 +59,11 @@ extension ApiFetcher: RequestDispatchable {
                                            parameters: parameters)
         case .requestBody(let data):
             let headers: HTTPHeaders = [Self.contentType: Self.octetStream]
-            request = authenticatedRequest(endpoint,
-                                           method: method,
-                                           parameters: nil,
-                                           encoding: BodyDataEncoding(data: data),
-                                           headers: headers)
+            request = authenticatedSession.request(endpoint.url,
+                                                   method: method,
+                                                   parameters: nil,
+                                                   encoding: BodyDataEncoding(data: data),
+                                                   headers: headers)
         case .none:
             request = authenticatedRequest(endpoint,
                                            method: method,

@@ -19,12 +19,9 @@
 import Alamofire
 import Foundation
 
-/// Wrapping HTTP POST and GET parameters in this type
-public typealias Parameters = [String: any Any & Sendable]
-
 /// Wrapping the body of an HTTP Request with common types
 public enum RequestBody {
-    case POSTParameters(Parameters)
+    case POSTParameters(EncodableParameters)
     case requestBody(Data)
 }
 
@@ -34,7 +31,7 @@ public protocol Requestable {
 
     var route: Endpoint { get set }
 
-    var GETParameters: Parameters? { get set }
+    var GETParameters: EncodableParameters? { get set }
 
     var body: RequestBody? { get set }
 }
@@ -67,7 +64,7 @@ struct BodyDataEncoding: ParameterEncoding {
     }
 
     func encode(_ urlRequest: URLRequestConvertible,
-                with parameters: Parameters?) throws -> URLRequest {
+                with parameters: Alamofire.Parameters?) throws -> URLRequest {
         var request = try urlRequest.asURLRequest()
         request.httpBody = data
         return request
@@ -75,7 +72,7 @@ struct BodyDataEncoding: ParameterEncoding {
 }
 
 public struct Request: Requestable {
-    public init(method: Method, route: InfomaniakCore.Endpoint, GETParameters: Parameters?, body: RequestBody?) {
+    public init(method: Method, route: InfomaniakCore.Endpoint, GETParameters: EncodableParameters?, body: RequestBody?) {
         self.method = method
         self.route = route
         self.GETParameters = GETParameters
@@ -86,7 +83,7 @@ public struct Request: Requestable {
 
     public var route: InfomaniakCore.Endpoint
 
-    public var GETParameters: Parameters?
+    public var GETParameters: EncodableParameters?
 
     public var body: RequestBody?
 }

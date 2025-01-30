@@ -22,7 +22,7 @@ import InfomaniakDI
 import InfomaniakLogin
 import Sentry
 
-public typealias EncodableParameters = [String: any Encodable & Sendable]
+public typealias EncodableParameters = [String: Encodable & Sendable]
 
 public protocol RefreshTokenDelegate: AnyObject {
     func didUpdateToken(newToken: ApiToken, oldToken: ApiToken)
@@ -184,10 +184,10 @@ open class ApiFetcher {
                                     overrideDecoder: JSONDecoder? = nil) async throws -> ValidServerResponse<T> {
         let validatedRequest = request.validate(statusCode: ApiFetcher.handledHttpStatus)
 
-        let decoder = overrideDecoder ?? decoder
+        let requestDecoder = overrideDecoder ?? decoder
         let dataResponse = await validatedRequest.serializingDecodable(ApiResponse<T>.self,
                                                                        automaticallyCancelling: true,
-                                                                       decoder: decoder).response
+                                                                       decoder: requestDecoder).response
 
         SentryDebug.httpResponseBreadcrumb(urlRequest: request.convertible.urlRequest, urlResponse: dataResponse.response)
 

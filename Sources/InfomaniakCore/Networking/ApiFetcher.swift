@@ -31,6 +31,7 @@ public protocol RefreshTokenDelegate: AnyObject {
 open class ApiFetcher {
     enum ErrorDomain: Error {
         case noServerResponse
+        case invalidJsonInBody
     }
 
     public typealias RequestModifier = (inout URLRequest) throws -> Void
@@ -45,7 +46,6 @@ open class ApiFetcher {
     public var authenticatedSession: Session!
 
     private let decoder: JSONDecoder
-    private let urlEncoder: any ParameterEncoding
     private let bodyEncoder: any ParameterEncoder
 
     public var currentToken: ApiToken? {
@@ -62,7 +62,6 @@ open class ApiFetcher {
 
     public init(
         decoder: JSONDecoder? = nil,
-        urlEncoder: any ParameterEncoding = JSONEncoding.default,
         bodyEncoder: any ParameterEncoder = JSONParameterEncoder.convertToSnakeCase
     ) {
         if let decoder {
@@ -73,7 +72,6 @@ open class ApiFetcher {
             defaultDecoder.keyDecodingStrategy = .convertFromSnakeCase
             self.decoder = defaultDecoder
         }
-        self.urlEncoder = urlEncoder
         self.bodyEncoder = bodyEncoder
     }
 
@@ -124,19 +122,21 @@ open class ApiFetcher {
     public func authenticatedRequest(_ endpoint: Endpoint,
                                      method: HTTPMethod = .get,
                                      parameters: Parameters? = nil,
-                                     overrideEncoding: ParameterEncoding? = nil,
+                                     overrideEncoder: ParameterEncoder? = nil,
                                      headers: HTTPHeaders? = nil,
-                                     requestModifier: RequestModifier? = nil) -> DataRequest {
-        let encoding = overrideEncoding ?? urlEncoder
-        return authenticatedSession
-            .request(
-                endpoint.url,
-                method: method,
-                parameters: parameters,
-                encoding: encoding,
-                headers: headers,
-                requestModifier: requestModifier
-            )
+                                     requestModifier: RequestModifier? = nil) throws -> DataRequest {
+        guard let encodableParameters = parameters as? Encodable else {
+            throw ErrorDomain.invalidJsonInBody
+        }
+
+        return authenticatedRequest(
+            endpoint,
+            method: method,
+            parameters: encodableParameters,
+            overrideEncoder: overrideEncoder,
+            headers: headers,
+            requestModifier: requestModifier
+        )
     }
 
     public func authenticatedRequest<Parameters: Encodable>(_ endpoint: Endpoint,

@@ -47,8 +47,8 @@ open class ApiFetcher {
 
     public var authenticatedSession: Session!
 
-    private let decoder: JSONDecoder
-    private let bodyEncoder: JSONEncoder
+    public let decoder: JSONDecoder
+    public let bodyEncoder: JSONEncoder
 
     private let jsonParameterEncoder: JSONParameterEncoder
 

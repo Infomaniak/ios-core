@@ -46,7 +46,9 @@ open class ApiFetcher {
     public var authenticatedSession: Session!
 
     private let decoder: JSONDecoder
-    private let bodyEncoder: any ParameterEncoder
+    private let bodyEncoder: JSONEncoder
+
+    private let jsonParameterEncoder: JSONParameterEncoder
 
     public var currentToken: ApiToken? {
         get {
@@ -62,7 +64,7 @@ open class ApiFetcher {
 
     public init(
         decoder: JSONDecoder? = nil,
-        bodyEncoder: any ParameterEncoder = JSONParameterEncoder.convertToSnakeCase
+        bodyEncoder: JSONEncoder? = nil
     ) {
         if let decoder {
             self.decoder = decoder
@@ -72,7 +74,19 @@ open class ApiFetcher {
             defaultDecoder.keyDecodingStrategy = .convertFromSnakeCase
             self.decoder = defaultDecoder
         }
-        self.bodyEncoder = bodyEncoder
+        if let bodyEncoder {
+            self.bodyEncoder = bodyEncoder
+            jsonParameterEncoder = JSONParameterEncoder(encoder: bodyEncoder)
+        } else {
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            encoder.dateEncodingStrategy = .custom { date, encoder in
+                var container = encoder.singleValueContainer()
+                try container.encode(Int(date.timeIntervalSince1970))
+            }
+            self.bodyEncoder = encoder
+            jsonParameterEncoder = JSONParameterEncoder(encoder: encoder)
+        }
     }
 
     /// Creates a new authenticated session for the given token.
@@ -121,12 +135,15 @@ open class ApiFetcher {
 
     public func authenticatedRequest(_ endpoint: Endpoint,
                                      method: HTTPMethod = .get,
-                                     parameters: Parameters? = nil,
+                                     parameters: [String: Encodable]? = nil,
                                      overrideEncoder: ParameterEncoder? = nil,
                                      headers: HTTPHeaders? = nil,
-                                     requestModifier: RequestModifier? = nil) throws -> DataRequest {
-        guard let encodableParameters = parameters as? Encodable else {
-            throw ErrorDomain.invalidJsonInBody
+                                     requestModifier: RequestModifier? = nil) -> DataRequest {
+        let encodableParameters: EncodableDictionary?
+        if let parameters {
+            encodableParameters = EncodableDictionary(parameters)
+        } else {
+            encodableParameters = nil
         }
 
         return authenticatedRequest(
@@ -145,7 +162,7 @@ open class ApiFetcher {
                                                             overrideEncoder: ParameterEncoder? = nil,
                                                             headers: HTTPHeaders? = nil,
                                                             requestModifier: RequestModifier? = nil) -> DataRequest {
-        let encoder = overrideEncoder ?? bodyEncoder
+        let encoder = overrideEncoder ?? jsonParameterEncoder
         return authenticatedSession
             .request(
                 endpoint.url,

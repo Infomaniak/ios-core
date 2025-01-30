@@ -54,7 +54,7 @@ extension ApiFetcher: RequestDispatchable {
         let method = requestable.method.alamofireMethod
         switch body {
         case .POSTParameters(let parameters):
-            request = try authenticatedRequest(endpoint,
+            request = authenticatedRequest(endpoint,
                                            method: method,
                                            parameters: parameters)
         case .requestBody(let data):
@@ -65,7 +65,7 @@ extension ApiFetcher: RequestDispatchable {
                                                    encoding: BodyDataEncoding(data: data),
                                                    headers: headers)
         case .none:
-            request = try authenticatedRequest(endpoint,
+            request = authenticatedRequest(endpoint,
                                            method: method,
                                            parameters: nil)
         }

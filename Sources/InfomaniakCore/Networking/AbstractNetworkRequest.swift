@@ -20,7 +20,7 @@ import Alamofire
 import Foundation
 
 /// Wrapping HTTP POST and GET parameters in this type
-public typealias Parameters = [String: any Any & Sendable]
+public typealias Parameters = [String: any Encodable & Sendable]
 
 /// Wrapping the body of an HTTP Request with common types
 public enum RequestBody {
@@ -67,7 +67,7 @@ struct BodyDataEncoding: ParameterEncoding {
     }
 
     func encode(_ urlRequest: URLRequestConvertible,
-                with parameters: Parameters?) throws -> URLRequest {
+                with parameters: Alamofire.Parameters?) throws -> URLRequest {
         var request = try urlRequest.asURLRequest()
         request.httpBody = data
         return request

@@ -22,6 +22,8 @@ import InfomaniakDI
 import InfomaniakLogin
 import Sentry
 
+public typealias EncodableParameters = [String: any Encodable & Sendable]
+
 public protocol RefreshTokenDelegate: AnyObject {
     func didUpdateToken(newToken: ApiToken, oldToken: ApiToken)
     func didFailRefreshToken(_ token: ApiToken)
@@ -135,7 +137,7 @@ open class ApiFetcher {
 
     public func authenticatedRequest(_ endpoint: Endpoint,
                                      method: HTTPMethod = .get,
-                                     parameters: [String: Encodable]? = nil,
+                                     parameters: EncodableParameters? = nil,
                                      overrideEncoder: ParameterEncoder? = nil,
                                      headers: HTTPHeaders? = nil,
                                      requestModifier: RequestModifier? = nil) -> DataRequest {

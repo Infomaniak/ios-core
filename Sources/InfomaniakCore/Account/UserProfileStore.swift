@@ -16,11 +16,13 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import CocoaLumberjackSwift
 import Foundation
 import InfomaniakDI
+import OSLog
 
 public actor UserProfileStore {
+    private let logger = Logger(category: "UserProfileStore")
+
     public typealias UserId = Int
 
     let preferencesURL: URL
@@ -65,7 +67,7 @@ public actor UserProfileStore {
             try FileManager.default.createDirectory(atPath: preferencesURL.path, withIntermediateDirectories: true)
             try usersData.write(to: storeFileURL)
         } catch {
-            DDLogError("[UserProfileStore] Error saving accounts :\(error)")
+            logger.error("[UserProfileStore] Error saving accounts :\(error)")
         }
     }
 
@@ -84,7 +86,7 @@ public actor UserProfileStore {
 
             profiles = savedUsers
         } catch {
-            DDLogError("[UserProfileStore] Error loading accounts :\(error)")
+            logger.error("[UserProfileStore] Error loading accounts :\(error)")
         }
     }
 }

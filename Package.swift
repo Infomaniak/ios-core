@@ -40,7 +40,6 @@ let package = Package(
         .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.8.0")),
         .package(url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "8.18.0")),
         .package(url: "https://github.com/realm/realm-swift", .upToNextMajor(from: "10.45.0")),
-        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack", .upToNextMajor(from: "3.8.0")),
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.0")),
         .package(url: "https://github.com/MarcoEidinger/OSInfo.git", .upToNextMajor(from: "1.0.0"))
     ],
@@ -52,8 +51,6 @@ let package = Package(
                 .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
                 .product(name: "InfomaniakLogin", package: "ios-login"),
                 .product(name: "Sentry-Dynamic", package: "sentry-cocoa"),
-                .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
-                .product(name: "CocoaLumberjack", package: "CocoaLumberjack"),
                 .product(name: "OSInfo", package: "OSInfo")
             ]
         ),

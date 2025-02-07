@@ -16,12 +16,14 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import CocoaLumberjackSwift
 import Foundation
 import InfomaniakLogin
+import OSLog
 import Sentry
 
 public class KeychainHelper {
+    private let logger = Logger(category: "KeychainHelper")
+
     let accessGroup: String
     let tag = "ch.infomaniak.token".data(using: .utf8)!
     let keychainQueue = DispatchQueue(label: "com.infomaniak.keychain")
@@ -63,7 +65,7 @@ public class KeychainHelper {
             }
             return false
         } else {
-            DDLogInfo("[Keychain] Accessible error ? \(resultCode == noErr), \(resultCode)")
+            logger.error("[Keychain] Accessible error ? \(resultCode == noErr), \(resultCode)")
             return false
         }
     }
@@ -78,7 +80,7 @@ public class KeychainHelper {
             kSecValueData as String: lockedValue
         ]
         let resultCode = SecItemAdd(queryAdd as CFDictionary, nil)
-        DDLogInfo(
+        logger.info(
             "[Keychain] Successfully init KeychainHelper ? \(resultCode == noErr || resultCode == errSecDuplicateItem), \(resultCode)"
         )
     }
@@ -91,7 +93,7 @@ public class KeychainHelper {
                 kSecAttrAccount as String: "\(userId)"
             ]
             let resultCode = SecItemDelete(queryDelete as CFDictionary)
-            DDLogInfo("Successfully deleted token ? \(resultCode == noErr)")
+            logger.info("Successfully deleted token ? \(resultCode == noErr)")
         }
     }
 
@@ -102,7 +104,7 @@ public class KeychainHelper {
                 kSecAttrService as String: tag
             ]
             let resultCode = SecItemDelete(queryDelete as CFDictionary)
-            DDLogInfo("Successfully deleted all tokens ? \(resultCode == noErr)")
+            logger.info("Successfully deleted all tokens ? \(resultCode == noErr)")
         }
     }
 
@@ -132,12 +134,12 @@ public class KeychainHelper {
                    let newTokenExpirationDate = token.expirationDate,
                    savedTokenExpirationDate <= newTokenExpirationDate {
                     resultCode = SecItemUpdate(queryUpdate as CFDictionary, attributes as CFDictionary)
-                    DDLogInfo("Successfully updated token ? \(resultCode == noErr)")
+                    logger.info("Successfully updated token ? \(resultCode == noErr)")
                     SentrySDK.addBreadcrumb(token.generateBreadcrumb(level: .info, message: "Successfully updated token"))
                 } else if savedToken.expirationDate == nil || token.expirationDate == nil {
                     // Or if one of them is now an infinite refresh token
                     resultCode = SecItemUpdate(queryUpdate as CFDictionary, attributes as CFDictionary)
-                    DDLogInfo("Successfully updated unlimited token ? \(resultCode == noErr)")
+                    logger.info("Successfully updated unlimited token ? \(resultCode == noErr)")
                     SentrySDK.addBreadcrumb(token.generateBreadcrumb(
                         level: .info,
                         message: "Successfully updated unlimited token"
@@ -156,7 +158,7 @@ public class KeychainHelper {
                     kSecValueData as String: tokenData
                 ]
                 resultCode = SecItemAdd(queryAdd as CFDictionary, nil)
-                DDLogInfo("Successfully saved token ? \(resultCode == noErr)")
+                logger.info("Successfully saved token ? \(resultCode == noErr)")
                 SentrySDK.addBreadcrumb(token.generateBreadcrumb(level: .info, message: "Successfully saved token"))
             }
         }
@@ -215,7 +217,7 @@ public class KeychainHelper {
             let resultCode = withUnsafeMutablePointer(to: &result) {
                 SecItemCopyMatching(query as CFDictionary, UnsafeMutablePointer($0))
             }
-            DDLogInfo("Successfully loaded tokens ? \(resultCode == noErr)")
+            logger.info("Successfully loaded tokens ? \(resultCode == noErr)")
 
             guard resultCode == noErr else {
                 let crumb = Breadcrumb(level: .error, category: "Token")

@@ -16,10 +16,12 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import CocoaLumberjackSwift
 import Foundation
+import OSLog
 
 public enum BackgroundExecutor {
+    private static let logger = Logger(category: "BackgroundExecutor")
+
     public typealias TaskCompletion = () -> Void
     public static func executeWithBackgroundTask(_ block: @escaping (@escaping TaskCompletion) -> Void,
                                                  onExpired: @escaping () -> Void) {
@@ -28,24 +30,24 @@ public enum BackgroundExecutor {
         let group = TolerantDispatchGroup()
         group.enter()
         #if os(macOS)
-        DDLogDebug("Starting task \(taskName) (No expiration handler as we are running on macOS)")
+        logger.debug("Starting task \(taskName) (No expiration handler as we are running on macOS)")
         processInfos.performActivity(options: .suddenTerminationDisabled, reason: taskName) {
             block {
-                DDLogDebug("Ending task \(taskName)")
+                logger.debug("Ending task \(taskName)")
                 group.leave()
             }
             group.wait()
         }
         #else
-        DDLogDebug("Starting task \(taskName)")
+        logger.debug("Starting task \(taskName)")
         processInfos.performExpiringActivity(withReason: taskName) { expired in
             if expired {
                 onExpired()
-                DDLogDebug("Expired task \(taskName)")
+                logger.debug("Expired task \(taskName)")
                 group.leave()
             } else {
                 block {
-                    DDLogDebug("Ending task \(taskName)")
+                    logger.debug("Ending task \(taskName)")
                     group.leave()
                 }
                 group.wait()

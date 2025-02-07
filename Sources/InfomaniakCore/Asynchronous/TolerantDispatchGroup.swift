@@ -16,10 +16,12 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import CocoaLumberjackSwift
 import Foundation
+import OSLog
 
 public final class TolerantDispatchGroup {
+    private let logger = Logger(category: "TolerantDispatchGroup")
+
     let syncQueue: DispatchQueue
     private let dispatchGroup = DispatchGroup()
     private var callBalancer = 0
@@ -40,7 +42,7 @@ public final class TolerantDispatchGroup {
     public func leave() {
         syncQueue.sync {
             guard callBalancer > 0 else {
-                DDLogWarn("TolerantDispatchGroup: Unbalanced call to leave()")
+                logger.warning("TolerantDispatchGroup: Unbalanced call to leave()")
                 return
             }
 

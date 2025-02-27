@@ -37,13 +37,13 @@ struct RruleDecoder: Sendable {
     }
 
     public let frequency: Frequency
-    public let interval: Int
     public let calendar: Calendar
-    public let end: Int
-    public let count: Int
-    public let byDay: [weekday]
+    public let interval: Int?
+    public let end: Int?
+    public let count: Int?
+    public let byDay: [weekday]?
 
-    init(frequency: Frequency, interval: Int, calendar: Calendar = .current, end: Int, count: Int, byDay: [weekday]) {
+    init(frequency: Frequency, interval: Int?, calendar: Calendar = .current, end: Int?, count: Int?, byDay: [weekday]?) {
         self.frequency = frequency
         self.interval = interval
         self.calendar = calendar
@@ -68,9 +68,10 @@ extension RruleDecoder: ParseStrategy {
 
     public func parse(_ value: String) throws -> RruleDecoder {
         var frequency: Frequency?
-        var interval = 0
+        var interval = 1
         var count = 0
         var end = 0
+        var countOrUntilSet = 0
         var byDay: [RruleDecoder.weekday] = []
 
         let parts = value.split(separator: ";")
@@ -97,25 +98,28 @@ extension RruleDecoder: ParseStrategy {
                 }
             case rule.count.rawValue:
                 if let intValue = Int(val), intValue > 0 {
-                    end = intValue
-                    count += 1
+                    count = intValue
+                    countOrUntilSet += 1
                 } else {
                     throw DomainError.invalidCount
                 }
             case rule.until.rawValue:
                 if let intValue = Int(val), isValidDate(intValue) {
                     end = intValue
-                    count += 1
+                    countOrUntilSet += 1
                 } else {
                     throw DomainError.invalidUntil
                 }
             case rule.byDay.rawValue:
-                if let weekday = RruleDecoder.weekday(rawValue: val) {
-                    if isValidWeekday(val) {
-                        byDay.append(weekday)
+                let weekdays = val.split(separator: ",")
+                for weekday in weekdays {
+                    if let wkday = RruleDecoder.weekday(rawValue: String(weekday)) {
+                        if isValidWeekday(wkday.rawValue) {
+                            byDay.append(wkday)
+                        }
+                    } else {
+                        throw DomainError.invalidByDay
                     }
-                } else {
-                    throw DomainError.invalidByDay
                 }
             default:
                 continue
@@ -126,11 +130,42 @@ extension RruleDecoder: ParseStrategy {
             throw DomainError.missingFrequency
         }
 
-        if count > 1 {
+        if countOrUntilSet > 1 {
             throw DomainError.bothUntilAndCountSet
         }
 
         return RruleDecoder(frequency: freq, interval: interval, calendar: calendar, end: end, count: count, byDay: byDay)
+    }
+
+    public func frequencyNextDate (_ value: String, _ startDate: Date) throws -> Date? {
+        let parsedValue = try parse(value)
+
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        var newDate = startDate
+
+        switch parsedValue.frequency {
+        case .minutely:
+            newDate = calendar.date(byAdding: .minute, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+        case .hourly:
+            newDate = calendar.date(byAdding: .hour, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+        case .daily:
+            newDate = calendar.date(byAdding: .day, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+        case .weekly:
+            newDate = calendar.date(byAdding: .weekOfYear, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+        case .monthly:
+            newDate = calendar.date(byAdding: .month, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+        case .yearly:
+            newDate = calendar.date(byAdding: .year, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+        default:
+            break
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        return newDate
     }
 
 

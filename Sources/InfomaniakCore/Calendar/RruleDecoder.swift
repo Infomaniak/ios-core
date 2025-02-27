@@ -43,7 +43,7 @@ public struct RruleDecoder: Sendable {
     public let count: Int?
     public let byDay: [Weekday]?
 
-    init(frequency: Frequency, interval: Int?, calendar: Calendar = .current, end: Int?, count: Int?, byDay: [Weekday]?) {
+    public init(frequency: Frequency, interval: Int?, calendar: Calendar = .current, end: Int?, count: Int?, byDay: [Weekday]?) {
         self.frequency = frequency
         self.interval = interval
         self.calendar = calendar
@@ -56,7 +56,7 @@ public struct RruleDecoder: Sendable {
 // MARK: - ParseStrategy
 
 extension RruleDecoder: ParseStrategy {
-    enum DomainError: Error {
+    public enum DomainError: Error {
         case invalidInterval
         case invalidKey
         case invalidCount

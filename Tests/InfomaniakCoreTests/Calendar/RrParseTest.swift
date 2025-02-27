@@ -111,10 +111,10 @@ struct RrParseTest {
         "Parse BYDAY every weekday Rule Part",
         arguments: zip(
             ["BYDAY=MO", "BYDAY=TU", "BYDAY=WE", "BYDAY=TH", "BYDAY=FR"],
-            [RruleDecoder.weekday.monday, .tuesday, .wednesday, .thursday, .friday]
+            [RruleDecoder.Weekday.monday, .tuesday, .wednesday, .thursday, .friday]
         )
     )
-    func parseByDayEveryWeekdayRulePart(rfcByDay: String, expected: RruleDecoder.weekday) throws {
+    func parseByDayEveryWeekdayRulePart(rfcByDay: String, expected: RruleDecoder.Weekday) throws {
         let rfcString = "FREQ=DAILY;\(rfcByDay)"
         let result = try parser.parse(rfcString)
 

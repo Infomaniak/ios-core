@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct RruleDecoder: Sendable {
-    public enum Frequency: String, CaseIterable, Codable {
+public struct RruleDecoder: Sendable {
+    public enum Frequency: String, CaseIterable, Codable, Sendable {
         case secondly = "SECONDLY"
         case minutely = "MINUTELY"
         case hourly = "HOURLY"
@@ -18,7 +18,7 @@ struct RruleDecoder: Sendable {
         case yearly = "YEARLY"
     }
 
-    public enum weekday: String, CaseIterable, Codable {
+    public enum Weekday: String, CaseIterable, Codable, Sendable {
         case monday = "MO"
         case tuesday = "TU"
         case wednesday = "WE"
@@ -41,9 +41,9 @@ struct RruleDecoder: Sendable {
     public let interval: Int?
     public let end: Int?
     public let count: Int?
-    public let byDay: [weekday]?
+    public let byDay: [Weekday]?
 
-    init(frequency: Frequency, interval: Int?, calendar: Calendar = .current, end: Int?, count: Int?, byDay: [weekday]?) {
+    init(frequency: Frequency, interval: Int?, calendar: Calendar = .current, end: Int?, count: Int?, byDay: [Weekday]?) {
         self.frequency = frequency
         self.interval = interval
         self.calendar = calendar
@@ -72,7 +72,7 @@ extension RruleDecoder: ParseStrategy {
         var count: Int?
         var end: Int?
         var countOrUntilSet = 0
-        var byDay: [RruleDecoder.weekday] = []
+        var byDay: [RruleDecoder.Weekday] = []
 
         let parts = value.split(separator: ";")
 
@@ -113,7 +113,7 @@ extension RruleDecoder: ParseStrategy {
             case rule.byDay.rawValue:
                 let weekdays = val.split(separator: ",")
                 for weekday in weekdays {
-                    if let wkday = RruleDecoder.weekday(rawValue: String(weekday)) {
+                    if let wkday = RruleDecoder.Weekday(rawValue: String(weekday)) {
                         if isValidWeekday(wkday.rawValue) {
                             byDay.append(wkday)
                         }

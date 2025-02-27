@@ -144,7 +144,7 @@ struct RrParseTest {
             return
         }
 
-        guard let result = try parser.frequencyNextDate(rfcString, startDateObj) else {
+        guard let result = try? parser.frequencyNextDate(rfcString, startDateObj) else {
             return
         }
 
@@ -157,8 +157,8 @@ struct RrParseTest {
         let rfcString = "FREQ=DAILY;COUNT=10"
         let startingDate = "20250217"
         let expectedDates: [String] = [
-            "20250218", "20250219", "20250220", "20250221", "20250222", "20250223",
-            "20250224", "20250225", "20250226", "20250227"
+            "20250217", "20250218", "20250219", "20250220", "20250221", "20250222", "20250223",
+            "20250224", "20250225", "20250226"
         ]
         var expectedDatesFormatted: [Date] = []
         let formatter = DateFormatter()
@@ -179,5 +179,36 @@ struct RrParseTest {
         }
 
         #expect(result == expectedDatesFormatted)
+    }
+
+    @Test(
+        "Get next date occurrence from a parsed rrule with multiple rule parts",
+        arguments: zip(
+            ["FREQ=DAILY;INTERVAL=5;COUNT=3", "FREQ=WEEKLY;INTERVAL=1;UNTIL=20250320", "FREQ=DAILY;INTERVAL=2",
+             "FREQ=DAILY;COUNT=9"],
+            ["20250227", "20250303", "20250227", "20250226"]
+        )
+    )
+    func nextDateOccurrence(rfcString: String, expectedDate: String) throws {
+        let startingDate = "20250217"
+        let currentDate = "20250225"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        guard let startDateObj = formatter.date(from: startingDate) else {
+            return
+        }
+
+        guard let currentDateObj = formatter.date(from: currentDate) else {
+            return
+        }
+
+        guard let result = try parser.getNextOccurrence(rfcString, startDateObj, currentDateObj) else {
+            return
+        }
+
+        let resultDateString = formatter.string(from: result)
+        #expect(resultDateString == expectedDate)
     }
 }

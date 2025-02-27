@@ -68,9 +68,9 @@ extension RruleDecoder: ParseStrategy {
 
     public func parse(_ value: String) throws -> RruleDecoder {
         var frequency: Frequency?
-        var interval = 1
-        var count = 0
-        var end = 0
+        var interval: Int?
+        var count: Int?
+        var end: Int?
         var countOrUntilSet = 0
         var byDay: [RruleDecoder.weekday] = []
 
@@ -137,7 +137,7 @@ extension RruleDecoder: ParseStrategy {
         return RruleDecoder(frequency: freq, interval: interval, calendar: calendar, end: end, count: count, byDay: byDay)
     }
 
-    public func frequencyNextDate (_ value: String, _ startDate: Date) throws -> Date? {
+    public func frequencyNextDate(_ value: String, _ startDate: Date) throws -> Date {
         let parsedValue = try parse(value)
 
         var calendar = Calendar.current
@@ -161,31 +161,83 @@ extension RruleDecoder: ParseStrategy {
             break
         }
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-
         return newDate
     }
 
     public func allNextOccurrences(_ value: String, _ startDate: Date) throws -> [Date] {
         let parsedValue = try parse(value)
-        let count = parsedValue.count
-        var result: [Date] = []
+        var result: [Date] = [startDate]
         var newDate: Date = startDate
 
-        for _ in 0..<(count ?? 0) {
-            if let nextDate = try frequencyNextDate(value, newDate) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        if let count = parsedValue.count {
+            for _ in 0 ..< count - 1 {
+                if let nextDate = try? frequencyNextDate(value, newDate) {
+                    result.append(nextDate)
+                    newDate = nextDate
+                }
+            }
+            return result
+        }
+
+        if let end = parsedValue.end {
+            if let endDate = formatter.date(from: String(end)) {
+                while result.last ?? startDate < endDate {
+                    if let nextDate = try? frequencyNextDate(value, newDate) {
+                        if nextDate <= endDate {
+                            result.append(nextDate)
+                            newDate = nextDate
+                        } else {
+                            return result
+                        }
+                    }
+                }
+            }
+        }
+        while result.last ?? startDate < Date() {
+            if let nextDate = try? frequencyNextDate(value, newDate) {
                 result.append(nextDate)
                 newDate = nextDate
             } else {
-                break
+                return result
             }
         }
-
         return result
     }
 
+    public func getNextOccurrence(_ value: String, _ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
+        let parsedValue = try parse(value)
+        let allDates: [Date] = try allNextOccurrences(value, startDate)
+        guard let nearestPassedDate = getNearestPassedDate(currentDate, allDates) else {
+            return nil
+        }
+
+        let nextDate = try frequencyNextDate(value, nearestPassedDate)
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        if let end = parsedValue.end {
+            if let endDate = formatter.date(from: String(end)), endDate <= nextDate {
+                return nil
+            }
+        }
+
+        return nextDate
+    }
+
+    private func getNearestPassedDate(_ targetDate: Date, _ dates: [Date]) -> Date? {
+        for date in dates.reversed() {
+            if date <= targetDate {
+                return date
+            }
+        }
+        return nil
+    }
 
     private func isFrequencyValid(_ value: String) -> Bool {
         switch value {

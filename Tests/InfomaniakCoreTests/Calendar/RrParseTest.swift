@@ -59,7 +59,7 @@ struct RrParseTest {
         }
     }
 
-    @Test("Parses COUNT as a specific occurence limit", arguments: zip(["COUNT=1", "COUNT=5"], [1, 5]))
+    @Test("Parses COUNT as a specific occurrence limit", arguments: zip(["COUNT=1", "COUNT=5"], [1, 5]))
     func parseCountRulePart(rfcCount: String, expected: Int) throws {
         let rfcString = "FREQ=DAILY;\(rfcCount)"
         let result = try parser.parse(rfcString)
@@ -134,7 +134,7 @@ struct RrParseTest {
             ["20250220", "20250303", "20250717", "20260217", "20250224"]
         )
     )
-    func getNextDateOccurence(rfcString: String, expectedDate: String) throws {
+    func getNextDateOccurrence(rfcString: String, expectedDate: String) throws {
         let startingDate = "20250217"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
@@ -152,4 +152,32 @@ struct RrParseTest {
         #expect(resultDateString == expectedDate)
     }
 
+    @Test("Get all next date occurrences from a parsed rrule based on count")
+    func allNextOccurrences() throws {
+        let rfcString = "FREQ=DAILY;COUNT=10"
+        let startingDate = "20250217"
+        let expectedDates: [String] = [
+            "20250218", "20250219", "20250220", "20250221", "20250222", "20250223",
+            "20250224", "20250225", "20250226", "20250227"
+        ]
+        var expectedDatesFormatted: [Date] = []
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        guard let startDateObj = formatter.date(from: startingDate) else {
+            return
+        }
+
+        for i in expectedDates {
+            let date = formatter.date(from: i)!
+            expectedDatesFormatted.append(date)
+        }
+
+        guard let result = try? parser.allNextOccurrences(rfcString, startDateObj) else {
+            return
+        }
+
+        #expect(result == expectedDatesFormatted)
+    }
 }

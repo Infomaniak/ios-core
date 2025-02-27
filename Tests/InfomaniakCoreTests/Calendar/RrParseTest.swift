@@ -64,7 +64,7 @@ struct RrParseTest {
         let rfcString = "FREQ=DAILY;\(rfcCount)"
         let result = try parser.parse(rfcString)
 
-        #expect(result.end == expected)
+        #expect(result.count == expected)
     }
 
     @Test("Throws an error for invalid COUNT Rule Part", arguments: ["COUNT=", "COUNT=-2", "COUNT=1- ", "COUNT=foobar"])
@@ -84,7 +84,7 @@ struct RrParseTest {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        guard let result = formatter.date(from: String(res.end)) else {
+        guard let result = formatter.date(from: String(res.end!)) else {
             return
         }
 
@@ -119,6 +119,37 @@ struct RrParseTest {
         let result = try parser.parse(rfcString)
 
         #expect(result.byDay == [expected])
+    }
+
+    @Test(
+        "Get next date occurrence from a parsed rrule with only frequency and interval specified",
+        arguments: zip(
+            [
+                "FREQ=DAILY;INTERVAL=3",
+                "FREQ=WEEKLY;INTERVAL=2",
+                "FREQ=MONTHLY;INTERVAL=5",
+                "FREQ=YEARLY",
+                "FREQ=WEEKLY"
+            ],
+            ["20250220", "20250303", "20250717", "20260217", "20250224"]
+        )
+    )
+    func getNextDateOccurence(rfcString: String, expectedDate: String) throws {
+        let startingDate = "20250217"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        guard let startDateObj = formatter.date(from: startingDate) else {
+            return
+        }
+
+        guard let result = try parser.frequencyNextDate(rfcString, startDateObj) else {
+            return
+        }
+
+        let resultDateString = formatter.string(from: result)
+        #expect(resultDateString == expectedDate)
     }
 
 }

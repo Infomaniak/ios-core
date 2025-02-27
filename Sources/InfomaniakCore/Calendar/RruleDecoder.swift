@@ -168,6 +168,24 @@ extension RruleDecoder: ParseStrategy {
         return newDate
     }
 
+    public func allNextOccurrences(_ value: String, _ startDate: Date) throws -> [Date] {
+        let parsedValue = try parse(value)
+        let count = parsedValue.count
+        var result: [Date] = []
+        var newDate: Date = startDate
+
+        for _ in 0..<(count ?? 0) {
+            if let nextDate = try frequencyNextDate(value, newDate) {
+                result.append(nextDate)
+                newDate = nextDate
+            } else {
+                break
+            }
+        }
+
+        return result
+    }
+
 
     private func isFrequencyValid(_ value: String) -> Bool {
         switch value {

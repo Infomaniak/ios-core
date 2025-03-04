@@ -211,7 +211,7 @@ extension RruleDecoder: ParseStrategy {
     public func getNextOccurrence(_ value: String, _ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
         let parsedValue = try parse(value)
         let allDates: [Date] = try allNextOccurrences(value, startDate)
-        guard let nearestPassedDate = getNearestPassedDate(currentDate, allDates) else {
+        guard let nearestPassedDate = getNearestPassedDate(currentDate, allDates, value) else {
             return nil
         }
 
@@ -230,10 +230,12 @@ extension RruleDecoder: ParseStrategy {
         return nextDate
     }
 
-    private func getNearestPassedDate(_ targetDate: Date, _ dates: [Date]) -> Date? {
+    private func getNearestPassedDate(_ targetDate: Date, _ dates: [Date], _ value: String) -> Date? {
         for date in dates.reversed() {
-            if date <= targetDate {
-                return date
+            if let nextDate = try? frequencyNextDate(value, date) {
+                if date <= targetDate && targetDate <= nextDate {
+                    return date
+                }
             }
         }
         return nil

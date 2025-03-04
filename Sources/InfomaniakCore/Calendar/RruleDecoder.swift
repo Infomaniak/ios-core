@@ -255,11 +255,10 @@ extension RruleDecoder: ParseStrategy {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        guard let _: Date = formatter.date(from: stringVal) else {
-            return false
+        if formatter.date(from: stringVal) != nil {
+            return true
         }
-
-        return true
+        return false
     }
 
     private func isValidWeekday(_ day: String) -> Bool {

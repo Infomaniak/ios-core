@@ -1,4 +1,3 @@
-//
 //  RrParseTest.swift
 //  InfomaniakCore
 //
@@ -19,14 +18,14 @@ struct RrParseTest {
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
 
         self.calendar = calendar
-        parser = RruleDecoder(frequency: .daily, interval: 1, calendar: calendar, end: 1, count: 1, byDay: [.monday, .tuesday])
+        parser = RruleDecoder(calendar: calendar, frequency: .daily, interval: 1, end: 1, count: 1, byDay: [.monday, .tuesday])
     }
 
     @Test("Parse FREQ Rule Part", arguments: zip(
         ["MINUTELY", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"],
-        [RruleDecoder.Frequency.minutely, .hourly, .daily, .weekly, .monthly, .yearly]
+        [Frequency.minutely, .hourly, .daily, .weekly, .monthly, .yearly]
     ))
-    func parseFrequencyRulePart(rfcFrequency: String, expected: RruleDecoder.Frequency) throws {
+    func parseFrequencyRulePart(rfcFrequency: String, expected: Frequency) throws {
         let rfcString = "FREQ=\(rfcFrequency)"
         let result = try parser.parse(rfcString)
 
@@ -111,10 +110,10 @@ struct RrParseTest {
         "Parse BYDAY every weekday Rule Part",
         arguments: zip(
             ["BYDAY=MO", "BYDAY=TU", "BYDAY=WE", "BYDAY=TH", "BYDAY=FR"],
-            [RruleDecoder.Weekday.monday, .tuesday, .wednesday, .thursday, .friday]
+            [Weekday.monday, .tuesday, .wednesday, .thursday, .friday]
         )
     )
-    func parseByDayEveryWeekdayRulePart(rfcByDay: String, expected: RruleDecoder.Weekday) throws {
+    func parseByDayEveryWeekdayRulePart(rfcByDay: String, expected: Weekday) throws {
         let rfcString = "FREQ=DAILY;\(rfcByDay)"
         let result = try parser.parse(rfcString)
 
@@ -144,7 +143,7 @@ struct RrParseTest {
             return
         }
 
-        guard let result = try? parser.frequencyNextDate(rfcString, startDateObj) else {
+        guard let result = try? parser.getNextOccurrence(rfcString, startDateObj) else {
             return
         }
 

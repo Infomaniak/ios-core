@@ -18,7 +18,7 @@ struct RrParseTest {
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
 
         self.calendar = calendar
-        parser = RruleDecoder(calendar: calendar, frequency: .daily, interval: 1, end: 1, count: 1, byDay: [.monday, .tuesday])
+        parser = RruleDecoder()
     }
 
     @Test("Parse FREQ Rule Part", arguments: zip(
@@ -120,6 +120,14 @@ struct RrParseTest {
         #expect(result.byDay == [expected])
     }
 
+    @Test("Parse BYDAY with multiple weekdays Rule Part")
+    func parseByDayEveryWeekdayRulePart() throws {
+        let rfcString = "FREQ=DAILY;BYDAY=MO,TH"
+        let result = try parser.parse(rfcString)
+
+        #expect(result.byDay == [.monday, .thursday])
+    }
+
     @Test(
         "Get next date occurrence from a parsed rrule with only frequency and interval specified",
         arguments: zip(
@@ -135,6 +143,7 @@ struct RrParseTest {
     )
     func getNextDateOccurrence(rfcString: String, expectedDate: String) throws {
         let startingDate = "20250217"
+        let currenDate = "20250217"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
@@ -143,7 +152,11 @@ struct RrParseTest {
             return
         }
 
-        guard let result = try? parser.getNextOccurrence(rfcString, startDateObj) else {
+        guard let currentDateObj = formatter.date(from: currenDate) else {
+            return
+        }
+
+        guard let result = try? parser.getNextOccurrence(rfcString, startDateObj, currentDateObj) else {
             return
         }
 
@@ -190,6 +203,36 @@ struct RrParseTest {
     )
     func nextDateOccurrence(rfcString: String, expectedDate: String) throws {
         let startingDate = "20250217"
+        let currentDate = "20250225"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        guard let startDateObj = formatter.date(from: startingDate) else {
+            return
+        }
+
+        guard let currentDateObj = formatter.date(from: currentDate) else {
+            return
+        }
+
+        guard let result = try parser.getNextOccurrence(rfcString, startDateObj, currentDateObj) else {
+            return
+        }
+
+        let resultDateString = formatter.string(from: result)
+        #expect(resultDateString == expectedDate)
+    }
+
+    @Test(
+        "Get next date occurrence from a parsed rrule with BYDAY rule parts",
+        arguments: zip(
+            ["FREQ=WEEKLY;BYDAY=TU,SA"],
+            ["20250301"]
+        )
+    )
+    func nextOccurrenceBydayPart(rfcString: String, expectedDate: String) throws {
+        let startingDate = "20250218"
         let currentDate = "20250225"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"

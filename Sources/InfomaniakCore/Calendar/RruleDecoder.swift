@@ -1,4 +1,3 @@
-//
 //  RruleDecoder.swift
 //  InfomaniakCore
 //
@@ -7,46 +6,18 @@
 
 import Foundation
 
-public struct RruleDecoder: Sendable {
-    public enum Frequency: String, CaseIterable, Codable, Sendable {
-        case secondly = "SECONDLY"
-        case minutely = "MINUTELY"
-        case hourly = "HOURLY"
-        case daily = "DAILY"
-        case weekly = "WEEKLY"
-        case monthly = "MONTHLY"
-        case yearly = "YEARLY"
-    }
-
-    public enum Weekday: String, CaseIterable, Codable, Sendable {
-        case monday = "MO"
-        case tuesday = "TU"
-        case wednesday = "WE"
-        case thursday = "TH"
-        case friday = "FR"
-        case saturday = "SA"
-        case sunday = "SU"
-    }
-
-    public enum rule: String, CaseIterable, Codable {
-        case frequency = "FREQ"
-        case interval = "INTERVAL"
-        case count = "COUNT"
-        case until = "UNTIL"
-        case byDay = "BYDAY"
-    }
-
-    public let frequency: Frequency
+public struct RruleDecoder {
     public let calendar: Calendar
-    public let interval: Int?
-    public let end: Int?
-    public let count: Int?
-    public let byDay: [Weekday]?
+    public var frequency: Frequency?
+    public var interval: Int?
+    public var end: Int?
+    public var count: Int?
+    public var byDay: [Weekday]?
 
-    public init(frequency: Frequency, interval: Int?, calendar: Calendar = .current, end: Int?, count: Int?, byDay: [Weekday]?) {
+    public init(calendar: Calendar = .current, frequency: Frequency?, interval: Int?, end: Int?, count: Int?, byDay: [Weekday]?) {
+        self.calendar = calendar
         self.frequency = frequency
         self.interval = interval
-        self.calendar = calendar
         self.end = end
         self.count = count
         self.byDay = byDay
@@ -56,23 +27,9 @@ public struct RruleDecoder: Sendable {
 // MARK: - ParseStrategy
 
 extension RruleDecoder: ParseStrategy {
-    public enum DomainError: Error {
-        case invalidInterval
-        case invalidKey
-        case invalidCount
-        case invalidUntil
-        case invalidByDay
-        case missingFrequency
-        case bothUntilAndCountSet
-    }
-
     public func parse(_ value: String) throws -> RruleDecoder {
-        var frequency: Frequency?
-        var interval: Int?
-        var count: Int?
-        var end: Int?
+        var parser: RruleDecoder = self
         var countOrUntilSet = 0
-        var byDay: [RruleDecoder.Weekday] = []
 
         let parts = value.split(separator: ";")
 
@@ -82,62 +39,39 @@ extension RruleDecoder: ParseStrategy {
                 throw DomainError.invalidKey
             }
 
-            let key = keyValue[0]
-            let val = String(keyValue[1])
-
-            switch key {
-            case rule.frequency.rawValue:
-                if isFrequencyValid(val) {
-                    frequency = RruleDecoder.Frequency(rawValue: val)
-                }
-            case rule.interval.rawValue:
-                if let intValue = Int(val), intValue > 0 {
-                    interval = intValue
-                } else {
-                    throw DomainError.invalidInterval
-                }
-            case rule.count.rawValue:
-                if let intValue = Int(val), intValue > 0 {
-                    count = intValue
-                    countOrUntilSet += 1
-                } else {
-                    throw DomainError.invalidCount
-                }
-            case rule.until.rawValue:
-                if let intValue = Int(val), isValidDate(intValue) {
-                    end = intValue
-                    countOrUntilSet += 1
-                } else {
-                    throw DomainError.invalidUntil
-                }
-            case rule.byDay.rawValue:
-                let weekdays = val.split(separator: ",")
-                for weekday in weekdays {
-                    if let wkday = RruleDecoder.Weekday(rawValue: String(weekday)) {
-                        if isValidWeekday(wkday.rawValue) {
-                            byDay.append(wkday)
-                        }
-                    } else {
-                        throw DomainError.invalidByDay
-                    }
-                }
-            default:
+            guard let ruleKey = RuleKey(rawValue: String(keyValue[0])) else {
                 continue
+            }
+            let value = String(keyValue[1])
+
+            switch ruleKey {
+            case .frequency:
+                parser.frequency = try ruleKey.parser.decode(value) as? Frequency
+            case .interval:
+                parser.interval = try ruleKey.parser.decode(value) as? Int
+            case .count:
+                parser.count = try ruleKey.parser.decode(value) as? Int
+                countOrUntilSet += 1
+            case .until:
+                parser.end = try ruleKey.parser.decode(value) as? Int
+                countOrUntilSet += 1
+            case .byDay:
+                parser.byDay = try ruleKey.parser.decode(value) as? [Weekday] ?? []
             }
         }
 
-        guard let freq = frequency else {
+        guard parser.frequency != nil else {
             throw DomainError.missingFrequency
         }
 
-        if countOrUntilSet > 1 {
+        guard countOrUntilSet < 2 else {
             throw DomainError.bothUntilAndCountSet
         }
 
-        return RruleDecoder(frequency: freq, interval: interval, calendar: calendar, end: end, count: count, byDay: byDay)
+        return parser
     }
 
-    public func frequencyNextDate(_ value: String, _ startDate: Date) throws -> Date {
+    private func frequencyNextDate(_ value: String, _ startDate: Date) throws -> Date {
         let parsedValue = try parse(value)
 
         var calendar = Calendar.current
@@ -239,34 +173,5 @@ extension RruleDecoder: ParseStrategy {
             }
         }
         return nil
-    }
-
-    private func isFrequencyValid(_ value: String) -> Bool {
-        switch value {
-        case "SECONDLY", "MINUTELY", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY":
-            return true
-        default:
-            return false
-        }
-    }
-
-    private func isValidDate(_ value: Int) -> Bool {
-        let stringVal = String(value)
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        if formatter.date(from: stringVal) != nil {
-            return true
-        }
-        return false
-    }
-
-    private func isValidWeekday(_ day: String) -> Bool {
-        switch day {
-        case "MO", "TU", "WE", "TH", "FR", "SA", "SU":
-            return true
-        default:
-            return false
-        }
     }
 }

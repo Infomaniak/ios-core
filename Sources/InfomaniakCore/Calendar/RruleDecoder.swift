@@ -14,7 +14,14 @@ public struct RruleDecoder {
     public var count: Int?
     public var byDay: [Weekday]?
 
-    public init(calendar: Calendar = .current, frequency: Frequency?, interval: Int?, end: Int?, count: Int?, byDay: [Weekday]?) {
+    public init(
+        calendar: Calendar = .current,
+        frequency: Frequency? = nil,
+        interval: Int? = nil,
+        end: Int? = nil,
+        count: Int? = nil,
+        byDay: [Weekday]? = nil
+    ) {
         self.calendar = calendar
         self.frequency = frequency
         self.interval = interval
@@ -28,7 +35,7 @@ public struct RruleDecoder {
 
 extension RruleDecoder: ParseStrategy {
     public func parse(_ value: String) throws -> RruleDecoder {
-        var parser: RruleDecoder = self
+        var parser = RruleDecoder()
         var countOrUntilSet = 0
 
         let parts = value.split(separator: ";")
@@ -71,6 +78,39 @@ extension RruleDecoder: ParseStrategy {
         return parser
     }
 
+    private func daysBetween(_ parsedValue: RruleDecoder, _ currentDate: Date) -> Int {
+        let startingDayDigit = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) ?? 0
+        var allOccupiedDays: [Int] = []
+        let closestPastDay: Int
+        let closestFutureDay: Int
+        for i in 0 ..< (parsedValue.byDay?.count ?? 0) {
+            if let day = Weekday.allCases.firstIndex(of: parsedValue.byDay![i]) {
+                allOccupiedDays.append(day + 1)
+            }
+        }
+        if let closest = allOccupiedDays.filter({ $0 <= startingDayDigit }).max() {
+            closestPastDay = closest
+        } else {
+            closestPastDay = allOccupiedDays.max() ?? -1
+        }
+
+        if let closest = allOccupiedDays.filter({ $0 > startingDayDigit }).min() {
+            closestFutureDay = closest
+        } else {
+            closestFutureDay = allOccupiedDays.min() ?? -1
+        }
+
+        guard closestPastDay != -1, closestFutureDay != -1 else {
+            return -1
+        }
+
+        if closestFutureDay >= closestPastDay {
+            return closestFutureDay - closestPastDay
+        } else {
+            return (7 - closestPastDay) + closestFutureDay
+        }
+    }
+
     private func frequencyNextDate(_ value: String, _ startDate: Date) throws -> Date {
         let parsedValue = try parse(value)
 
@@ -86,11 +126,26 @@ extension RruleDecoder: ParseStrategy {
         case .daily:
             newDate = calendar.date(byAdding: .day, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
         case .weekly:
-            newDate = calendar.date(byAdding: .weekOfYear, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+            if parsedValue.byDay != nil {
+                let daysGap = daysBetween(parsedValue, startDate)
+                newDate = calendar.date(byAdding: .day, value: daysGap, to: startDate) ?? startDate
+            } else {
+                newDate = calendar.date(byAdding: .weekOfYear, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+            }
         case .monthly:
-            newDate = calendar.date(byAdding: .month, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+            if parsedValue.byDay != nil {
+                let daysGap = daysBetween(parsedValue, startDate)
+                newDate = calendar.date(byAdding: .day, value: daysGap, to: startDate) ?? startDate
+            } else {
+                newDate = calendar.date(byAdding: .month, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+            }
         case .yearly:
-            newDate = calendar.date(byAdding: .year, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+            if parsedValue.byDay != nil {
+                let daysGap = daysBetween(parsedValue, startDate)
+                newDate = calendar.date(byAdding: .day, value: daysGap, to: startDate) ?? startDate
+            } else {
+                newDate = calendar.date(byAdding: .year, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+            }
         default:
             break
         }
@@ -98,7 +153,7 @@ extension RruleDecoder: ParseStrategy {
         return newDate
     }
 
-    public func allNextOccurrences(_ value: String, _ startDate: Date) throws -> [Date] {
+    public func allNextOccurrences(_ value: String, _ startDate: Date, _ currentDate: Date? = nil) throws -> [Date] {
         let parsedValue = try parse(value)
         var result: [Date] = [startDate]
         var newDate: Date = startDate
@@ -131,7 +186,7 @@ extension RruleDecoder: ParseStrategy {
                 }
             }
         }
-        while result.last ?? startDate < Date() {
+        while result.last ?? startDate < currentDate ?? Date() {
             if let nextDate = try? frequencyNextDate(value, newDate) {
                 result.append(nextDate)
                 newDate = nextDate
@@ -144,7 +199,7 @@ extension RruleDecoder: ParseStrategy {
 
     public func getNextOccurrence(_ value: String, _ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
         let parsedValue = try parse(value)
-        let allDates: [Date] = try allNextOccurrences(value, startDate)
+        let allDates: [Date] = try allNextOccurrences(value, startDate, currentDate)
         guard let nearestPassedDate = getNearestPassedDate(currentDate, allDates, value) else {
             return nil
         }

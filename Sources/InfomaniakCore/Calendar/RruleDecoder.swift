@@ -13,6 +13,7 @@ public struct RruleDecoder {
     public var end: Int?
     public var count: Int?
     public var byDay: [Weekday]?
+    public var bySetPos: [Int]?
 
     public init(
         calendar: Calendar = .current,
@@ -20,7 +21,8 @@ public struct RruleDecoder {
         interval: Int? = nil,
         end: Int? = nil,
         count: Int? = nil,
-        byDay: [Weekday]? = nil
+        byDay: [Weekday]? = nil,
+        bySetPos: [Int]? = nil
     ) {
         self.calendar = calendar
         self.frequency = frequency
@@ -28,6 +30,7 @@ public struct RruleDecoder {
         self.end = end
         self.count = count
         self.byDay = byDay
+        self.bySetPos = bySetPos
     }
 }
 
@@ -64,6 +67,8 @@ extension RruleDecoder: ParseStrategy {
                 countOrUntilSet += 1
             case .byDay:
                 parser.byDay = try ruleKey.parser.decode(value) as? [Weekday] ?? []
+            case .bySetPos:
+                parser.bySetPos = try ruleKey.parser.decode(value) as? [Int] ?? []
             }
         }
 
@@ -104,8 +109,10 @@ extension RruleDecoder: ParseStrategy {
             return -1
         }
 
-        if closestFutureDay >= closestPastDay {
+        if closestFutureDay > closestPastDay {
             return closestFutureDay - closestPastDay
+        } else if closestFutureDay == closestPastDay {
+            return 7
         } else {
             return (7 - closestPastDay) + closestFutureDay
         }

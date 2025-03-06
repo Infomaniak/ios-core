@@ -128,6 +128,16 @@ struct RrParseTest {
         #expect(result.byDay == [.monday, .thursday])
     }
 
+    @Test("Parse BYSETPOS Rule Part")
+    func parseBySetPosRulePart() throws {
+        let rfcString = "FREQ=MONTHLY;BYSETPOS=2,5,10,23,30"
+        let res = try parser.parse(rfcString)
+        guard let result = res.bySetPos else {
+            return
+        }
+        #expect(result == [2,5,10,23,30])
+    }
+
     @Test(
         "Get next date occurrence from a parsed rrule with only frequency and interval specified",
         arguments: zip(

@@ -14,6 +14,7 @@ public enum DomainError: Error {
     case invalidByDay
     case missingFrequency
     case bothUntilAndCountSet
+    case invaliBySetPos
 }
 
 struct FrequencyParser: RuleValueDecoder {
@@ -63,6 +64,22 @@ struct ByDayParser: RuleValueDecoder {
         }
 
         return parsedWeekdays
+    }
+}
+
+struct BySetPosParser: RuleValueDecoder {
+    func decode(_ value: String) throws -> [Int] {
+        let days = value.split(separator: ",").map { String($0) }
+        var parsedDays: [Int] = []
+
+        for day in days {
+            if let intValue = Int(day), intValue >= 1 && intValue <= 31 {
+                parsedDays.append(intValue)
+            } else {
+                throw DomainError.invaliBySetPos
+            }
+        }
+        return parsedDays
     }
 }
 

@@ -15,6 +15,7 @@ enum RuleKey: String {
     case count = "COUNT"
     case until = "UNTIL"
     case byDay = "BYDAY"
+    case bySetPos = "BYSETPOS"
 
     var parser: any RuleValueDecoder {
         switch self {
@@ -23,6 +24,7 @@ enum RuleKey: String {
         case .count: return CountParser()
         case .until: return UntilParser()
         case .byDay: return ByDayParser()
+        case .bySetPos: return BySetPosParser()
         }
     }
 }

@@ -73,7 +73,7 @@ struct BySetPosParser: RuleValueDecoder {
         var parsedDays: [Int] = []
 
         for day in days {
-            if let intValue = Int(day), intValue >= 1 && intValue <= 31 {
+            if let intValue = Int(day) {
                 parsedDays.append(intValue)
             } else {
                 throw DomainError.invaliBySetPos

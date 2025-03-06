@@ -135,7 +135,7 @@ struct RrParseTest {
         guard let result = res.bySetPos else {
             return
         }
-        #expect(result == [2,5,10,23,30])
+        #expect(result == [2, 5, 10, 23, 30])
     }
 
     @Test(
@@ -244,6 +244,36 @@ struct RrParseTest {
     func nextOccurrenceBydayPart(rfcString: String, expectedDate: String) throws {
         let startingDate = "20250218"
         let currentDate = "20250225"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        guard let startDateObj = formatter.date(from: startingDate) else {
+            return
+        }
+
+        guard let currentDateObj = formatter.date(from: currentDate) else {
+            return
+        }
+
+        guard let result = try parser.getNextOccurrence(rfcString, startDateObj, currentDateObj) else {
+            return
+        }
+
+        let resultDateString = formatter.string(from: result)
+        #expect(resultDateString == expectedDate)
+    }
+
+    @Test(
+        "Get next date occurrence from a parsed rrule with BYSETPOS rule parts",
+        arguments: zip(
+            ["FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2"],
+            ["20250310"]
+        )
+    )
+    func nextOccurrenceBySetPosPart(rfcString: String, expectedDate: String) throws {
+        let startingDate = "20250210"
+        let currentDate = "20250212"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)

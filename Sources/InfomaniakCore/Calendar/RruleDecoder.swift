@@ -118,7 +118,7 @@ extension RruleDecoder: ParseStrategy {
         }
     }
 
-    private func frequencyNextDate(_ value: String, _ startDate: Date) throws -> Date {
+    private func frequencyNextDate(_ value: String, _ startDate: Date, _ currentDate: Date? = nil) throws -> Date {
         let parsedValue = try parse(value)
 
         var calendar = Calendar.current
@@ -150,10 +150,17 @@ extension RruleDecoder: ParseStrategy {
                             byDay: byDay,
                             bySetPos: bySetPos[0],
                             startDate: startDate,
-                            calendar: calendar
+                            calendar: calendar,
+                            currentDate
                         )
                     } else {
-                        newDate = getDateForBySetPos(byDay: byDay, bySetPos: 1, startDate: startDate, calendar: calendar)
+                        newDate = getDateForBySetPos(
+                            byDay: byDay,
+                            bySetPos: 1,
+                            startDate: startDate,
+                            calendar: calendar,
+                            currentDate
+                        )
                     }
                 }
 
@@ -174,15 +181,22 @@ extension RruleDecoder: ParseStrategy {
         return newDate
     }
 
-    private func getDateForBySetPos(byDay: [Weekday], bySetPos: Int, startDate: Date, calendar: Calendar) -> Date {
+    private func getDateForBySetPos(
+        byDay: [Weekday],
+        bySetPos: Int,
+        startDate: Date,
+        calendar: Calendar,
+        _ currentDate: Date? = nil
+    ) -> Date {
         let components = calendar.dateComponents([.year, .month], from: startDate)
         guard let firstDayOfMonth = calendar.date(from: components) else { return startDate }
         guard let firstDayofNextMonth = calendar.date(byAdding: .month, value: 1, to: firstDayOfMonth) else { return startDate }
 
         var potentialDates: [Date] = []
+        var potentialDatesNextMonth: [Date] = []
 
         for dayOffset in 0 ..< 31 {
-            if let currentDate = calendar.date(byAdding: .day, value: dayOffset, to: firstDayofNextMonth) {
+            if let currentDate = calendar.date(byAdding: .day, value: dayOffset, to: firstDayOfMonth) {
                 guard let weekday = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) else {
                     return startDate
                 }
@@ -191,12 +205,30 @@ extension RruleDecoder: ParseStrategy {
                     potentialDates.append(currentDate)
                 }
             }
+
+            if let currentDate = calendar.date(byAdding: .day, value: dayOffset, to: firstDayofNextMonth) {
+                guard let weekday = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) else {
+                    return startDate
+                }
+
+                if byDay.contains(where: { $0.rawValue == Weekday.allCases[weekday - 1].rawValue }) {
+                    potentialDatesNextMonth.append(currentDate)
+                }
+            }
         }
 
         if bySetPos > 0, bySetPos <= potentialDates.count {
-            return potentialDates[bySetPos - 1]
+            if currentDate ?? Date() < potentialDates[bySetPos - 1] {
+                return potentialDates[bySetPos - 1]
+            } else {
+                return potentialDatesNextMonth[bySetPos - 1]
+            }
         } else if bySetPos < 0, abs(bySetPos) <= potentialDates.count {
-            return potentialDates[potentialDates.count + bySetPos]
+            if currentDate ?? Date() < potentialDates[potentialDates.count + bySetPos] {
+                return potentialDates[potentialDates.count + bySetPos]
+            } else {
+                return potentialDatesNextMonth[potentialDates.count + bySetPos]
+            }
         }
 
         return startDate
@@ -213,7 +245,7 @@ extension RruleDecoder: ParseStrategy {
 
         if let count = parsedValue.count {
             for _ in 0 ..< count - 1 {
-                if let nextDate = try? frequencyNextDate(value, newDate) {
+                if let nextDate = try? frequencyNextDate(value, newDate, currentDate) {
                     result.append(nextDate)
                     newDate = nextDate
                 }
@@ -224,7 +256,7 @@ extension RruleDecoder: ParseStrategy {
         if let end = parsedValue.end {
             if let endDate = formatter.date(from: String(end)) {
                 while result.last ?? startDate < endDate {
-                    if let nextDate = try? frequencyNextDate(value, newDate) {
+                    if let nextDate = try? frequencyNextDate(value, newDate, currentDate) {
                         if nextDate <= endDate {
                             result.append(nextDate)
                             newDate = nextDate
@@ -236,7 +268,7 @@ extension RruleDecoder: ParseStrategy {
             }
         }
         while result.last ?? startDate < currentDate ?? Date() {
-            if let nextDate = try? frequencyNextDate(value, newDate) {
+            if let nextDate = try? frequencyNextDate(value, newDate, currentDate) {
                 result.append(nextDate)
                 newDate = nextDate
             } else {
@@ -253,7 +285,7 @@ extension RruleDecoder: ParseStrategy {
             return nil
         }
 
-        let nextDate = try frequencyNextDate(value, nearestPassedDate)
+        let nextDate = try frequencyNextDate(value, nearestPassedDate, currentDate)
 
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"

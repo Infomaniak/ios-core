@@ -27,7 +27,8 @@ struct RrParseTest {
     ))
     func parseFrequencyRulePart(rfcFrequency: String, expected: Frequency) throws {
         let rfcString = "FREQ=\(rfcFrequency)"
-        let result = try parser.parse(rfcString)
+        let result = RruleDecoder()
+        try parser.parse(rfcString, result)
 
         #expect(result.frequency == expected)
     }
@@ -42,8 +43,8 @@ struct RrParseTest {
     @Test("Parse INTERVAL Rule Part", arguments: zip(["INTERVAL=1", "INTERVAL=2", "INTERVAL=10"], [1, 2, 10]))
     func parseIntervalRulePart(rfcInterval: String, expected: Int) throws {
         let rfcString = "FREQ=DAILY;\(rfcInterval)"
-        let result = try parser.parse(rfcString)
-        print(result)
+        let result = RruleDecoder()
+        try parser.parse(rfcString, result)
 
         #expect(result.interval == expected)
     }
@@ -61,7 +62,8 @@ struct RrParseTest {
     @Test("Parses COUNT as a specific occurrence limit", arguments: zip(["COUNT=1", "COUNT=5"], [1, 5]))
     func parseCountRulePart(rfcCount: String, expected: Int) throws {
         let rfcString = "FREQ=DAILY;\(rfcCount)"
-        let result = try parser.parse(rfcString)
+        let result = RruleDecoder()
+        try parser.parse(rfcString, result)
 
         #expect(result.count == expected)
     }
@@ -78,7 +80,8 @@ struct RrParseTest {
     func parseUntilDateRulePart() throws {
         let rfcString = "FREQ=DAILY;UNTIL=20250111"
         let expected = Date(timeIntervalSince1970: 1_736_553_600)
-        let res = try parser.parse(rfcString)
+        let res = RruleDecoder()
+        try parser.parse(rfcString, res)
 
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
@@ -115,7 +118,8 @@ struct RrParseTest {
     )
     func parseByDayEveryWeekdayRulePart(rfcByDay: String, expected: Weekday) throws {
         let rfcString = "FREQ=DAILY;\(rfcByDay)"
-        let result = try parser.parse(rfcString)
+        let result = RruleDecoder()
+        try parser.parse(rfcString, result)
 
         #expect(result.byDay == [expected])
     }
@@ -123,7 +127,8 @@ struct RrParseTest {
     @Test("Parse BYDAY with multiple weekdays Rule Part")
     func parseByDayEveryWeekdayRulePart() throws {
         let rfcString = "FREQ=DAILY;BYDAY=MO,TH"
-        let result = try parser.parse(rfcString)
+        let result = RruleDecoder()
+        try parser.parse(rfcString, result)
 
         #expect(result.byDay == [.monday, .thursday])
     }
@@ -131,7 +136,8 @@ struct RrParseTest {
     @Test("Parse BYSETPOS Rule Part")
     func parseBySetPosRulePart() throws {
         let rfcString = "FREQ=MONTHLY;BYSETPOS=2,5,10,23,30"
-        let res = try parser.parse(rfcString)
+        let res = RruleDecoder()
+        try parser.parse(rfcString, res)
         guard let result = res.bySetPos else {
             return
         }

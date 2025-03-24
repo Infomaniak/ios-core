@@ -6,7 +6,7 @@
 
 import Foundation
 
-public struct RruleDecoder {
+public class RruleDecoder {
     public let calendar: Calendar
     public var frequency: Frequency?
     public var interval: Int?
@@ -36,9 +36,8 @@ public struct RruleDecoder {
 
 // MARK: - ParseStrategy
 
-extension RruleDecoder: ParseStrategy {
-    public func parse(_ value: String) throws -> RruleDecoder {
-        var parser = RruleDecoder()
+extension RruleDecoder {
+    public func parse(_ value: String, _ parser: RruleDecoder = RruleDecoder()) throws {
         var countOrUntilSet = 0
 
         let parts = value.split(separator: ";")
@@ -49,10 +48,10 @@ extension RruleDecoder: ParseStrategy {
                 throw DomainError.invalidKey
             }
 
-            guard let ruleKey = RuleKey(rawValue: String(keyValue[0])) else {
+            guard let ruleKey = RuleKey(rawValue: "\(keyValue[0])") else {
                 continue
             }
-            let value = String(keyValue[1])
+            let value = "\(keyValue[1])"
 
             switch ruleKey {
             case .frequency:
@@ -79,8 +78,6 @@ extension RruleDecoder: ParseStrategy {
         guard countOrUntilSet < 2 else {
             throw DomainError.bothUntilAndCountSet
         }
-
-        return parser
     }
 
     private func daysBetween(_ parsedValue: RruleDecoder, _ currentDate: Date) -> Int {
@@ -119,7 +116,8 @@ extension RruleDecoder: ParseStrategy {
     }
 
     private func frequencyNextDate(_ value: String, _ startDate: Date, _ currentDate: Date? = nil) throws -> Date {
-        let parsedValue = try parse(value)
+        let parsedValue = RruleDecoder()
+        try parse(value, parsedValue)
 
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
@@ -235,7 +233,8 @@ extension RruleDecoder: ParseStrategy {
     }
 
     public func allNextOccurrences(_ value: String, _ startDate: Date, _ currentDate: Date? = nil) throws -> [Date] {
-        let parsedValue = try parse(value)
+        let parsedValue = RruleDecoder()
+        try parse(value, parsedValue)
         var result: [Date] = [startDate]
         var newDate: Date = startDate
 
@@ -279,7 +278,8 @@ extension RruleDecoder: ParseStrategy {
     }
 
     public func getNextOccurrence(_ value: String, _ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
-        let parsedValue = try parse(value)
+        let parsedValue = RruleDecoder()
+        try parse(value, parsedValue)
         let allDates: [Date] = try allNextOccurrences(value, startDate, currentDate)
         guard let nearestPassedDate = getNearestPassedDate(currentDate, allDates, value) else {
             return nil

@@ -1,6 +1,6 @@
 /*
  Infomaniak Core - iOS
- Copyright (C) 2023 Infomaniak Network SA
+ Copyright (C) 2025 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 import Foundation
 
+@available(iOS 11, macOS 12, *)
 public class RruleDecoder {
     public let calendar: Calendar
     public var frequency: Frequency?
@@ -48,6 +49,7 @@ public class RruleDecoder {
 
 // MARK: - ParseStrategy
 
+@available(iOS 11, macOS 12, *)
 extension RruleDecoder {
     public func parse(_ value: String, _ parser: RruleDecoder = RruleDecoder()) throws {
         var countOrUntilSet = 0

@@ -206,8 +206,8 @@ open class ApiFetcher {
         let responseData: T
         if let data = apiResponse.data {
             responseData = data
-        } else if let E = T.self as? ExpressibleByNilLiteral.Type,
-                  let value = E.init(nilLiteral: ()) as? T {
+        } else if let NullableType = T.self as? ExpressibleByNilLiteral.Type,
+                  let value = NullableType.init(nilLiteral: ()) as? T {
             responseData = value
         } else if let apiError = apiResponse.error {
             throw InfomaniakError.apiError(apiError)

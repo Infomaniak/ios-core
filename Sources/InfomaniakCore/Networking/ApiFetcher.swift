@@ -203,12 +203,12 @@ open class ApiFetcher {
             throw ErrorDomain.noServerResponse
         }
 
-        let dataResponse: T
+        let responseData: T
         if let data = apiResponse.data {
-            dataResponse = data
+            responseData = data
         } else if let E = T.self as? ExpressibleByNilLiteral.Type,
                   let value = E.init(nilLiteral: ()) as? T {
-            dataResponse = value
+            responseData = value
         } else if let apiError = apiResponse.error {
             throw InfomaniakError.apiError(apiError)
         } else {
@@ -216,7 +216,7 @@ open class ApiFetcher {
         }
         let validApiResponse = ValidApiResponse(
             result: apiResponse.result,
-            data: dataResponse,
+            data: responseData,
             total: apiResponse.total,
             pages: apiResponse.pages,
             page: apiResponse.page,

@@ -203,28 +203,33 @@ open class ApiFetcher {
             throw ErrorDomain.noServerResponse
         }
 
-        if let responseData = apiResponse.data {
-            let validApiResponse = ValidApiResponse(
-                result: apiResponse.result,
-                data: responseData,
-                total: apiResponse.total,
-                pages: apiResponse.pages,
-                page: apiResponse.page,
-                itemsPerPage: apiResponse.itemsPerPage,
-                responseAt: apiResponse.responseAt,
-                cursor: apiResponse.cursor,
-                hasMore: apiResponse.hasMore
-            )
-            return ValidServerResponse(
-                statusCode: serverResponse.statusCode,
-                responseHeaders: serverResponse.headers,
-                validApiResponse: validApiResponse
-            )
+        let responseData: T
+        if let data = apiResponse.data {
+            responseData = data
+        } else if let NullableType = T.self as? ExpressibleByNilLiteral.Type,
+                  let value = NullableType.init(nilLiteral: ()) as? T {
+            responseData = value
         } else if let apiError = apiResponse.error {
             throw InfomaniakError.apiError(apiError)
         } else {
             throw InfomaniakError.serverError(statusCode: serverResponse.statusCode)
         }
+        let validApiResponse = ValidApiResponse(
+            result: apiResponse.result,
+            data: responseData,
+            total: apiResponse.total,
+            pages: apiResponse.pages,
+            page: apiResponse.page,
+            itemsPerPage: apiResponse.itemsPerPage,
+            responseAt: apiResponse.responseAt,
+            cursor: apiResponse.cursor,
+            hasMore: apiResponse.hasMore
+        )
+        return ValidServerResponse(
+            statusCode: serverResponse.statusCode,
+            responseHeaders: serverResponse.headers,
+            validApiResponse: validApiResponse
+        )
     }
 
     public func userOrganisations() async throws -> [OrganisationAccount] {

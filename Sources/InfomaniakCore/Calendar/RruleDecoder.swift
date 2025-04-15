@@ -20,40 +20,9 @@ import Foundation
 
 @available(iOS 11, macOS 12, *)
 public class RruleDecoder {
-    public let calendar: Calendar
-    public var frequency: Frequency?
-    public var interval: Int?
-    public var end: Int?
-    public var count: Int?
-    public var byDay: [Weekday]?
-    public var bySetPos: [Int]?
-
-    public init(
-        calendar: Calendar = .current,
-        frequency: Frequency? = nil,
-        interval: Int? = nil,
-        end: Int? = nil,
-        count: Int? = nil,
-        byDay: [Weekday]? = nil,
-        bySetPos: [Int]? = nil
-    ) {
-        self.calendar = calendar
-        self.frequency = frequency
-        self.interval = interval
-        self.end = end
-        self.count = count
-        self.byDay = byDay
-        self.bySetPos = bySetPos
-    }
-}
-
-// MARK: - ParseStrategy
-
-@available(iOS 11, macOS 12, *)
-extension RruleDecoder {
-    public func parse(_ value: String, _ parser: RruleDecoder = RruleDecoder()) throws {
+    public func parse(_ value: String) throws -> Rrule {
         var countOrUntilSet = 0
-
+        var rule = Rrule()
         let parts = value.split(separator: ";")
 
         for part in parts {
@@ -69,32 +38,39 @@ extension RruleDecoder {
 
             switch ruleKey {
             case .frequency:
-                parser.frequency = try ruleKey.parser.decode(value) as? Frequency
+                rule.frequency = try ruleKey.parser.decode(value) as? Frequency
             case .interval:
-                parser.interval = try ruleKey.parser.decode(value) as? Int
+                rule.interval = try ruleKey.parser.decode(value) as? Int
             case .count:
-                parser.count = try ruleKey.parser.decode(value) as? Int
+                rule.count = try ruleKey.parser.decode(value) as? Int
                 countOrUntilSet += 1
             case .until:
-                parser.end = try ruleKey.parser.decode(value) as? Int
+                rule.end = try ruleKey.parser.decode(value) as? Int
                 countOrUntilSet += 1
             case .byDay:
-                parser.byDay = try ruleKey.parser.decode(value) as? [Weekday] ?? []
+                rule.byDay = try ruleKey.parser.decode(value) as? [Weekday] ?? []
             case .bySetPos:
-                parser.bySetPos = try ruleKey.parser.decode(value) as? [Int] ?? []
+                rule.bySetPos = try ruleKey.parser.decode(value) as? [Int] ?? []
             }
         }
 
-        guard parser.frequency != nil else {
+        guard rule.frequency != nil else {
             throw DomainError.missingFrequency
         }
 
         guard countOrUntilSet < 2 else {
             throw DomainError.bothUntilAndCountSet
         }
-    }
 
-    private func daysBetween(_ parsedValue: RruleDecoder, _ currentDate: Date) -> Int {
+        return rule
+    }
+}
+
+// MARK: - ParseStrategy
+
+@available(iOS 11, macOS 12, *)
+extension RruleDecoder {
+    private func daysBetween(_ parsedValue: Rrule, _ currentDate: Date) -> Int {
         let startingDayDigit = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) ?? 0
         var allOccupiedDays: [Int] = []
         let closestPastDay: Int
@@ -130,8 +106,7 @@ extension RruleDecoder {
     }
 
     private func frequencyNextDate(_ value: String, _ startDate: Date, _ currentDate: Date? = nil) throws -> Date {
-        let parsedValue = RruleDecoder()
-        try parse(value, parsedValue)
+        let parsedValue = try Rrule(value)
 
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
@@ -247,8 +222,7 @@ extension RruleDecoder {
     }
 
     public func allNextOccurrences(_ value: String, _ startDate: Date, _ currentDate: Date? = nil) throws -> [Date] {
-        let parsedValue = RruleDecoder()
-        try parse(value, parsedValue)
+        let parsedValue = try Rrule(value)
         var result: [Date] = [startDate]
         var newDate: Date = startDate
 
@@ -292,8 +266,7 @@ extension RruleDecoder {
     }
 
     public func getNextOccurrence(_ value: String, _ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
-        let parsedValue = RruleDecoder()
-        try parse(value, parsedValue)
+        let parsedValue = try Rrule(value)
         let allDates: [Date] = try allNextOccurrences(value, startDate, currentDate)
         guard let nearestPassedDate = getNearestPassedDate(currentDate, allDates, value) else {
             return nil

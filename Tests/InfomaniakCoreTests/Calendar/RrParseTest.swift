@@ -33,6 +33,16 @@ struct RrParseTest {
         parser = RruleDecoder()
     }
 
+    @Test("Throws an error for invalid KEY Rule Part", arguments: [
+        "INTERVAL=", "COUNT=", "UNTIL="
+    ])
+    func throwsErrorForInvalidKeyRulePart(invalidInterval: String) throws {
+        let rfcString = "FREQ=DAILY;\(invalidInterval)"
+        #expect(throws: DomainError.invalidKey) {
+            try parser.parse(rfcString)
+        }
+    }
+
     @Test("Parse FREQ Rule Part", arguments: zip(
         ["MINUTELY", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"],
         [Frequency.minutely, .hourly, .daily, .weekly, .monthly, .yearly]
@@ -46,7 +56,7 @@ struct RrParseTest {
 
     @Test("Throws an error for invalid FREQ Rule Part")
     func returnsNilForInvalidFrequencyRulePart() throws {
-        #expect(throws: NSError.self) {
+        #expect(throws: DomainError.missingFrequency) {
             try parser.parse("FREQ=FOOBAR")
         }
     }
@@ -60,11 +70,11 @@ struct RrParseTest {
     }
 
     @Test("Throws an error for invalid INTERVAL Rule Part", arguments: [
-        "INTERVAL=", "INTERVAL=-1", "INTERVAL=0", "INTERVAL=foo"
+        "INTERVAL=-1", "INTERVAL=0", "INTERVAL=foo"
     ])
-    func throwsErrorForInvalidIntervalRuleParrt(invalidInterval: String) throws {
+    func throwsErrorForInvalidIntervalRulePart(invalidInterval: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidInterval)"
-        #expect(throws: NSError.self) {
+        #expect(throws: DomainError.invalidInterval) {
             try parser.parse(rfcString)
         }
     }
@@ -77,10 +87,10 @@ struct RrParseTest {
         #expect(result.count == expected)
     }
 
-    @Test("Throws an error for invalid COUNT Rule Part", arguments: ["COUNT=", "COUNT=-2", "COUNT=1- ", "COUNT=foobar"])
+    @Test("Throws an error for invalid COUNT Rule Part", arguments: ["COUNT=-2", "COUNT=1- ", "COUNT=foobar"])
     func throwsErrorForInvalidCountRulePart(invalidCount: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidCount)"
-        #expect(throws: NSError.self) {
+        #expect(throws: DomainError.invalidCount) {
             try parser.parse(rfcString)
         }
     }
@@ -104,15 +114,15 @@ struct RrParseTest {
     @Test("Throws an error for invalid UNTIL Rule Part", arguments: ["UNTIL=20251350", "UNTIL=foobar", "UNTIL=1"])
     func throwsErrorForInvalidUntilRulePart(invalidString: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidString)"
-        #expect(throws: NSError.self) {
+        #expect(throws: DomainError.invalidUntil) {
             try parser.parse(rfcString)
         }
     }
 
     @Test("Throws an error when both UNTIL and COUNT are specified")
     func throwsErrorWhenBothUntilAndCountAreSpecified() throws {
-        let rfcString = "FREQ=DAILY;UNTIL=20200101T120000Z;COUNT=1"
-        #expect(throws: NSError.self) {
+        let rfcString = "FREQ=DAILY;UNTIL=21000101;COUNT=1"
+        #expect(throws: DomainError.bothUntilAndCountSet) {
             try parser.parse(rfcString)
         }
     }

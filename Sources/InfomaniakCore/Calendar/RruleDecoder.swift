@@ -111,26 +111,28 @@ extension RruleDecoder {
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
         var newDate = startDate
+        var interval = parsedValue.interval ?? 1
+        var component: Calendar.Component = .day
 
         switch parsedValue.frequency {
         case .minutely:
-            newDate = calendar.date(byAdding: .minute, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+            component = .minute
         case .hourly:
-            newDate = calendar.date(byAdding: .hour, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+            component = .hour
         case .daily:
-            newDate = calendar.date(byAdding: .day, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+            component = .day
         case .weekly:
             if parsedValue.byDay != nil {
-                let daysGap = daysBetween(parsedValue, startDate)
-                newDate = calendar.date(byAdding: .day, value: daysGap, to: startDate) ?? startDate
+                interval = daysBetween(parsedValue, startDate)
+                component = .day
             } else {
-                newDate = calendar.date(byAdding: .weekOfYear, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+                component = .weekOfYear
             }
         case .monthly:
             if let byDay = parsedValue.byDay {
                 if byDay.count > 1 {
-                    let daysGap = daysBetween(parsedValue, startDate)
-                    newDate = calendar.date(byAdding: .day, value: daysGap, to: startDate) ?? startDate
+                    interval = daysBetween(parsedValue, startDate)
+                    component = .day
                 } else {
                     if let bySetPos = parsedValue.bySetPos {
                         newDate = getDateForBySetPos(
@@ -149,22 +151,26 @@ extension RruleDecoder {
                             currentDate
                         )
                     }
+                    return newDate
                 }
 
             } else {
-                newDate = calendar.date(byAdding: .month, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+                component = .month
             }
         case .yearly:
             if parsedValue.byDay != nil {
-                let daysGap = daysBetween(parsedValue, startDate)
-                newDate = calendar.date(byAdding: .day, value: daysGap, to: startDate) ?? startDate
+                interval = daysBetween(parsedValue, startDate)
+                component = .day
             } else {
-                newDate = calendar.date(byAdding: .year, value: parsedValue.interval ?? 1, to: startDate) ?? startDate
+                component = .year
             }
         default:
             break
         }
 
+        guard let newDate = calendar.date(byAdding: component, value: interval, to: startDate) else {
+            return startDate
+        }
         return newDate
     }
 

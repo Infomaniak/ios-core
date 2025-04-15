@@ -187,7 +187,8 @@ struct RrParseTest {
             return
         }
 
-        guard let result = try? parser.getNextOccurrence(rfcString, startDateObj, currentDateObj) else {
+        let rule = try Rrule(rfcString)
+        guard let result = try? rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }
 
@@ -217,7 +218,8 @@ struct RrParseTest {
             expectedDatesFormatted.append(date)
         }
 
-        guard let result = try? parser.allNextOccurrences(rfcString, startDateObj) else {
+        let rule = try Rrule(rfcString)
+        guard let result = try? rule.allNextOccurrences(startDateObj) else {
             return
         }
 
@@ -247,7 +249,8 @@ struct RrParseTest {
             return
         }
 
-        guard let result = try parser.getNextOccurrence(rfcString, startDateObj, currentDateObj) else {
+        let rule = try Rrule(rfcString)
+        guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }
 
@@ -277,7 +280,8 @@ struct RrParseTest {
             return
         }
 
-        guard let result = try parser.getNextOccurrence(rfcString, startDateObj, currentDateObj) else {
+        let rule = try Rrule(rfcString)
+        guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }
 
@@ -307,7 +311,8 @@ struct RrParseTest {
             return
         }
 
-        guard let result = try parser.getNextOccurrence(rfcString, startDateObj, currentDateObj) else {
+        let rule = try Rrule(rfcString)
+        guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }
 

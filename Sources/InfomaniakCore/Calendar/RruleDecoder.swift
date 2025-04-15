@@ -18,7 +18,7 @@
 
 import Foundation
 
-@available(iOS 11, macOS 12, *)
+@available(macOS 12, *)
 public class RruleDecoder {
     public func parse(_ value: String) throws -> Rrule {
         var countOrUntilSet = 0
@@ -68,7 +68,7 @@ public class RruleDecoder {
 
 // MARK: - ParseStrategy
 
-@available(iOS 11, macOS 12, *)
+@available(macOS 12, *)
 extension RruleDecoder {
     private func daysBetween(_ parsedValue: Rrule, _ currentDate: Date) -> Int {
         let startingDayDigit = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) ?? 0

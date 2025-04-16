@@ -117,16 +117,8 @@ public extension Rrule {
                     interval = daysBetween(startDate)
                     component = .day
                 } else {
-                    if let bySetPos = parsedValue.bySetPos {
-                        newDate = getDateForBySetPos(
-                            byDay: byDay,
-                            bySetPos: bySetPos[0],
-                            startDate: startDate,
-                            calendar: calendar,
-                            currentDate
-                        )
-                    } else {
-                        newDate = getDateForBySetPos(
+                    guard let pos = parsedValue.bySetPos?[0] else {
+                        return getDateForBySetPos(
                             byDay: byDay,
                             bySetPos: 1,
                             startDate: startDate,
@@ -134,7 +126,13 @@ public extension Rrule {
                             currentDate
                         )
                     }
-                    return newDate
+                    return getDateForBySetPos(
+                        byDay: byDay,
+                        bySetPos: pos,
+                        startDate: startDate,
+                        calendar: calendar,
+                        currentDate
+                    )
                 }
 
             } else {

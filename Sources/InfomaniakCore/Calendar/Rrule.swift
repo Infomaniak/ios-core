@@ -93,7 +93,6 @@ public extension Rrule {
 
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
-        var newDate = startDate
         var interval = parsedValue.interval ?? 1
         var component: Calendar.Component = .day
 
@@ -227,16 +226,14 @@ public extension Rrule {
             return result
         }
 
-        if let end = parsedValue.end {
-            if let endDate = formatter.date(from: String(end)) {
-                while result.last ?? startDate < endDate {
-                    if let nextDate = try? frequencyNextDate(newDate, currentDate) {
-                        if nextDate <= endDate {
-                            result.append(nextDate)
-                            newDate = nextDate
-                        } else {
-                            return result
-                        }
+        if let end = parsedValue.end, let endDate = formatter.date(from: String(end)) {
+            while result.last ?? startDate < endDate {
+                if let nextDate = try? frequencyNextDate(newDate, currentDate) {
+                    if nextDate <= endDate {
+                        result.append(nextDate)
+                        newDate = nextDate
+                    } else {
+                        return result
                     }
                 }
             }
@@ -265,10 +262,9 @@ public extension Rrule {
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
 
-        if let end = parsedValue.end {
-            if let endDate = formatter.date(from: String(end)), endDate <= nextDate {
-                return nil
-            }
+        if let end = parsedValue.end, let endDate = formatter.date(from: String(end)),
+           endDate <= nextDate {
+            return nil
         }
 
         return nextDate
@@ -276,10 +272,9 @@ public extension Rrule {
 
     private func getNearestPassedDate(_ targetDate: Date, _ dates: [Date]) -> Date? {
         for date in dates.reversed() {
-            if let nextDate = try? frequencyNextDate(date) {
-                if date <= targetDate && targetDate <= nextDate {
-                    return date
-                }
+            if let nextDate = try? frequencyNextDate(date),
+               date <= targetDate && targetDate <= nextDate {
+                return date
             }
         }
         return nil

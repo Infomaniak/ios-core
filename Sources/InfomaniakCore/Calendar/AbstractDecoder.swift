@@ -18,7 +18,7 @@
 
 import Foundation
 
-public enum Frequency: String, CaseIterable, Codable, Sendable {
+public enum Frequency: String, Sendable {
     case secondly = "SECONDLY"
     case minutely = "MINUTELY"
     case hourly = "HOURLY"
@@ -28,7 +28,7 @@ public enum Frequency: String, CaseIterable, Codable, Sendable {
     case yearly = "YEARLY"
 }
 
-public enum Weekday: String, CaseIterable, Codable, Sendable {
+public enum Weekday: String, CaseIterable, Sendable {
     case monday = "MO"
     case tuesday = "TU"
     case wednesday = "WE"
@@ -38,10 +38,22 @@ public enum Weekday: String, CaseIterable, Codable, Sendable {
     case sunday = "SU"
 }
 
-public enum Rule: String, CaseIterable, Codable {
+public enum RuleKey: String, Sendable {
     case frequency = "FREQ"
     case interval = "INTERVAL"
     case count = "COUNT"
     case until = "UNTIL"
     case byDay = "BYDAY"
+    case bySetPos = "BYSETPOS"
+
+    var parser: any RuleValueDecoder {
+        switch self {
+        case .frequency: return FrequencyParser()
+        case .interval: return IntervalParser()
+        case .count: return CountParser()
+        case .until: return UntilParser()
+        case .byDay: return ByDayParser()
+        case .bySetPos: return BySetPosParser()
+        }
+    }
 }

@@ -22,9 +22,14 @@ import Foundation
 public class RruleDecoder {
     public func parse(_ value: String) throws -> Rrule {
         var countOrUntilSet = 0
-        var rule = Rrule()
-        let parts = value.split(separator: ";")
+        var frequency: Frequency?
+        var interval: Int?
+        var end: Int?
+        var count: Int?
+        var byDay: [Weekday]?
+        var bySetPos: [Int]?
 
+        let parts = value.split(separator: ";")
         for part in parts {
             let keyValue = part.split(separator: "=")
             guard keyValue.count == 2 else {
@@ -32,29 +37,29 @@ public class RruleDecoder {
             }
 
             guard let ruleKey = RuleKey(rawValue: "\(keyValue[0])") else {
-                continue
+                throw DomainError.invalidKey
             }
             let value = "\(keyValue[1])"
 
             switch ruleKey {
             case .frequency:
-                rule.frequency = try ruleKey.parser.decode(value) as? Frequency
+                frequency = try ruleKey.parser.decode(value) as? Frequency
             case .interval:
-                rule.interval = try ruleKey.parser.decode(value) as? Int
+                interval = try ruleKey.parser.decode(value) as? Int
             case .count:
-                rule.count = try ruleKey.parser.decode(value) as? Int
+                count = try ruleKey.parser.decode(value) as? Int
                 countOrUntilSet += 1
             case .until:
-                rule.end = try ruleKey.parser.decode(value) as? Int
+                end = try ruleKey.parser.decode(value) as? Int
                 countOrUntilSet += 1
             case .byDay:
-                rule.byDay = try ruleKey.parser.decode(value) as? [Weekday] ?? []
+                byDay = try ruleKey.parser.decode(value) as? [Weekday] ?? []
             case .bySetPos:
-                rule.bySetPos = try ruleKey.parser.decode(value) as? [Int] ?? []
+                bySetPos = try ruleKey.parser.decode(value) as? [Int] ?? []
             }
         }
 
-        guard rule.frequency != nil else {
+        guard frequency != nil else {
             throw DomainError.missingFrequency
         }
 
@@ -62,6 +67,6 @@ public class RruleDecoder {
             throw DomainError.bothUntilAndCountSet
         }
 
-        return rule
+        return Rrule(frequency: frequency, interval: interval, end: end, count: count, byDay: byDay, bySetPos: bySetPos)
     }
 }

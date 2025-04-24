@@ -21,12 +21,12 @@ import Foundation
 @available(macOS 12, *)
 public struct Rrule {
     public let calendar: Calendar
-    public var frequency: Frequency?
-    public var interval: Int?
-    public var end: Int?
-    public var count: Int?
-    public var byDay: [Weekday]?
-    public var bySetPos: [Int]?
+    public let frequency: Frequency?
+    public let interval: Int?
+    public let end: Int?
+    public let count: Int?
+    public let byDay: [Weekday]?
+    public let bySetPos: [Int]?
 
     init(_ string: String) throws {
         self = try RruleDecoder().parse(string)

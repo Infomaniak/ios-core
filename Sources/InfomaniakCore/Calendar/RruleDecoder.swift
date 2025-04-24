@@ -26,7 +26,7 @@ public class RruleDecoder {
         var interval: Int?
         var end: Int?
         var count: Int?
-        var byDay: [Weekday]?
+        var daysWithEvents: [Weekday]?
         var bySetPos: [Int]?
 
         let parts = value.split(separator: ";")
@@ -53,7 +53,7 @@ public class RruleDecoder {
                 end = try ruleKey.parser.decode(value) as? Int
                 countOrUntilSet += 1
             case .byDay:
-                byDay = try ruleKey.parser.decode(value) as? [Weekday] ?? []
+                daysWithEvents = try ruleKey.parser.decode(value) as? [Weekday] ?? []
             case .bySetPos:
                 bySetPos = try ruleKey.parser.decode(value) as? [Int] ?? []
             }
@@ -67,6 +67,6 @@ public class RruleDecoder {
             throw DomainError.bothUntilAndCountSet
         }
 
-        return Rrule(frequency: frequency, interval: interval, end: end, count: count, byDay: byDay, bySetPos: bySetPos)
+        return Rrule(frequency: frequency, interval: interval, end: end, count: count, daysWithEvents: daysWithEvents, bySetPos: bySetPos)
     }
 }

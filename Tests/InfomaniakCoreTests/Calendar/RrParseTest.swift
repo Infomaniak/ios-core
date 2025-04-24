@@ -138,7 +138,7 @@ struct RrParseTest {
         let rfcString = "FREQ=DAILY;\(rfcByDay)"
         let result = try parser.parse(rfcString)
 
-        #expect(result.byDay == [expected])
+        #expect(result.daysWithEvents == [expected])
     }
 
     @Test("Parse BYDAY with multiple weekdays Rule Part")
@@ -146,7 +146,7 @@ struct RrParseTest {
         let rfcString = "FREQ=DAILY;BYDAY=MO,TH"
         let result = try parser.parse(rfcString)
 
-        #expect(result.byDay == [.monday, .thursday])
+        #expect(result.daysWithEvents == [.monday, .thursday])
     }
 
     @Test("Parse BYSETPOS Rule Part")

@@ -233,33 +233,57 @@ public extension Rrule {
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
 
         if let count = parsedValue.count {
-            for _ in 0 ..< count - 1 {
-                if let nextDate = try? frequencyNextDate(newDate, currentDate) {
-                    result.append(nextDate)
-                    newDate = nextDate
-                }
-            }
-            return result
+            result = allNextOccurrencesWithCountRule(count, startDate, currentDate)
         }
 
-        if let end = parsedValue.end, let endDate = formatter.date(from: String(end)) {
-            while result.last ?? startDate < endDate {
-                if let nextDate = try? frequencyNextDate(newDate, currentDate) {
-                    if nextDate <= endDate {
-                        result.append(nextDate)
-                        newDate = nextDate
-                    } else {
-                        return result
-                    }
-                }
-            }
+        if let end = parsedValue.end {
+            result = allNextOccurrencesWithEndRule(end, startDate, currentDate)
         }
+
+        guard result.count < 2 else { return result }
+
         while result.last ?? startDate < currentDate ?? Date() {
             if let nextDate = try? frequencyNextDate(newDate, currentDate) {
                 result.append(nextDate)
                 newDate = nextDate
             } else {
                 return result
+            }
+        }
+        return result
+    }
+
+    private func allNextOccurrencesWithCountRule(_ count: Int, _ startDate: Date, _ currentDate: Date? = nil) -> [Date] {
+        var result: [Date] = [startDate]
+        var newDate: Date = startDate
+
+        for _ in 0 ..< count - 1 {
+            if let nextDate = try? frequencyNextDate(newDate, currentDate) {
+                result.append(nextDate)
+                newDate = nextDate
+            }
+        }
+        return result
+    }
+
+    private func allNextOccurrencesWithEndRule(_ end: Int, _ startDate: Date, _ currentDate: Date? = nil) -> [Date] {
+        var result: [Date] = [startDate]
+        var newDate: Date = startDate
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        if let endDate = formatter.date(from: String(end)) {
+            while result.last ?? startDate < endDate {
+                if let nextDate = try? frequencyNextDate(newDate, currentDate) {
+                    if nextDate <= endDate {
+                        result.append(nextDate)
+                        newDate = nextDate
+                    } else {
+                        break
+                    }
+                }
             }
         }
         return result

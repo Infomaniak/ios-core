@@ -25,7 +25,7 @@ public struct Rrule {
     public let interval: Int?
     public let end: Int?
     public let count: Int?
-    public let byDay: [Weekday]?
+    public let daysWithEvents: [Weekday]?
     public let bySetPos: [Int]?
 
     init(_ string: String) throws {
@@ -38,7 +38,7 @@ public struct Rrule {
         interval: Int? = nil,
         end: Int? = nil,
         count: Int? = nil,
-        byDay: [Weekday]? = nil,
+        daysWithEvents: [Weekday]? = nil,
         bySetPos: [Int]? = nil
     ) {
         self.calendar = calendar
@@ -46,7 +46,7 @@ public struct Rrule {
         self.interval = interval
         self.end = end
         self.count = count
-        self.byDay = byDay
+        self.daysWithEvents = daysWithEvents
         self.bySetPos = bySetPos
     }
 }
@@ -57,8 +57,12 @@ public extension Rrule {
         let startingDayDigit = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) ?? 0
         var allOccupiedDays: [Int] = []
 
-        for i in 0 ..< (byDay?.count ?? 0) {
-            if let day = Weekday.allCases.firstIndex(of: byDay![i]) {
+        guard let daysWithEvents else {
+            return -1
+        }
+
+        for daysWithEvents in daysWithEvents {
+            if let day = Weekday.allCases.firstIndex(of: daysWithEvents) {
                 allOccupiedDays.append(day + 1)
             }
         }
@@ -106,29 +110,29 @@ public extension Rrule {
         case .daily:
             component = .day
         case .weekly:
-            if parsedValue.byDay != nil {
+            if parsedValue.daysWithEvents != nil {
                 interval = daysBetween(startDate)
                 component = .day
             } else {
                 component = .weekOfYear
             }
         case .monthly:
-            if let byDay = parsedValue.byDay {
-                if byDay.count > 1 {
+            if let daysWithEvents = parsedValue.daysWithEvents {
+                if daysWithEvents.count > 1 {
                     interval = daysBetween(startDate)
                     component = .day
                 } else {
                     guard let pos = parsedValue.bySetPos?[0] else {
-                        return getDateForBySetPos(
-                            byDay: byDay,
+                        return getDateOfMonthWithPosRule(
+                            daysWithEvents: daysWithEvents,
                             bySetPos: 1,
                             startDate: startDate,
                             calendar: calendar,
                             currentDate
                         )
                     }
-                    return getDateForBySetPos(
-                        byDay: byDay,
+                    return getDateOfMonthWithPosRule(
+                        daysWithEvents: daysWithEvents,
                         bySetPos: pos,
                         startDate: startDate,
                         calendar: calendar,
@@ -140,7 +144,7 @@ public extension Rrule {
                 component = .month
             }
         case .yearly:
-            if parsedValue.byDay != nil {
+            if parsedValue.daysWithEvents != nil {
                 interval = daysBetween(startDate)
                 component = .day
             } else {
@@ -156,8 +160,8 @@ public extension Rrule {
         return newDate
     }
 
-    private func getDateForBySetPos(
-        byDay: [Weekday],
+    private func getDateOfMonthWithPosRule(
+        daysWithEvents: [Weekday],
         bySetPos: Int,
         startDate: Date,
         calendar: Calendar,
@@ -165,32 +169,10 @@ public extension Rrule {
     ) -> Date {
         let components = calendar.dateComponents([.year, .month], from: startDate)
         guard let firstDayOfMonth = calendar.date(from: components) else { return startDate }
-        guard let firstDayofNextMonth = calendar.date(byAdding: .month, value: 1, to: firstDayOfMonth) else { return startDate }
+        guard let firstDayOfNextMonth = calendar.date(byAdding: .month, value: 1, to: firstDayOfMonth) else { return startDate }
 
-        var potentialDates: [Date] = []
-        var potentialDatesNextMonth: [Date] = []
-
-        for dayOffset in 0 ..< 31 {
-            if let currentDate = calendar.date(byAdding: .day, value: dayOffset, to: firstDayOfMonth) {
-                guard let weekday = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) else {
-                    return startDate
-                }
-
-                if byDay.contains(where: { $0.rawValue == Weekday.allCases[weekday - 1].rawValue }) {
-                    potentialDates.append(currentDate)
-                }
-            }
-
-            if let currentDate = calendar.date(byAdding: .day, value: dayOffset, to: firstDayofNextMonth) {
-                guard let weekday = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) else {
-                    return startDate
-                }
-
-                if byDay.contains(where: { $0.rawValue == Weekday.allCases[weekday - 1].rawValue }) {
-                    potentialDatesNextMonth.append(currentDate)
-                }
-            }
-        }
+        let potentialDates = getPotentialDatesOfMonth(startDate, firstDayOfMonth, daysWithEvents)
+        let potentialDatesNextMonth = getPotentialDatesOfMonth(startDate, firstDayOfNextMonth, daysWithEvents)
 
         if bySetPos > 0, bySetPos <= potentialDates.count {
             if currentDate ?? Date() < potentialDates[bySetPos - 1] {
@@ -207,6 +189,24 @@ public extension Rrule {
         }
 
         return startDate
+    }
+
+    private func getPotentialDatesOfMonth(_ startDate: Date, _ firstDayOfMonth: Date, _ daysWithEvents: [Weekday]) -> [Date] {
+        var potentialDates = [Date]()
+        guard let daysInMonth = calendar.range(of: .day, in: .month, for: firstDayOfMonth) else { return [] }
+
+        for dayOffset in daysInMonth {
+            if let currentDate = calendar.date(byAdding: .day, value: dayOffset, to: firstDayOfMonth) {
+                guard let weekday = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) else {
+                    return []
+                }
+
+                if daysWithEvents.contains(where: { $0.rawValue == Weekday.allCases[weekday - 1].rawValue }) {
+                    potentialDates.append(currentDate)
+                }
+            }
+        }
+        return potentialDates
     }
 
     func allNextOccurrences(_ startDate: Date, _ currentDate: Date? = nil) throws -> [Date] {

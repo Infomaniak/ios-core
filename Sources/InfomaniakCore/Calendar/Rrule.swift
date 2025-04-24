@@ -56,19 +56,21 @@ public extension Rrule {
     private func daysBetween(_ currentDate: Date) -> Int {
         let startingDayDigit = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) ?? 0
         var allOccupiedDays: [Int] = []
-        let closestPastDay: Int
-        let closestFutureDay: Int
+
         for i in 0 ..< (byDay?.count ?? 0) {
             if let day = Weekday.allCases.firstIndex(of: byDay![i]) {
                 allOccupiedDays.append(day + 1)
             }
         }
+
+        let closestPastDay: Int
         if let closest = allOccupiedDays.filter({ $0 <= startingDayDigit }).max() {
             closestPastDay = closest
         } else {
             closestPastDay = allOccupiedDays.max() ?? -1
         }
 
+        let closestFutureDay: Int
         if let closest = allOccupiedDays.filter({ $0 > startingDayDigit }).min() {
             closestFutureDay = closest
         } else {
@@ -82,9 +84,9 @@ public extension Rrule {
         if closestFutureDay > closestPastDay {
             return closestFutureDay - closestPastDay
         } else if closestFutureDay == closestPastDay {
-            return 7
+            return calendar.weekdaySymbols.count
         } else {
-            return (7 - closestPastDay) + closestFutureDay
+            return (calendar.weekdaySymbols.count - closestPastDay) + closestFutureDay
         }
     }
 

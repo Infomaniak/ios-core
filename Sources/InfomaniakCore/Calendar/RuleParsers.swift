@@ -31,7 +31,10 @@ public enum DomainError: Error {
 
 struct FrequencyParser: RuleValueDecoder {
     func decode(_ value: String) throws -> Frequency? {
-        return isFrequencyValid(value) ? Frequency(rawValue: value) : nil
+        guard let frequency = Frequency(rawValue: value) else {
+            throw DomainError.missingFrequency
+        }
+        return frequency
     }
 }
 
@@ -60,6 +63,17 @@ struct UntilParser: RuleValueDecoder {
         }
         return intValue
     }
+
+    private func isValidDate(_ value: Int) -> Bool {
+        let stringVal = String(value)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        if formatter.date(from: stringVal) != nil {
+            return true
+        }
+        return false
+    }
 }
 
 struct ByDayParser: RuleValueDecoder {
@@ -68,8 +82,8 @@ struct ByDayParser: RuleValueDecoder {
         var parsedWeekdays: [Weekday] = []
 
         for weekday in weekdays {
-            if let wkday = Weekday(rawValue: weekday), isValidWeekday(wkday.rawValue) {
-                parsedWeekdays.append(wkday)
+            if let day = Weekday(rawValue: weekday) {
+                parsedWeekdays.append(day)
             } else {
                 throw DomainError.invalidByDay
             }
@@ -95,31 +109,7 @@ struct BySetPosParser: RuleValueDecoder {
     }
 }
 
-private func isFrequencyValid(_ value: String) -> Bool {
-    switch value {
-    case "SECONDLY", "MINUTELY", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY":
-        return true
-    default:
-        return false
-    }
-}
-
-private func isValidDate(_ value: Int) -> Bool {
-    let stringVal = String(value)
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyyMMdd"
-    formatter.timeZone = TimeZone(secondsFromGMT: 0)
-    if formatter.date(from: stringVal) != nil {
-        return true
-    }
-    return false
-}
-
-private func isValidWeekday(_ day: String) -> Bool {
-    switch day {
-    case "MO", "TU", "WE", "TH", "FR", "SA", "SU":
-        return true
-    default:
-        return false
-    }
+protocol RuleValueDecoder {
+    associatedtype Output
+    func decode(_ value: String) throws -> Output
 }

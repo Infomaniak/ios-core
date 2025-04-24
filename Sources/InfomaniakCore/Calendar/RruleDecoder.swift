@@ -67,6 +67,13 @@ public class RruleDecoder {
             throw DomainError.bothUntilAndCountSet
         }
 
-        return Rrule(frequency: frequency, interval: interval, end: end, count: count, daysWithEvents: daysWithEvents, bySetPos: bySetPos)
+        return Rrule(
+            frequency: frequency,
+            interval: interval,
+            end: end,
+            count: count,
+            daysWithEvents: daysWithEvents,
+            bySetPos: bySetPos
+        )
     }
 }

@@ -53,7 +53,7 @@ public struct Rrule {
 
 @available(macOS 12, *)
 public extension Rrule {
-    private func daysBetween(_ currentDate: Date) -> Int {
+    private func daysBetweenCurrentDateAndClosestEventDay(_ currentDate: Date) -> Int {
         let startingDayDigit = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) ?? 0
         var allOccupiedDays: [Int] = []
 
@@ -111,7 +111,7 @@ public extension Rrule {
             component = .day
         case .weekly:
             if parsedValue.daysWithEvents != nil {
-                interval = daysBetween(startDate)
+                interval = daysBetweenCurrentDateAndClosestEventDay(startDate)
                 component = .day
             } else {
                 component = .weekOfYear
@@ -119,33 +119,22 @@ public extension Rrule {
         case .monthly:
             if let daysWithEvents = parsedValue.daysWithEvents {
                 if daysWithEvents.count > 1 {
-                    interval = daysBetween(startDate)
+                    interval = daysBetweenCurrentDateAndClosestEventDay(startDate)
                     component = .day
                 } else {
-                    guard let pos = parsedValue.bySetPos?[0] else {
-                        return getDateOfMonthWithPosRule(
-                            daysWithEvents: daysWithEvents,
-                            bySetPos: 1,
-                            startDate: startDate,
-                            calendar: calendar,
-                            currentDate
-                        )
-                    }
-                    return getDateOfMonthWithPosRule(
+                    return getMonthlyNextDate(
                         daysWithEvents: daysWithEvents,
-                        bySetPos: pos,
                         startDate: startDate,
                         calendar: calendar,
                         currentDate
                     )
                 }
-
             } else {
                 component = .month
             }
         case .yearly:
             if parsedValue.daysWithEvents != nil {
-                interval = daysBetween(startDate)
+                interval = daysBetweenCurrentDateAndClosestEventDay(startDate)
                 component = .day
             } else {
                 component = .year
@@ -158,6 +147,31 @@ public extension Rrule {
             return startDate
         }
         return newDate
+    }
+
+    private func getMonthlyNextDate(
+        daysWithEvents: [Weekday],
+        startDate: Date,
+        calendar: Calendar,
+        _ currentDate: Date? = nil
+    ) -> Date {
+        let parsedValue = self
+        guard let pos = parsedValue.bySetPos?[0] else {
+            return getDateOfMonthWithPosRule(
+                daysWithEvents: daysWithEvents,
+                bySetPos: 1,
+                startDate: startDate,
+                calendar: calendar,
+                currentDate
+            )
+        }
+        return getDateOfMonthWithPosRule(
+            daysWithEvents: daysWithEvents,
+            bySetPos: pos,
+            startDate: startDate,
+            calendar: calendar,
+            currentDate
+        )
     }
 
     private func getDateOfMonthWithPosRule(

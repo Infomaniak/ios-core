@@ -23,14 +23,14 @@ import Testing
 @Suite("RrParseTest")
 struct RrParseTest {
     let calendar: Calendar
-    let parser: RruleDecoder
+    let parser: RecurrenceRuleDecoder
 
     init() {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
 
         self.calendar = calendar
-        parser = RruleDecoder()
+        parser = RecurrenceRuleDecoder()
     }
 
     @Test("Throws an error for invalid KEY Rule Part", arguments: [
@@ -84,7 +84,7 @@ struct RrParseTest {
         let rfcString = "FREQ=DAILY;\(rfcCount)"
         let result = try parser.parse(rfcString)
 
-        #expect(result.count == expected)
+        #expect(result.nbMaxOfOccurrences == expected)
     }
 
     @Test("Throws an error for invalid COUNT Rule Part", arguments: ["COUNT=-2", "COUNT=1- ", "COUNT=foobar"])
@@ -104,7 +104,7 @@ struct RrParseTest {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        guard let result = formatter.date(from: String(res.end!)) else {
+        guard let result = formatter.date(from: String(res.lastOccurrence!)) else {
             return
         }
 
@@ -153,7 +153,7 @@ struct RrParseTest {
     func parseBySetPosRulePart() throws {
         let rfcString = "FREQ=MONTHLY;BYSETPOS=2,5,10,23,30"
         let res = try parser.parse(rfcString)
-        guard let result = res.bySetPos else {
+        guard let result = res.nthDayOfMonth else {
             return
         }
         #expect(result == [2, 5, 10, 23, 30])
@@ -187,7 +187,7 @@ struct RrParseTest {
             return
         }
 
-        let rule = try Rrule(rfcString)
+        let rule = try RecurrenceRule(rfcString)
         guard let result = try? rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }
@@ -218,7 +218,7 @@ struct RrParseTest {
             expectedDatesFormatted.append(date)
         }
 
-        let rule = try Rrule(rfcString)
+        let rule = try RecurrenceRule(rfcString)
         guard let result = try? rule.allNextOccurrences(startDateObj) else {
             return
         }
@@ -249,7 +249,7 @@ struct RrParseTest {
             return
         }
 
-        let rule = try Rrule(rfcString)
+        let rule = try RecurrenceRule(rfcString)
         guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }
@@ -280,7 +280,7 @@ struct RrParseTest {
             return
         }
 
-        let rule = try Rrule(rfcString)
+        let rule = try RecurrenceRule(rfcString)
         guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }
@@ -311,7 +311,7 @@ struct RrParseTest {
             return
         }
 
-        let rule = try Rrule(rfcString)
+        let rule = try RecurrenceRule(rfcString)
         guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }

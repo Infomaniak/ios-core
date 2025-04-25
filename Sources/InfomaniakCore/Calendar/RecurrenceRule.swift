@@ -19,40 +19,40 @@
 import Foundation
 
 @available(macOS 12, *)
-public struct Rrule {
+public struct RecurrenceRule {
     public let calendar: Calendar
     public let frequency: Frequency?
     public let interval: Int?
-    public let end: Int?
-    public let count: Int?
+    public let lastOccurrence: Int?
+    public let nbMaxOfOccurrences: Int?
     public let daysWithEvents: [Weekday]?
-    public let bySetPos: [Int]?
+    public let nthDayOfMonth: [Int]?
 
     init(_ string: String) throws {
-        self = try RruleDecoder().parse(string)
+        self = try RecurrenceRuleDecoder().parse(string)
     }
 
     public init(
         calendar: Calendar = .current,
         frequency: Frequency? = nil,
         interval: Int? = nil,
-        end: Int? = nil,
-        count: Int? = nil,
+        lastOccurrence: Int? = nil,
+        nbMaxOfOccurrences: Int? = nil,
         daysWithEvents: [Weekday]? = nil,
-        bySetPos: [Int]? = nil
+        nthDayOfMonth: [Int]? = nil
     ) {
         self.calendar = calendar
         self.frequency = frequency
         self.interval = interval
-        self.end = end
-        self.count = count
+        self.lastOccurrence = lastOccurrence
+        self.nbMaxOfOccurrences = nbMaxOfOccurrences
         self.daysWithEvents = daysWithEvents
-        self.bySetPos = bySetPos
+        self.nthDayOfMonth = nthDayOfMonth
     }
 }
 
 @available(macOS 12, *)
-public extension Rrule {
+public extension RecurrenceRule {
     private func daysBetweenCurrentDateAndClosestEventDay(_ currentDate: Date) -> Int {
         let startingDayDigit = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) ?? 0
         var allOccupiedDays: [Int] = []
@@ -156,10 +156,10 @@ public extension Rrule {
         _ currentDate: Date? = nil
     ) -> Date {
         let parsedValue = self
-        guard let pos = parsedValue.bySetPos?[0] else {
+        guard let pos = parsedValue.nthDayOfMonth?[0] else {
             return getDateOfMonthWithPosRule(
                 daysWithEvents: daysWithEvents,
-                bySetPos: 1,
+                nthDayOfMonth: 1,
                 startDate: startDate,
                 calendar: calendar,
                 currentDate
@@ -167,7 +167,7 @@ public extension Rrule {
         }
         return getDateOfMonthWithPosRule(
             daysWithEvents: daysWithEvents,
-            bySetPos: pos,
+            nthDayOfMonth: pos,
             startDate: startDate,
             calendar: calendar,
             currentDate
@@ -176,7 +176,7 @@ public extension Rrule {
 
     private func getDateOfMonthWithPosRule(
         daysWithEvents: [Weekday],
-        bySetPos: Int,
+        nthDayOfMonth: Int,
         startDate: Date,
         calendar: Calendar,
         _ currentDate: Date? = nil
@@ -188,17 +188,17 @@ public extension Rrule {
         let potentialDates = getPotentialDatesOfMonth(startDate, firstDayOfMonth, daysWithEvents)
         let potentialDatesNextMonth = getPotentialDatesOfMonth(startDate, firstDayOfNextMonth, daysWithEvents)
 
-        if bySetPos > 0, bySetPos <= potentialDates.count {
-            if currentDate ?? Date() < potentialDates[bySetPos - 1] {
-                return potentialDates[bySetPos - 1]
+        if nthDayOfMonth > 0, nthDayOfMonth <= potentialDates.count {
+            if currentDate ?? Date() < potentialDates[nthDayOfMonth - 1] {
+                return potentialDates[nthDayOfMonth - 1]
             } else {
-                return potentialDatesNextMonth[bySetPos - 1]
+                return potentialDatesNextMonth[nthDayOfMonth - 1]
             }
-        } else if bySetPos < 0, abs(bySetPos) <= potentialDates.count {
-            if currentDate ?? Date() < potentialDates[potentialDates.count + bySetPos] {
-                return potentialDates[potentialDates.count + bySetPos]
+        } else if nthDayOfMonth < 0, abs(nthDayOfMonth) <= potentialDates.count {
+            if currentDate ?? Date() < potentialDates[potentialDates.count + nthDayOfMonth] {
+                return potentialDates[potentialDates.count + nthDayOfMonth]
             } else {
-                return potentialDatesNextMonth[potentialDates.count + bySetPos]
+                return potentialDatesNextMonth[potentialDates.count + nthDayOfMonth]
             }
         }
 
@@ -232,12 +232,12 @@ public extension Rrule {
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
 
-        if let count = parsedValue.count {
-            result = allNextOccurrencesWithCountRule(count, startDate, currentDate)
+        if let nbMaxOfOccurrences = parsedValue.nbMaxOfOccurrences {
+            result = allNextOccurrencesWithCountRule(nbMaxOfOccurrences, startDate, currentDate)
         }
 
-        if let end = parsedValue.end {
-            result = allNextOccurrencesWithEndRule(end, startDate, currentDate)
+        if let lastOccurrence = parsedValue.lastOccurrence {
+            result = allNextOccurrencesWithEndRule(lastOccurrence, startDate, currentDate)
         }
 
         guard result.count < 2 else { return result }
@@ -253,11 +253,12 @@ public extension Rrule {
         return result
     }
 
-    private func allNextOccurrencesWithCountRule(_ count: Int, _ startDate: Date, _ currentDate: Date? = nil) -> [Date] {
+    private func allNextOccurrencesWithCountRule(_ nbMaxOfOccurrences: Int, _ startDate: Date,
+                                                 _ currentDate: Date? = nil) -> [Date] {
         var result: [Date] = [startDate]
         var newDate: Date = startDate
 
-        for _ in 0 ..< count - 1 {
+        for _ in 0 ..< nbMaxOfOccurrences - 1 {
             if let nextDate = try? frequencyNextDate(newDate, currentDate) {
                 result.append(nextDate)
                 newDate = nextDate
@@ -266,7 +267,7 @@ public extension Rrule {
         return result
     }
 
-    private func allNextOccurrencesWithEndRule(_ end: Int, _ startDate: Date, _ currentDate: Date? = nil) -> [Date] {
+    private func allNextOccurrencesWithEndRule(_ lastOccurrence: Int, _ startDate: Date, _ currentDate: Date? = nil) -> [Date] {
         var result: [Date] = [startDate]
         var newDate: Date = startDate
 
@@ -274,7 +275,7 @@ public extension Rrule {
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
 
-        if let endDate = formatter.date(from: String(end)) {
+        if let endDate = formatter.date(from: String(lastOccurrence)) {
             while result.last ?? startDate < endDate {
                 if let nextDate = try? frequencyNextDate(newDate, currentDate) {
                     if nextDate <= endDate {
@@ -302,7 +303,7 @@ public extension Rrule {
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
 
-        if let end = parsedValue.end, let endDate = formatter.date(from: String(end)),
+        if let lastOccurrence = parsedValue.lastOccurrence, let endDate = formatter.date(from: String(lastOccurrence)),
            endDate <= nextDate {
             return nil
         }

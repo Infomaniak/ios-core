@@ -19,15 +19,15 @@
 import Foundation
 
 @available(macOS 12, *)
-public class RruleDecoder {
-    public func parse(_ value: String) throws -> Rrule {
-        var countOrUntilSet = 0
+public class RecurrenceRuleDecoder {
+    public func parse(_ value: String) throws -> RecurrenceRule {
+        var ruleCountOrUntilSet = 0
         var frequency: Frequency?
         var interval: Int?
-        var end: Int?
-        var count: Int?
+        var lastOccurrence: Int?
+        var nbMaxOfOccurrences: Int?
         var daysWithEvents: [Weekday]?
-        var bySetPos: [Int]?
+        var nthDayOfMonth: [Int]?
 
         let parts = value.split(separator: ";")
         for part in parts {
@@ -47,15 +47,15 @@ public class RruleDecoder {
             case .interval:
                 interval = try ruleKey.parser.decode(value) as? Int
             case .count:
-                count = try ruleKey.parser.decode(value) as? Int
-                countOrUntilSet += 1
+                nbMaxOfOccurrences = try ruleKey.parser.decode(value) as? Int
+                ruleCountOrUntilSet += 1
             case .until:
-                end = try ruleKey.parser.decode(value) as? Int
-                countOrUntilSet += 1
+                lastOccurrence = try ruleKey.parser.decode(value) as? Int
+                ruleCountOrUntilSet += 1
             case .byDay:
                 daysWithEvents = try ruleKey.parser.decode(value) as? [Weekday] ?? []
             case .bySetPos:
-                bySetPos = try ruleKey.parser.decode(value) as? [Int] ?? []
+                nthDayOfMonth = try ruleKey.parser.decode(value) as? [Int] ?? []
             }
         }
 
@@ -63,17 +63,17 @@ public class RruleDecoder {
             throw DomainError.missingFrequency
         }
 
-        guard countOrUntilSet < 2 else {
+        guard ruleCountOrUntilSet < 2 else {
             throw DomainError.bothUntilAndCountSet
         }
 
-        return Rrule(
+        return RecurrenceRule(
             frequency: frequency,
             interval: interval,
-            end: end,
-            count: count,
+            lastOccurrence: lastOccurrence,
+            nbMaxOfOccurrences: nbMaxOfOccurrences,
             daysWithEvents: daysWithEvents,
-            bySetPos: bySetPos
+            nthDayOfMonth: nthDayOfMonth
         )
     }
 }

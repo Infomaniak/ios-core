@@ -32,7 +32,7 @@ public class OrganisationAccount: Codable, Equatable {
     public let workspaceOnly: Bool
     public let logo: String?
     public var initials: String {
-        return name.initials
+        return NameFormatter(fullName: name).initials
     }
 
     public static func == (lhs: OrganisationAccount, rhs: OrganisationAccount) -> Bool {

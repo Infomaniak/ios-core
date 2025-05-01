@@ -19,15 +19,8 @@
 import Foundation
 
 public extension String {
+    @available(*, deprecated, message: "Use NameFormatter instead.")
     var initials: String {
-        let words = split(separator: " ")
-        guard !words.isEmpty, let firstLetter = words[0].first else {
-            return ""
-        }
-        var returnedInitials = String(firstLetter).capitalized
-        if words.count > 1, let secondLetter = words[1].first {
-            returnedInitials += String(secondLetter).capitalized
-        }
-        return returnedInitials
+        return NameFormatter(fullName: self).initials
     }
 }

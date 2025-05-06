@@ -20,6 +20,17 @@ import Foundation
 
 @available(macOS 12, *)
 public struct RecurrenceRule {
+    public enum DomainError: Error {
+        case invalidInterval
+        case invalidKey
+        case invalidCount
+        case invalidUntil
+        case invalidByDay
+        case missingFrequency
+        case bothUntilAndCountSet
+        case invaliBySetPos
+    }
+
     public let calendar: Calendar
     public let frequency: Frequency?
     public let interval: Int?

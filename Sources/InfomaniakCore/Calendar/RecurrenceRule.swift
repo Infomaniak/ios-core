@@ -72,8 +72,8 @@ public extension RecurrenceRule {
             return -1
         }
 
-        for daysWithEvents in daysWithEvents {
-            if let day = Weekday.allCases.firstIndex(of: daysWithEvents) {
+        for dayWithEvents in daysWithEvents {
+            if let day = Weekday.allCases.firstIndex(of: dayWithEvents) {
                 allOccupiedDays.append(day + 1)
             }
         }
@@ -135,6 +135,7 @@ public extension RecurrenceRule {
                 } else {
                     return getMonthlyNextDate(
                         daysWithEvents: daysWithEvents,
+                        nthDayOfMonth: parsedValue.nthDayOfMonth?[0] ?? 1,
                         startDate: startDate,
                         calendar: calendar,
                         currentDate
@@ -161,31 +162,6 @@ public extension RecurrenceRule {
     }
 
     private func getMonthlyNextDate(
-        daysWithEvents: [Weekday],
-        startDate: Date,
-        calendar: Calendar,
-        _ currentDate: Date? = nil
-    ) -> Date {
-        let parsedValue = self
-        guard let pos = parsedValue.nthDayOfMonth?[0] else {
-            return getDateOfMonthWithPosRule(
-                daysWithEvents: daysWithEvents,
-                nthDayOfMonth: 1,
-                startDate: startDate,
-                calendar: calendar,
-                currentDate
-            )
-        }
-        return getDateOfMonthWithPosRule(
-            daysWithEvents: daysWithEvents,
-            nthDayOfMonth: pos,
-            startDate: startDate,
-            calendar: calendar,
-            currentDate
-        )
-    }
-
-    private func getDateOfMonthWithPosRule(
         daysWithEvents: [Weekday],
         nthDayOfMonth: Int,
         startDate: Date,
@@ -287,7 +263,7 @@ public extension RecurrenceRule {
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
 
         if let endDate = formatter.date(from: String(lastOccurrence)) {
-            while result.last ?? startDate < endDate {
+            while result.last ?? endDate < endDate {
                 if let nextDate = try? frequencyNextDate(newDate, currentDate) {
                     if nextDate <= endDate {
                         result.append(nextDate)

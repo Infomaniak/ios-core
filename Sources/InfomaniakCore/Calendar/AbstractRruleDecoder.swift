@@ -18,7 +18,7 @@
 
 import Foundation
 
-public enum Frequency: String, Sendable {
+public enum Frequency: String {
     case secondly = "SECONDLY"
     case minutely = "MINUTELY"
     case hourly = "HOURLY"
@@ -28,7 +28,7 @@ public enum Frequency: String, Sendable {
     case yearly = "YEARLY"
 }
 
-public enum Weekday: String, CaseIterable, Sendable {
+public enum Weekday: String, CaseIterable {
     case monday = "MO"
     case tuesday = "TU"
     case wednesday = "WE"
@@ -39,7 +39,7 @@ public enum Weekday: String, CaseIterable, Sendable {
 }
 
 @available(macOS 12, *)
-public enum RuleKey: String, Sendable {
+public enum RuleKey: String {
     case frequency = "FREQ"
     case interval = "INTERVAL"
     case count = "COUNT"

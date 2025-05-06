@@ -18,48 +18,41 @@
 
 import Foundation
 
-public enum DomainError: Error {
-    case invalidInterval
-    case invalidKey
-    case invalidCount
-    case invalidUntil
-    case invalidByDay
-    case missingFrequency
-    case bothUntilAndCountSet
-    case invaliBySetPos
-}
-
+@available(macOS 12, *)
 struct FrequencyParser: RuleValueDecoder {
     func decode(_ value: String) throws -> Frequency? {
         guard let frequency = Frequency(rawValue: value) else {
-            throw DomainError.missingFrequency
+            throw RecurrenceRule.DomainError.missingFrequency
         }
         return frequency
     }
 }
 
+@available(macOS 12, *)
 struct IntervalParser: RuleValueDecoder {
     func decode(_ value: String) throws -> Int {
         guard let intValue = Int(value), intValue > 0 else {
-            throw DomainError.invalidInterval
+            throw RecurrenceRule.DomainError.invalidInterval
         }
         return intValue
     }
 }
 
+@available(macOS 12, *)
 struct CountParser: RuleValueDecoder {
     func decode(_ value: String) throws -> Int {
         guard let intValue = Int(value), intValue > 0 else {
-            throw DomainError.invalidCount
+            throw RecurrenceRule.DomainError.invalidCount
         }
         return intValue
     }
 }
 
+@available(macOS 12, *)
 struct UntilParser: RuleValueDecoder {
     func decode(_ value: String) throws -> Int {
         guard let intValue = Int(value), isValidDate(intValue) else {
-            throw DomainError.invalidUntil
+            throw RecurrenceRule.DomainError.invalidUntil
         }
         return intValue
     }
@@ -76,6 +69,7 @@ struct UntilParser: RuleValueDecoder {
     }
 }
 
+@available(macOS 12, *)
 struct ByDayParser: RuleValueDecoder {
     func decode(_ value: String) throws -> [Weekday] {
         let weekdays = value.split(separator: ",").map { String($0) }
@@ -85,7 +79,7 @@ struct ByDayParser: RuleValueDecoder {
             if let day = Weekday(rawValue: weekday) {
                 parsedWeekdays.append(day)
             } else {
-                throw DomainError.invalidByDay
+                throw RecurrenceRule.DomainError.invalidByDay
             }
         }
 
@@ -93,6 +87,7 @@ struct ByDayParser: RuleValueDecoder {
     }
 }
 
+@available(macOS 12, *)
 struct BySetPosParser: RuleValueDecoder {
     func decode(_ value: String) throws -> [Int] {
         let days = value.split(separator: ",").map { String($0) }
@@ -102,7 +97,7 @@ struct BySetPosParser: RuleValueDecoder {
             if let intValue = Int(day) {
                 parsedDays.append(intValue)
             } else {
-                throw DomainError.invaliBySetPos
+                throw RecurrenceRule.DomainError.invaliBySetPos
             }
         }
         return parsedDays

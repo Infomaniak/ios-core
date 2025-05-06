@@ -38,6 +38,7 @@ public enum Weekday: String, CaseIterable, Sendable {
     case sunday = "SU"
 }
 
+@available(macOS 12, *)
 public enum RuleKey: String, Sendable {
     case frequency = "FREQ"
     case interval = "INTERVAL"

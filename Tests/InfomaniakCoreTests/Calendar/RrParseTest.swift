@@ -38,7 +38,7 @@ struct RrParseTest {
     ])
     func throwsErrorForInvalidKeyRulePart(invalidInterval: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidInterval)"
-        #expect(throws: DomainError.invalidKey) {
+        #expect(throws: RecurrenceRule.DomainError.invalidKey) {
             try parser.parse(rfcString)
         }
     }
@@ -56,7 +56,7 @@ struct RrParseTest {
 
     @Test("Throws an error for invalid FREQ Rule Part")
     func returnsNilForInvalidFrequencyRulePart() throws {
-        #expect(throws: DomainError.missingFrequency) {
+        #expect(throws: RecurrenceRule.DomainError.missingFrequency) {
             try parser.parse("FREQ=FOOBAR")
         }
     }
@@ -74,7 +74,7 @@ struct RrParseTest {
     ])
     func throwsErrorForInvalidIntervalRulePart(invalidInterval: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidInterval)"
-        #expect(throws: DomainError.invalidInterval) {
+        #expect(throws: RecurrenceRule.DomainError.invalidInterval) {
             try parser.parse(rfcString)
         }
     }
@@ -90,7 +90,7 @@ struct RrParseTest {
     @Test("Throws an error for invalid COUNT Rule Part", arguments: ["COUNT=-2", "COUNT=1- ", "COUNT=foobar"])
     func throwsErrorForInvalidCountRulePart(invalidCount: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidCount)"
-        #expect(throws: DomainError.invalidCount) {
+        #expect(throws: RecurrenceRule.DomainError.invalidCount) {
             try parser.parse(rfcString)
         }
     }
@@ -114,7 +114,7 @@ struct RrParseTest {
     @Test("Throws an error for invalid UNTIL Rule Part", arguments: ["UNTIL=20251350", "UNTIL=foobar", "UNTIL=1"])
     func throwsErrorForInvalidUntilRulePart(invalidString: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidString)"
-        #expect(throws: DomainError.invalidUntil) {
+        #expect(throws: RecurrenceRule.DomainError.invalidUntil) {
             try parser.parse(rfcString)
         }
     }
@@ -122,7 +122,7 @@ struct RrParseTest {
     @Test("Throws an error when both UNTIL and COUNT are specified")
     func throwsErrorWhenBothUntilAndCountAreSpecified() throws {
         let rfcString = "FREQ=DAILY;UNTIL=21000101;COUNT=1"
-        #expect(throws: DomainError.bothUntilAndCountSet) {
+        #expect(throws: RecurrenceRule.DomainError.bothUntilAndCountSet) {
             try parser.parse(rfcString)
         }
     }

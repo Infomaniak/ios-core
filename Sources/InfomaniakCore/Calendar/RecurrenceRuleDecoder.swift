@@ -24,11 +24,14 @@ public class RecurrenceRuleDecoder {
         var ruleCountOrUntilSet = 0
         var frequency: Frequency?
         var interval: Int?
-        var lastOccurrence: Int?
+        var lastOccurrence: Date?
         var nbMaxOfOccurrences: Int?
         var daysWithEvents: [Weekday]?
         var nthDayOfMonth: [Int]?
 
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
         let parts = value.split(separator: ";")
         for part in parts {
             let keyValue = part.split(separator: "=")
@@ -50,7 +53,8 @@ public class RecurrenceRuleDecoder {
                 nbMaxOfOccurrences = try ruleKey.parser.decode(value) as? Int
                 ruleCountOrUntilSet += 1
             case .until:
-                lastOccurrence = try ruleKey.parser.decode(value) as? Int
+                guard let lastOccurrenceInt = try ruleKey.parser.decode(value) as? Int else { continue }
+                lastOccurrence = formatter.date(from: String(lastOccurrenceInt))
                 ruleCountOrUntilSet += 1
             case .byDay:
                 daysWithEvents = try ruleKey.parser.decode(value) as? [Weekday] ?? []

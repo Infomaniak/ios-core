@@ -34,7 +34,7 @@ public struct RecurrenceRule {
     public let calendar: Calendar
     public let frequency: Frequency?
     public let interval: Int?
-    public let lastOccurrence: Int?
+    public let lastOccurrence: Date?
     public let nbMaxOfOccurrences: Int?
     public let daysWithEvents: [Weekday]?
     public let nthDayOfMonth: [Int]?
@@ -47,12 +47,14 @@ public struct RecurrenceRule {
         calendar: Calendar = .current,
         frequency: Frequency? = nil,
         interval: Int? = nil,
-        lastOccurrence: Int? = nil,
+        lastOccurrence: Date? = nil,
         nbMaxOfOccurrences: Int? = nil,
         daysWithEvents: [Weekday]? = nil,
         nthDayOfMonth: [Int]? = nil
     ) {
-        self.calendar = calendar
+        var cal = Calendar.current
+        cal.timeZone = TimeZone(secondsFromGMT: 0)!
+        self.calendar = cal
         self.frequency = frequency
         self.interval = interval
         self.lastOccurrence = lastOccurrence
@@ -64,12 +66,12 @@ public struct RecurrenceRule {
 
 @available(macOS 12, *)
 public extension RecurrenceRule {
-    private func daysBetweenCurrentDateAndClosestEventDay(_ currentDate: Date) -> Int {
-        let startingDayDigit = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) ?? 0
-        var allOccupiedDays: [Int] = []
+    private func daysBetweenCurrentDateAndClosestEventDay(_ currentDate: Date) -> Int? {
+        let startingDayDigit = calendar.component(.weekday, from: currentDate)
+        var allOccupiedDays = [Int]()
 
         guard let daysWithEvents else {
-            return -1
+            return nil
         }
 
         for dayWithEvents in daysWithEvents {
@@ -93,7 +95,7 @@ public extension RecurrenceRule {
         }
 
         guard closestPastDay != -1, closestFutureDay != -1 else {
-            return -1
+            return nil
         }
 
         if closestFutureDay > closestPastDay {
@@ -105,15 +107,11 @@ public extension RecurrenceRule {
         }
     }
 
-    private func frequencyNextDate(_ startDate: Date, _ currentDate: Date? = nil) throws -> Date {
-        let parsedValue = self
-
-        var calendar = Calendar.current
-        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
-        var interval = parsedValue.interval ?? 1
+    private func frequencyNextDate(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date {
+        var interval = interval ?? 1
         var component: Calendar.Component = .day
 
-        switch parsedValue.frequency {
+        switch frequency {
         case .minutely:
             component = .minute
         case .hourly:
@@ -121,21 +119,21 @@ public extension RecurrenceRule {
         case .daily:
             component = .day
         case .weekly:
-            if parsedValue.daysWithEvents != nil {
-                interval = daysBetweenCurrentDateAndClosestEventDay(startDate)
+            if daysWithEvents != nil {
+                interval = daysBetweenCurrentDateAndClosestEventDay(startDate) ?? 1
                 component = .day
             } else {
                 component = .weekOfYear
             }
         case .monthly:
-            if let daysWithEvents = parsedValue.daysWithEvents {
+            if let daysWithEvents = daysWithEvents {
                 if daysWithEvents.count > 1 {
-                    interval = daysBetweenCurrentDateAndClosestEventDay(startDate)
+                    interval = daysBetweenCurrentDateAndClosestEventDay(startDate) ?? 1
                     component = .day
                 } else {
                     return getMonthlyNextDate(
                         daysWithEvents: daysWithEvents,
-                        nthDayOfMonth: parsedValue.nthDayOfMonth?[0] ?? 1,
+                        nthDayOfMonth: nthDayOfMonth?[0] ?? 1,
                         startDate: startDate,
                         calendar: calendar,
                         currentDate
@@ -145,8 +143,8 @@ public extension RecurrenceRule {
                 component = .month
             }
         case .yearly:
-            if parsedValue.daysWithEvents != nil {
-                interval = daysBetweenCurrentDateAndClosestEventDay(startDate)
+            if daysWithEvents != nil {
+                interval = daysBetweenCurrentDateAndClosestEventDay(startDate) ?? 1
                 component = .day
             } else {
                 component = .year
@@ -166,7 +164,7 @@ public extension RecurrenceRule {
         nthDayOfMonth: Int,
         startDate: Date,
         calendar: Calendar,
-        _ currentDate: Date? = nil
+        _ currentDate: Date = Date()
     ) -> Date {
         let components = calendar.dateComponents([.year, .month], from: startDate)
         guard let firstDayOfMonth = calendar.date(from: components) else { return startDate }
@@ -176,13 +174,13 @@ public extension RecurrenceRule {
         let potentialDatesNextMonth = getPotentialDatesOfMonth(startDate, firstDayOfNextMonth, daysWithEvents)
 
         if nthDayOfMonth > 0, nthDayOfMonth <= potentialDates.count {
-            if currentDate ?? Date() < potentialDates[nthDayOfMonth - 1] {
+            if currentDate < potentialDates[nthDayOfMonth - 1] {
                 return potentialDates[nthDayOfMonth - 1]
             } else {
                 return potentialDatesNextMonth[nthDayOfMonth - 1]
             }
         } else if nthDayOfMonth < 0, abs(nthDayOfMonth) <= potentialDates.count {
-            if currentDate ?? Date() < potentialDates[potentialDates.count + nthDayOfMonth] {
+            if currentDate < potentialDates[potentialDates.count + nthDayOfMonth] {
                 return potentialDates[potentialDates.count + nthDayOfMonth]
             } else {
                 return potentialDatesNextMonth[potentialDates.count + nthDayOfMonth]
@@ -210,26 +208,21 @@ public extension RecurrenceRule {
         return potentialDates
     }
 
-    func allNextOccurrences(_ startDate: Date, _ currentDate: Date? = nil) throws -> [Date] {
-        let parsedValue = self
-        var result: [Date] = [startDate]
-        var newDate: Date = startDate
+    func allNextOccurrences(_ startDate: Date, _ currentDate: Date = Date()) throws -> [Date] {
+        var result = [startDate]
+        var newDate = startDate
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-
-        if let nbMaxOfOccurrences = parsedValue.nbMaxOfOccurrences {
+        if let nbMaxOfOccurrences = nbMaxOfOccurrences {
             result = allNextOccurrencesWithCountRule(nbMaxOfOccurrences, startDate, currentDate)
         }
 
-        if let lastOccurrence = parsedValue.lastOccurrence {
+        if let lastOccurrence = lastOccurrence {
             result = allNextOccurrencesWithEndRule(lastOccurrence, startDate, currentDate)
         }
 
         guard result.count < 2 else { return result }
 
-        while result.last ?? startDate < currentDate ?? Date() {
+        while result.last ?? startDate < currentDate {
             if let nextDate = try? frequencyNextDate(newDate, currentDate) {
                 result.append(nextDate)
                 newDate = nextDate
@@ -241,9 +234,9 @@ public extension RecurrenceRule {
     }
 
     private func allNextOccurrencesWithCountRule(_ nbMaxOfOccurrences: Int, _ startDate: Date,
-                                                 _ currentDate: Date? = nil) -> [Date] {
-        var result: [Date] = [startDate]
-        var newDate: Date = startDate
+                                                 _ currentDate: Date = Date()) -> [Date] {
+        var result = [startDate]
+        var newDate = startDate
 
         for _ in 0 ..< nbMaxOfOccurrences - 1 {
             if let nextDate = try? frequencyNextDate(newDate, currentDate) {
@@ -254,23 +247,18 @@ public extension RecurrenceRule {
         return result
     }
 
-    private func allNextOccurrencesWithEndRule(_ lastOccurrence: Int, _ startDate: Date, _ currentDate: Date? = nil) -> [Date] {
+    private func allNextOccurrencesWithEndRule(_ lastOccurrence: Date, _ startDate: Date,
+                                               _ currentDate: Date = Date()) -> [Date] {
         var result: [Date] = [startDate]
         var newDate: Date = startDate
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-
-        if let endDate = formatter.date(from: String(lastOccurrence)) {
-            while result.last ?? endDate < endDate {
-                if let nextDate = try? frequencyNextDate(newDate, currentDate) {
-                    if nextDate <= endDate {
-                        result.append(nextDate)
-                        newDate = nextDate
-                    } else {
-                        break
-                    }
+        while result.last ?? lastOccurrence < lastOccurrence {
+            if let nextDate = try? frequencyNextDate(newDate, currentDate) {
+                if nextDate <= lastOccurrence {
+                    result.append(nextDate)
+                    newDate = nextDate
+                } else {
+                    break
                 }
             }
         }
@@ -278,7 +266,6 @@ public extension RecurrenceRule {
     }
 
     func getNextOccurrence(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
-        let parsedValue = self
         let allDates: [Date] = try allNextOccurrences(startDate, currentDate)
         guard let nearestPassedDate = getNearestPassedDate(currentDate, allDates) else {
             return nil
@@ -286,12 +273,7 @@ public extension RecurrenceRule {
 
         let nextDate = try frequencyNextDate(nearestPassedDate, currentDate)
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-
-        if let lastOccurrence = parsedValue.lastOccurrence, let endDate = formatter.date(from: String(lastOccurrence)),
-           endDate <= nextDate {
+        if let lastOccurrence = lastOccurrence, lastOccurrence <= nextDate {
             return nil
         }
 

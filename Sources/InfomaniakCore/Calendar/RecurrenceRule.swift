@@ -64,8 +64,9 @@ public struct RecurrenceRule {
 @available(macOS 12, *)
 public extension RecurrenceRule {
     private func daysBetweenClosestPastEventAndClosestFutureEvent(_ currentDate: Date) -> Int? {
-        let startingDayDigit = calendar.component(.weekday, from: currentDate)
-        let startingDayFromMonday = (startingDayDigit + 5) % 7 + 1
+        guard let startingDayDigit = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) else {
+            return nil
+        }
         var allOccupiedDays = [Int]()
 
         guard let daysWithEvents else {
@@ -79,14 +80,14 @@ public extension RecurrenceRule {
         }
 
         let closestPastDay: Int?
-        if let closest = allOccupiedDays.filter({ $0 <= startingDayFromMonday }).max() {
+        if let closest = allOccupiedDays.filter({ $0 <= startingDayDigit }).max() {
             closestPastDay = closest
         } else {
             closestPastDay = allOccupiedDays.max()
         }
 
         let closestFutureDay: Int?
-        if let closest = allOccupiedDays.filter({ $0 > startingDayFromMonday }).min() {
+        if let closest = allOccupiedDays.filter({ $0 > startingDayDigit }).min() {
             closestFutureDay = closest
         } else {
             closestFutureDay = allOccupiedDays.min()

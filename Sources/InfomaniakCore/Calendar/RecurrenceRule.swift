@@ -32,8 +32,7 @@ public struct RecurrenceRule {
     }
 
     public let calendar: Calendar
-    public let frequency: Frequency?
-    public let interval: Int?
+    public let repetitionFrequency: RepetitionFrequency?
     public let lastOccurrence: Date?
     public let nbMaxOfOccurrences: Int?
     public let daysWithEvents: [Weekday]?
@@ -45,8 +44,7 @@ public struct RecurrenceRule {
 
     public init(
         calendar: Calendar = .current,
-        frequency: Frequency? = nil,
-        interval: Int? = nil,
+        repetitionFrequency: RepetitionFrequency? = nil,
         lastOccurrence: Date? = nil,
         nbMaxOfOccurrences: Int? = nil,
         daysWithEvents: [Weekday]? = nil,
@@ -54,9 +52,9 @@ public struct RecurrenceRule {
     ) {
         var cal = Calendar.current
         cal.timeZone = TimeZone(secondsFromGMT: 0)!
+        cal.firstWeekday = 2
         self.calendar = cal
-        self.frequency = frequency
-        self.interval = interval
+        self.repetitionFrequency = repetitionFrequency
         self.lastOccurrence = lastOccurrence
         self.nbMaxOfOccurrences = nbMaxOfOccurrences
         self.daysWithEvents = daysWithEvents
@@ -66,8 +64,9 @@ public struct RecurrenceRule {
 
 @available(macOS 12, *)
 public extension RecurrenceRule {
-    private func daysBetweenCurrentDateAndClosestEventDay(_ currentDate: Date) -> Int? {
+    private func daysBetweenClosestPastEventAndClosestFutureEvent(_ currentDate: Date) -> Int? {
         let startingDayDigit = calendar.component(.weekday, from: currentDate)
+        let startingDayFromMonday = (startingDayDigit + 5) % 7 + 1
         var allOccupiedDays = [Int]()
 
         guard let daysWithEvents else {
@@ -81,14 +80,14 @@ public extension RecurrenceRule {
         }
 
         let closestPastDay: Int?
-        if let closest = allOccupiedDays.filter({ $0 <= startingDayDigit }).max() {
+        if let closest = allOccupiedDays.filter({ $0 <= startingDayFromMonday }).max() {
             closestPastDay = closest
         } else {
             closestPastDay = allOccupiedDays.max()
         }
 
         let closestFutureDay: Int?
-        if let closest = allOccupiedDays.filter({ $0 > startingDayDigit }).min() {
+        if let closest = allOccupiedDays.filter({ $0 > startingDayFromMonday }).min() {
             closestFutureDay = closest
         } else {
             closestFutureDay = allOccupiedDays.min()
@@ -108,10 +107,13 @@ public extension RecurrenceRule {
     }
 
     private func frequencyNextDate(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
-        var interval = interval ?? 1
         var component: Calendar.Component = .day
 
-        switch frequency {
+        guard var repetitionFrequency else {
+            return nil
+        }
+
+        switch repetitionFrequency.frequency {
         case .minutely:
             component = .minute
         case .hourly:
@@ -120,7 +122,7 @@ public extension RecurrenceRule {
             component = .day
         case .weekly:
             if daysWithEvents != nil {
-                interval = daysBetweenCurrentDateAndClosestEventDay(startDate) ?? 1
+                repetitionFrequency.interval = daysBetweenClosestPastEventAndClosestFutureEvent(startDate)
                 component = .day
             } else {
                 component = .weekOfYear
@@ -128,7 +130,7 @@ public extension RecurrenceRule {
         case .monthly:
             if let daysWithEvents = daysWithEvents {
                 if daysWithEvents.count > 1 {
-                    interval = daysBetweenCurrentDateAndClosestEventDay(startDate) ?? 1
+                    repetitionFrequency.interval = daysBetweenClosestPastEventAndClosestFutureEvent(startDate)
                     component = .day
                 } else {
                     return getMonthlyNextDate(
@@ -144,7 +146,7 @@ public extension RecurrenceRule {
             }
         case .yearly:
             if daysWithEvents != nil {
-                interval = daysBetweenCurrentDateAndClosestEventDay(startDate) ?? 1
+                repetitionFrequency.interval = daysBetweenClosestPastEventAndClosestFutureEvent(startDate)
                 component = .day
             } else {
                 component = .year
@@ -152,6 +154,8 @@ public extension RecurrenceRule {
         default:
             break
         }
+
+        guard let interval = repetitionFrequency.interval else { return nil }
 
         guard let newDate = calendar.date(byAdding: component, value: interval, to: startDate) else {
             return nil

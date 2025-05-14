@@ -58,3 +58,13 @@ public enum RuleKey: String {
         }
     }
 }
+
+public struct RepetitionFrequency {
+    public var frequency: Frequency?
+    public var interval: Int?
+
+    public init(frequency: Frequency?, interval: Int?) {
+        self.frequency = frequency
+        self.interval = interval
+    }
+}

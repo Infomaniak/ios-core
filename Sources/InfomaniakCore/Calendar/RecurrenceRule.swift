@@ -52,7 +52,6 @@ public struct RecurrenceRule {
     ) {
         var cal = Calendar.current
         cal.timeZone = TimeZone(secondsFromGMT: 0)!
-        cal.firstWeekday = 2
         self.calendar = cal
         self.repetitionFrequency = repetitionFrequency
         self.lastOccurrence = lastOccurrence

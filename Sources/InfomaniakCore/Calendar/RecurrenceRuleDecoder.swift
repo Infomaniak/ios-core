@@ -72,8 +72,7 @@ public class RecurrenceRuleDecoder {
         }
 
         return RecurrenceRule(
-            frequency: frequency,
-            interval: interval,
+            repetitionFrequency: RepetitionFrequency(frequency: frequency, interval: interval ?? 1),
             lastOccurrence: lastOccurrence,
             nbMaxOfOccurrences: nbMaxOfOccurrences,
             daysWithEvents: daysWithEvents,

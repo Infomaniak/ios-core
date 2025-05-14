@@ -51,7 +51,7 @@ struct RrParseTest {
         let rfcString = "FREQ=\(rfcFrequency)"
         let result = try parser.parse(rfcString)
 
-        #expect(result.frequency == expected)
+        #expect(result.repetitionFrequency?.frequency == expected)
     }
 
     @Test("Throws an error for invalid FREQ Rule Part")
@@ -66,7 +66,7 @@ struct RrParseTest {
         let rfcString = "FREQ=DAILY;\(rfcInterval)"
         let result = try parser.parse(rfcString)
 
-        #expect(result.interval == expected)
+        #expect(result.repetitionFrequency?.interval == expected)
     }
 
     @Test("Throws an error for invalid INTERVAL Rule Part", arguments: [

@@ -101,10 +101,7 @@ struct RrParseTest {
         let expected = Date(timeIntervalSince1970: 1_736_553_600)
         let res = try parser.parse(rfcString)
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        guard let result = formatter.date(from: String(res.lastOccurrence!)) else {
+        guard let result = res.lastOccurrence else {
             return
         }
 

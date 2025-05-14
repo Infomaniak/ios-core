@@ -80,21 +80,21 @@ public extension RecurrenceRule {
             }
         }
 
-        let closestPastDay: Int
+        let closestPastDay: Int?
         if let closest = allOccupiedDays.filter({ $0 <= startingDayDigit }).max() {
             closestPastDay = closest
         } else {
-            closestPastDay = allOccupiedDays.max() ?? -1
+            closestPastDay = allOccupiedDays.max()
         }
 
-        let closestFutureDay: Int
+        let closestFutureDay: Int?
         if let closest = allOccupiedDays.filter({ $0 > startingDayDigit }).min() {
             closestFutureDay = closest
         } else {
-            closestFutureDay = allOccupiedDays.min() ?? -1
+            closestFutureDay = allOccupiedDays.min()
         }
 
-        guard closestPastDay != -1, closestFutureDay != -1 else {
+        guard let closestPastDay, let closestFutureDay else {
             return nil
         }
 
@@ -107,7 +107,7 @@ public extension RecurrenceRule {
         }
     }
 
-    private func frequencyNextDate(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date {
+    private func frequencyNextDate(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
         var interval = interval ?? 1
         var component: Calendar.Component = .day
 
@@ -154,7 +154,7 @@ public extension RecurrenceRule {
         }
 
         guard let newDate = calendar.date(byAdding: component, value: interval, to: startDate) else {
-            return startDate
+            return nil
         }
         return newDate
     }
@@ -165,10 +165,10 @@ public extension RecurrenceRule {
         startDate: Date,
         calendar: Calendar,
         _ currentDate: Date = Date()
-    ) -> Date {
+    ) -> Date? {
         let components = calendar.dateComponents([.year, .month], from: startDate)
-        guard let firstDayOfMonth = calendar.date(from: components) else { return startDate }
-        guard let firstDayOfNextMonth = calendar.date(byAdding: .month, value: 1, to: firstDayOfMonth) else { return startDate }
+        guard let firstDayOfMonth = calendar.date(from: components),
+              let firstDayOfNextMonth = calendar.date(byAdding: .month, value: 1, to: firstDayOfMonth) else { return nil }
 
         let potentialDates = getPotentialDatesOfMonth(startDate, firstDayOfMonth, daysWithEvents)
         let potentialDatesNextMonth = getPotentialDatesOfMonth(startDate, firstDayOfNextMonth, daysWithEvents)
@@ -187,7 +187,7 @@ public extension RecurrenceRule {
             }
         }
 
-        return startDate
+        return nil
     }
 
     private func getPotentialDatesOfMonth(_ startDate: Date, _ firstDayOfMonth: Date, _ daysWithEvents: [Weekday]) -> [Date] {
@@ -271,7 +271,9 @@ public extension RecurrenceRule {
             return nil
         }
 
-        let nextDate = try frequencyNextDate(nearestPassedDate, currentDate)
+        guard let nextDate = try frequencyNextDate(nearestPassedDate, currentDate) else {
+            return nil
+        }
 
         if let lastOccurrence = lastOccurrence, lastOccurrence <= nextDate {
             return nil

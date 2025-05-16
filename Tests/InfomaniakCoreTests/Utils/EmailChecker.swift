@@ -1,6 +1,6 @@
 /*
  Infomaniak Core - iOS
- Copyright (C) 2023 Infomaniak Network SA
+ Copyright (C) 2025 Infomaniak Network SA
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -17,25 +17,20 @@
  */
 
 import Foundation
+import InfomaniakCore
+import Testing
 
-public class OrganisationAccount: Codable, Equatable {
-    public let id: Int
-    public let billingMailing: Bool
-    public let noAccess: Bool
-    public let billing: Bool
-    public let legalEntityType: String
-    public let name: String
-    public let mailing: Bool
-    public let createdAt: Date
-    public let website: String?
-    public let type: RoleType
-    public let workspaceOnly: Bool
-    public let logo: String?
-    public var initials: String {
-        return NameFormatter(fullName: name).initials
+@Suite("UTEmailChecker")
+public struct UTEmailChecker {
+    @Test("Check valid mail", arguments: ["timcook@apple.com", "tim.cook@apple.com", "a@a.a"])
+    func valid(mail: String) throws {
+        let emailChecker = EmailChecker(email: mail)
+        #expect(emailChecker.validate() == true)
     }
 
-    public static func == (lhs: OrganisationAccount, rhs: OrganisationAccount) -> Bool {
-        return lhs.id == rhs.id
+    @Test("Check invalid mail", arguments: ["tim.cook@applecom", "timcook@apple", "a@a", "@apple.com"])
+    func invalid(mail: String) throws {
+        let emailChecker = EmailChecker(email: mail)
+        #expect(emailChecker.validate() == false)
     }
 }

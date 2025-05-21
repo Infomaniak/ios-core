@@ -19,7 +19,6 @@
 import Foundation
 
 /// Something that matches most of the FileHandle specification, used for testing
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 protocol FileHandlable: Sendable {
     var availableData: Data { get }
 

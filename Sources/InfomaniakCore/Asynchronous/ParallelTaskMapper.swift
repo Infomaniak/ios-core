@@ -21,14 +21,12 @@ import Foundation
 /// Something that behaves like a collection and can also be sequenced
 ///
 /// Some of the conforming types are Array, ArraySlice, Dictionary …
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public typealias SequenceableCollection = Collection & Sequence
 
 /// A concurrent way to map some computation with a closure to a collection of generic items.
 ///
 /// Use default settings for optimised queue depth
 ///
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 @available(*, deprecated, message: "Use <Collection>.concurrentMap from the InfomaniakConcurrency package instead")
 public struct ParallelTaskMapper {
     /// private processing TaskQueue

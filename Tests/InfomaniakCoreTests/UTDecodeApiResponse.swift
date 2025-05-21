@@ -20,7 +20,6 @@
 @testable import InfomaniakCore
 import XCTest
 
-@available(iOS 13.0, *)
 final class UTDecodeApiResponse: XCTestCase {
     func fakeDataResponse<T: Decodable>(decodedResponse: ApiResponse<T>) -> DataResponse<ApiResponse<T>, AFError> {
         DataResponse(

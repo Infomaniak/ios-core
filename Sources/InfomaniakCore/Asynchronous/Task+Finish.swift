@@ -18,11 +18,10 @@
 
 import Foundation
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension Task {
-    @discardableResult
     /// Await the end of a Task. Result can be discarded.
     /// - Returns: A discardable result
+    @discardableResult
     func finish() async -> Result<Success, Failure> {
         await result
     }

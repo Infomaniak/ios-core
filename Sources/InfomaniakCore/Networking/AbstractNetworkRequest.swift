@@ -93,7 +93,6 @@ public enum NetworkStack {
     case NSURLSession
 }
 
-@available(iOS 13.0.0, *)
 public protocol RequestDispatchable {
     func dispatch<Result: Decodable>(_ requestable: Requestable,
                                      networkStack: NetworkStack) async throws -> Result

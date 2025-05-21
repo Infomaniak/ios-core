@@ -20,7 +20,6 @@ import CryptoKit
 import InfomaniakCore
 import XCTest
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class UTStreamHasher: XCTestCase {
     // MARK: - SHA256
 

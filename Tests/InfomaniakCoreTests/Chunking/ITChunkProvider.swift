@@ -20,7 +20,6 @@ import InfomaniakCore
 import XCTest
 
 /// Integration Tests of the ChunkProvider
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 final class ITChunkProvider: XCTestCase {
     /// Image from wikimedia under CC.
     static let file = "Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons"

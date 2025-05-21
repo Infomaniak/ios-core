@@ -19,7 +19,6 @@
 import InfomaniakCore
 import XCTest
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class UTSequenceTests: XCTestCase {
     private func someAsyncFunc(input: Int) async -> Bool {
         try! await Task.sleep(nanoseconds: 100)

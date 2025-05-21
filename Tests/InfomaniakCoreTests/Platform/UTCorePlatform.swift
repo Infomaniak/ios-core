@@ -23,7 +23,7 @@ import XCTest
 
 #if canImport(UIKit)
 
-@available(iOS 13.0, *) final class UTCorePlatform: XCTestCase {
+final class UTCorePlatform: XCTestCase {
     func testVersionLabel_ios() {
         // GIVEN
         let expectedPrefix = "xctest iOS version"
@@ -38,7 +38,7 @@ import XCTest
 
 #else
 
-@available(macOS 10.15, *) final class UTCorePlatform: XCTestCase {
+final class UTCorePlatform: XCTestCase {
     func testVersionLabel_mac() {
         // GIVEN
         let expectedPrefix = "xctest macOS version"

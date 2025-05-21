@@ -23,7 +23,6 @@ import Foundation
 /// Useful when dealing with old xOS APIs that do not work well with swift native structured concurrency.
 ///
 /// The *first* event received will be forwarded. Thread safe.
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class FlowToAsyncResult<Success> {
     /// Something to deal with live observation
     typealias CompletionClosure = (Result<Success, Error>) -> Void
@@ -116,7 +115,6 @@ public final class FlowToAsyncResult<Success> {
 }
 
 /// Event handling
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension FlowToAsyncResult {
     /// Send a successful event.
     func sendSuccess(_ input: Success) {

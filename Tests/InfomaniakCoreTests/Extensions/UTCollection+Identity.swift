@@ -25,7 +25,6 @@ extension Int: Identifiable {
     }
 }
 
-@available(iOS 13.0, *)
 final class UTCollectionIdentity: XCTestCase {
     func testIntSameArraySameHash() {
         // GIVEN

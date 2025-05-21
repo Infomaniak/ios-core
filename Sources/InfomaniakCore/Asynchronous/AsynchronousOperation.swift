@@ -23,7 +23,6 @@ import Foundation
 /// Subclasses must implement `execute()` to perform any work and call
 /// `finish()` when they are done. All `NSOperation` work will be handled
 /// automatically.
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 open class AsynchronousOperation: Operation {
     // MARK: - Properties
 

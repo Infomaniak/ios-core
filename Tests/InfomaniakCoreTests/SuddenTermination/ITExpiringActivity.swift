@@ -30,7 +30,6 @@ final class MCKExpiringActivityDelegate: ExpiringActivityDelegate {
     }
 }
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class ITExpiringActivity: XCTestCase {
     /// Random time between 1 sec and 150ms, expressed in nanoseconds
     var randomNanosecondsWait: UInt64 {

@@ -96,13 +96,9 @@ public class ReviewManager: ReviewManageable {
     public func requestReview() {
         DispatchQueue.main.async {
             #if canImport(UIKit)
-            if #available(iOS 14.0, *) {
-                if let scene = UIApplication.shared.connectedScenes
-                    .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-                    SKStoreReviewController.requestReview(in: scene)
-                }
-            } else {
-                SKStoreReviewController.requestReview()
+            if let scene = UIApplication.shared.connectedScenes
+                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                SKStoreReviewController.requestReview(in: scene)
             }
             #else
             SKStoreReviewController.requestReview()

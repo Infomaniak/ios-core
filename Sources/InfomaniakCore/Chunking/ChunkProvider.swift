@@ -28,7 +28,6 @@ public protocol ChunkProvidable: IteratorProtocol {
 /// Memory considerations: Max memory use ≈sizeOf(one chunk). So from 1Mb to 50Mb
 /// Thread safety: Not thread safe
 ///
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public final class ChunkProvider: ChunkProvidable {
     public typealias Element = Data
 
@@ -73,25 +72,21 @@ public final class ChunkProvider: ChunkProvidable {
 /// Print the FileHandle shows the current offset
 extension FileHandle {
     override open var description: String {
-        if #available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *) {
-            let superDescription = super.description
+        let superDescription = super.description
 
-            let offsetString: String
-            do {
-                let offset = try offset()
-                offsetString = "\(offset)"
-            } catch {
-                offsetString = "\(error)"
-            }
-
-            let buffer = """
-            <\(superDescription)>
-            <offset:\(offsetString)>
-            """
-
-            return buffer
-        } else {
-            return super.description
+        let offsetString: String
+        do {
+            let offset = try offset()
+            offsetString = "\(offset)"
+        } catch {
+            offsetString = "\(error)"
         }
+
+        let buffer = """
+        <\(superDescription)>
+        <offset:\(offsetString)>
+        """
+
+        return buffer
     }
 }

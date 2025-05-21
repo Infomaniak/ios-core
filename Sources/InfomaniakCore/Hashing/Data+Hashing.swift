@@ -19,7 +19,6 @@
 import CryptoKit
 import Foundation
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension Digest {
     /// String representation of a `Digest`
     var digestString: String {
@@ -28,7 +27,6 @@ extension Digest {
 }
 
 /// Hashing data helpers
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension Data {
     /// Get a `SHA256Digest` of the current Data
     var SHA256Digest: SHA256Digest {

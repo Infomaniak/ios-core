@@ -24,7 +24,6 @@ public enum AnyPublisherError: Error, Equatable {
 }
 
 /// Extending AnyPublisher for async await
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension AnyPublisher {
     /// Bridge `AnyPublisher` to `Result<>`
     /// - Returns: a `Result<>` wrapping the state of this `AnyPublisher`

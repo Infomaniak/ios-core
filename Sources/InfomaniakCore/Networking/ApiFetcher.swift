@@ -29,7 +29,6 @@ public protocol RefreshTokenDelegate: AnyObject {
     func didFailRefreshToken(_ token: ApiToken)
 }
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 open class ApiFetcher {
     enum ErrorDomain: Error {
         case noServerResponse

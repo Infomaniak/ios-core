@@ -20,7 +20,6 @@ import CryptoKit
 import Foundation
 
 /// Hashing String helpers
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension String {
     private var dataToHash: Data {
         data(using: .utf8) ?? Data()

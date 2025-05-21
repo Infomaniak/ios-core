@@ -19,7 +19,6 @@
 import InfomaniakCore
 import XCTest
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class UTSendableArray: XCTestCase {
     func testInsertSubscript() async {
         // GIVEN

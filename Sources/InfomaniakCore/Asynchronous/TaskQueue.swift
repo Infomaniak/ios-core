@@ -19,7 +19,6 @@
 import Foundation
 
 /// A queue of `AsyncAwait` tasks. Serial by default.
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public actor TaskQueue {
     private let concurrency: Int
     private var running = 0

@@ -24,7 +24,6 @@ import InfomaniakDI
 /// If the URL represents a local file, the file is copied, else it generates a .webloc
 ///
 /// Provides a `Progress` and an async `Result`
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class ItemProviderURLRepresentation: NSObject, ProgressResultable {
     /// Progress increment size
     private static let progressStep: Int64 = 1

@@ -21,7 +21,6 @@ import Foundation
 import InfomaniakDI
 
 /// Something that can provide a `Progress` and an async `Result` in order to make a zip from a `NSItemProvider`
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
     /// Coordinator for file operations
     let coordinator = NSFileCoordinator()

@@ -19,7 +19,6 @@
 import Foundation
 
 /// LZFSE Wrapper
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension Data {
     /// Compressed data using a zstd like algorithm: lzfse
     func compressed() -> Self? {

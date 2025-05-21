@@ -19,7 +19,6 @@
 import Foundation
 import SwiftUI
 
-@available(iOS 13.0, *)
 public extension Collection where Element: Identifiable {
     /// Compute a stable id for the given collection
     func collectionId(baseId: AnyHashable? = nil) -> Int {

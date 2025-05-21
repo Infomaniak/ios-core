@@ -36,7 +36,6 @@ public protocol PlatformDetectable {
     var isDebug: Bool { get }
 }
 
-@available(macOS 10.16, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
 public struct PlatformDetector: PlatformDetectable {
     public init() {}
 

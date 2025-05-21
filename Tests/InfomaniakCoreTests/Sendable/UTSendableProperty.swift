@@ -20,12 +20,10 @@ import InfomaniakCore
 import XCTest
 
 /// Example class that protects access to a property.
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class MCKSendableProperty: XCTestCase {
     @SendableProperty var protectedString: String?
 }
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class UTSendableProperty: XCTestCase {
     func testMutateToNil() async {
         // GIVEN

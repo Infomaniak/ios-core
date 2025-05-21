@@ -18,7 +18,6 @@
 
 import Foundation
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public final class ChunkReader: Sendable {
     let fileHandle: FileHandlable
 

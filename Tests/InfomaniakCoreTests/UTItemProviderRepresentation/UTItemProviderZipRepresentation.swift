@@ -23,7 +23,6 @@ import InfomaniakCore
 import XCTest
 import ZIPFoundation
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class UTItemProviderZipRepresentation: XCTestCase {
     private let fileManager = FileManager.default
 

@@ -90,6 +90,7 @@ public class KeychainHelper {
             let queryDelete: [String: Any] = [
                 kSecClass as String: kSecClassGenericPassword,
                 kSecAttrService as String: tag,
+                kSecAttrAccessGroup as String: accessGroup,
                 kSecAttrAccount as String: "\(userId)"
             ]
             let resultCode = SecItemDelete(queryDelete as CFDictionary)
@@ -101,7 +102,8 @@ public class KeychainHelper {
         keychainQueue.sync {
             let queryDelete: [String: Any] = [
                 kSecClass as String: kSecClassGenericPassword,
-                kSecAttrService as String: tag
+                kSecAttrService as String: tag,
+                kSecAttrAccessGroup as String: accessGroup
             ]
             let resultCode = SecItemDelete(queryDelete as CFDictionary)
             logger.info("Successfully deleted all tokens ? \(resultCode == noErr)")
@@ -122,7 +124,8 @@ public class KeychainHelper {
             keychainQueue.sync {
                 let queryUpdate: [String: Any] = [
                     kSecClass as String: kSecClassGenericPassword,
-                    kSecAttrAccount as String: "\(token.userId)"
+                    kSecAttrAccount as String: "\(token.userId)",
+                    kSecAttrAccessGroup as String: accessGroup
                 ]
 
                 let attributes: [String: Any] = [

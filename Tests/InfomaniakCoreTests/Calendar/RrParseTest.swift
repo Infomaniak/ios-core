@@ -20,8 +20,8 @@ import Foundation
 @testable import InfomaniakCore
 import Testing
 
-@Suite("RrParseTest")
-struct RrParseTest {
+@Suite("RecurrenceRuleDecoderTests")
+struct RecurrenceRuleDecoderTests {
     let calendar: Calendar
     let parser: RecurrenceRuleDecoder
 

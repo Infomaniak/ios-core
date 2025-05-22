@@ -18,7 +18,6 @@
 
 import Foundation
 
-@available(macOS 12, *)
 struct FrequencyParser: RuleValueDecoder {
     func decode(_ value: String) throws -> Frequency? {
         guard let frequency = Frequency(rawValue: value) else {
@@ -28,7 +27,6 @@ struct FrequencyParser: RuleValueDecoder {
     }
 }
 
-@available(macOS 12, *)
 struct IntervalParser: RuleValueDecoder {
     func decode(_ value: String) throws -> Int {
         guard let intValue = Int(value), intValue > 0 else {
@@ -38,7 +36,6 @@ struct IntervalParser: RuleValueDecoder {
     }
 }
 
-@available(macOS 12, *)
 struct CountParser: RuleValueDecoder {
     func decode(_ value: String) throws -> Int {
         guard let intValue = Int(value), intValue > 0 else {
@@ -48,7 +45,6 @@ struct CountParser: RuleValueDecoder {
     }
 }
 
-@available(macOS 12, *)
 struct UntilParser: RuleValueDecoder {
     func decode(_ value: String) throws -> Int {
         guard let intValue = Int(value), isValidDate(intValue) else {
@@ -69,7 +65,6 @@ struct UntilParser: RuleValueDecoder {
     }
 }
 
-@available(macOS 12, *)
 struct ByDayParser: RuleValueDecoder {
     func decode(_ value: String) throws -> [Weekday] {
         let weekdays = value.split(separator: ",").map { String($0) }
@@ -87,7 +82,6 @@ struct ByDayParser: RuleValueDecoder {
     }
 }
 
-@available(macOS 12, *)
 struct BySetPosParser: RuleValueDecoder {
     func decode(_ value: String) throws -> [Int] {
         let days = value.split(separator: ",").map { String($0) }

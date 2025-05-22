@@ -27,7 +27,7 @@ struct RrParseTest {
 
     init() {
         var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        calendar.timeZone = TimeZone.backportedGMT
 
         self.calendar = calendar
         parser = RecurrenceRuleDecoder()
@@ -174,7 +174,7 @@ struct RrParseTest {
         let currenDate = "20250217"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.timeZone = TimeZone.backportedGMT
 
         guard let startDateObj = formatter.date(from: startingDate) else {
             return
@@ -204,7 +204,7 @@ struct RrParseTest {
         var expectedDatesFormatted: [Date] = []
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.timeZone = TimeZone.backportedGMT
 
         guard let startDateObj = formatter.date(from: startingDate) else {
             return
@@ -236,7 +236,7 @@ struct RrParseTest {
         let currentDate = "20250225"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.timeZone = TimeZone.backportedGMT
 
         guard let startDateObj = formatter.date(from: startingDate) else {
             return
@@ -267,7 +267,7 @@ struct RrParseTest {
         let currentDate = "20250225"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.timeZone = TimeZone.backportedGMT
 
         guard let startDateObj = formatter.date(from: startingDate) else {
             return
@@ -298,7 +298,7 @@ struct RrParseTest {
         let currentDate = "20250212"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.timeZone = TimeZone.backportedGMT
 
         guard let startDateObj = formatter.date(from: startingDate) else {
             return

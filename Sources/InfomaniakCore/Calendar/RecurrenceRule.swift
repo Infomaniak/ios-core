@@ -136,7 +136,7 @@ public extension RecurrenceRule {
                 component = .weekOfYear
             }
         case .monthly:
-            if let daysWithEvents = daysWithEvents {
+            if let daysWithEvents {
                 if daysWithEvents.count > 1 {
                     repetitionFrequency.interval = daysBetweenClosestPastEventAndClosestFutureEvent(startDate)
                     component = .day
@@ -163,9 +163,8 @@ public extension RecurrenceRule {
             break
         }
 
-        guard let interval = repetitionFrequency.interval else { return nil }
-
-        guard let newDate = calendar.date(byAdding: component, value: interval, to: startDate) else {
+        guard let interval = repetitionFrequency.interval,
+              let newDate = calendar.date(byAdding: component, value: interval, to: startDate) else {
             return nil
         }
         return newDate

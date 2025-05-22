@@ -91,7 +91,7 @@ struct BySetPosParser: RuleValueDecoder {
             if let intValue = Int(day) {
                 parsedDays.append(intValue)
             } else {
-                throw RecurrenceRule.DomainError.invaliBySetPos
+                throw RecurrenceRule.DomainError.invalidBySetPos
             }
         }
         return parsedDays

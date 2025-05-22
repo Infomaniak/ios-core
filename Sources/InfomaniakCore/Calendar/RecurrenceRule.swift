@@ -27,7 +27,7 @@ public struct RecurrenceRule {
         case invalidByDay
         case missingFrequency
         case bothUntilAndCountSet
-        case invaliBySetPos
+        case invalidBySetPos
     }
 
     public let calendar: Calendar
@@ -235,7 +235,8 @@ public extension RecurrenceRule {
         return result
     }
 
-    private func allNextOccurrencesWithCountRule(_ nbMaxOfOccurrences: Int, _ startDate: Date,
+    private func allNextOccurrencesWithCountRule(_ nbMaxOfOccurrences: Int,
+                                                 _ startDate: Date,
                                                  _ currentDate: Date = Date()) -> [Date] {
         var result = [startDate]
         var newDate = startDate
@@ -249,7 +250,8 @@ public extension RecurrenceRule {
         return result
     }
 
-    private func allNextOccurrencesWithEndRule(_ lastOccurrence: Date, _ startDate: Date,
+    private func allNextOccurrencesWithEndRule(_ lastOccurrence: Date,
+                                               _ startDate: Date,
                                                _ currentDate: Date = Date()) -> [Date] {
         var result: [Date] = [startDate]
         var newDate: Date = startDate

@@ -30,7 +30,7 @@ public class RecurrenceRuleDecoder {
 
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.timeZone = TimeZone.backportedGMT
         let parts = value.split(separator: ";")
         for part in parts {
             let keyValue = part.split(separator: "=")

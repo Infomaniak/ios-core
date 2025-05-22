@@ -18,7 +18,6 @@
 
 import Foundation
 
-@available(macOS 12, *)
 public struct RecurrenceRule {
     public enum DomainError: Error {
         case invalidInterval
@@ -61,7 +60,6 @@ public struct RecurrenceRule {
     }
 }
 
-@available(macOS 12, *)
 public extension RecurrenceRule {
     private func daysBetweenClosestPastEventAndClosestFutureEvent(_ currentDate: Date) -> Int? {
         guard let startingDayDigit = Int(currentDate.formatted(Date.FormatStyle().weekday(.oneDigit))) else {

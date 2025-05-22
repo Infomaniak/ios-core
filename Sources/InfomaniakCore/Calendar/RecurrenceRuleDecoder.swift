@@ -18,7 +18,6 @@
 
 import Foundation
 
-@available(macOS 12, *)
 public class RecurrenceRuleDecoder {
     public func parse(_ value: String) throws -> RecurrenceRule {
         var ruleCountOrUntilSet = 0

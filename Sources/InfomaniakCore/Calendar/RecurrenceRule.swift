@@ -1,0 +1,289 @@
+/*
+ Infomaniak Core - iOS
+ Copyright (C) 2025 Infomaniak Network SA
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import Foundation
+
+extension TimeZone {
+    static var backportedGMT: TimeZone {
+        if #available(iOS 16, macOS 13, *) {
+            TimeZone.gmt
+        } else {
+            TimeZone(secondsFromGMT: 0)!
+        }
+    }
+}
+
+public struct RecurrenceRule {
+    public enum DomainError: Error {
+        case invalidInterval
+        case invalidKey
+        case invalidCount
+        case invalidUntil
+        case invalidByDay
+        case missingFrequency
+        case bothUntilAndCountSet
+        case invalidBySetPos
+    }
+
+    public let calendar: Calendar
+    public var repetitionFrequency: RepetitionFrequency
+    public let lastOccurrence: Date?
+    public let nbMaxOfOccurrences: Int?
+    public let daysWithEvents: [Weekday]
+    public let nthDayOfMonth: [Int]?
+
+    init(_ string: String) throws {
+        self = try RecurrenceRuleDecoder().parse(string)
+    }
+
+    public init(
+        calendar: Calendar = .current,
+        repetitionFrequency: RepetitionFrequency,
+        lastOccurrence: Date? = nil,
+        nbMaxOfOccurrences: Int? = nil,
+        daysWithEvents: [Weekday] = [],
+        nthDayOfMonth: [Int] = []
+    ) {
+        var cal = Calendar.current
+        cal.timeZone = TimeZone.backportedGMT
+        self.calendar = cal
+        self.repetitionFrequency = repetitionFrequency
+        self.lastOccurrence = lastOccurrence
+        self.nbMaxOfOccurrences = nbMaxOfOccurrences
+        self.daysWithEvents = daysWithEvents
+        self.nthDayOfMonth = nthDayOfMonth
+    }
+}
+
+@available(macOS 15, *)
+public extension RecurrenceRule {
+    private func computeDaysBetween(_ date: Date) -> Int? {
+        let allOccupiedDays = daysWithEvents.map { $0.value }
+
+        let dateDay = calendar.component(.weekday, from: date)
+
+        let differences = allOccupiedDays.map { $0 - dateDay }
+
+        let pastDayDifference = differences.filter { $0 <= 0 }.max()
+        let nextDayDifference = differences.filter { $0 > 0 }.min()
+
+        guard let pastDayDifference, let nextDayDifference,
+              let pastDate = calendar.date(byAdding: .day, value: pastDayDifference, to: date),
+              let nextDate = calendar.date(byAdding: .day, value: nextDayDifference, to: date) else {
+            return nil
+        }
+
+        return calendar.dateComponents([.day], from: pastDate, to: nextDate).day
+    }
+
+    @available(macOS 15, *)
+    private func frequencyNextDate(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
+        let frequency = repetitionFrequency.frequency
+        let interval = repetitionFrequency.interval
+
+        switch frequency {
+        case .minutely:
+            return calendar.date(byAdding: .minute, value: interval, to: startDate)
+
+        case .hourly:
+            return calendar.date(byAdding: .hour, value: interval, to: startDate)
+
+        case .daily:
+            return calendar.date(byAdding: .day, value: interval, to: startDate)
+
+        case .weekly:
+            return handleWeeklyFrequency(startDate: startDate)
+
+        case .monthly, .yearly:
+            return handleComplexFrequency(startDate: startDate, currentDate: currentDate, frequency: frequency)
+
+        default:
+            return nil
+        }
+    }
+
+    private func handleWeeklyFrequency(startDate: Date) -> Date? {
+        guard !daysWithEvents.isEmpty else {
+            return calendar.date(byAdding: .weekOfYear, value: repetitionFrequency.interval, to: startDate)
+        }
+
+        guard let daysBetween = computeDaysBetween(startDate) else {
+            return nil
+        }
+
+        return calendar.date(byAdding: .day, value: daysBetween, to: startDate)
+    }
+
+    @available(macOS 15, *)
+    private func handleComplexFrequency(startDate: Date, currentDate: Date, frequency: Frequency) -> Date? {
+        let interval = repetitionFrequency.interval
+
+        if !daysWithEvents.isEmpty {
+            if frequency == .monthly && daysWithEvents.count <= 1 {
+                return getNextDateInPeriod(
+                    frequency: frequency,
+                    daysWithEvents: daysWithEvents,
+                    nthDayOfMonth: nthDayOfMonth?[0] ?? 1,
+                    startDate: startDate,
+                    currentDate: currentDate
+                )
+            } else {
+                let interval = computeDaysBetween(startDate) ?? 1
+                return calendar.date(byAdding: .day, value: interval, to: startDate)
+            }
+        }
+
+        return calendar.date(byAdding: frequency == .monthly ? .month : .year, value: interval, to: startDate)
+    }
+
+    private func getNextDateInPeriod(
+        frequency: Frequency,
+        daysWithEvents: [Weekday],
+        nthDayOfMonth: Int,
+        startDate: Date,
+        currentDate: Date = Date()
+    ) -> Date? {
+        let unit: Calendar.Component = frequency == .monthly ? .month : .year
+
+        guard let startOfPeriod = calendar.date(from: calendar.dateComponents([.year, .month], from: startDate)),
+              let startOfNextPeriod = calendar.date(byAdding: unit, value: 1, to: startOfPeriod) else {
+            return nil
+        }
+
+        let thisPeriodDates = getPotentialDates(from: startOfPeriod, frequency: frequency, matching: daysWithEvents)
+        let nextPeriodDates = getPotentialDates(from: startOfNextPeriod, frequency: frequency, matching: daysWithEvents)
+
+        if let dateThisPeriod = calculateNthday(at: nthDayOfMonth, in: thisPeriodDates), dateThisPeriod > currentDate {
+            return dateThisPeriod
+        }
+
+        return calculateNthday(at: nthDayOfMonth, in: nextPeriodDates)
+    }
+
+    private func calculateNthday(at pos: Int, in dates: [Date]) -> Date? {
+        let index = pos > 0 ? pos - 1 : dates.count + pos
+        guard index >= 0 && index < dates.count else { return nil }
+        return dates[index]
+    }
+
+    @available(macOS 15, *)
+    private func getPotentialDates(
+        from startOfPeriod: Date,
+        frequency: Frequency,
+        matching weekdays: [Weekday]
+    ) -> [Date] {
+        let rangeUnit: Calendar.Component = (frequency == .monthly) ? .day : .dayOfYear
+        let periodUnit: Calendar.Component = (frequency == .monthly) ? .month : .year
+
+        guard let dayRange = calendar.range(of: rangeUnit, in: periodUnit, for: startOfPeriod) else {
+            return []
+        }
+
+        return dayRange.compactMap { offset -> Date? in
+            guard let date = calendar.date(byAdding: .day, value: offset, to: startOfPeriod) else { return nil }
+            let weekday = calendar.component(.weekday, from: date)
+            return weekdays.contains { $0.value == weekday } ? date : nil
+        }
+    }
+
+    func allNextOccurrences(_ startDate: Date, _ currentDate: Date = Date()) throws -> [Date] {
+        var result = [startDate]
+        var newDate = startDate
+
+        if let nbMaxOfOccurrences = nbMaxOfOccurrences {
+            result = allNextOccurrencesWithCountRule(nbMaxOfOccurrences, startDate, currentDate)
+        }
+
+        if let lastOccurrence = lastOccurrence {
+            result = allNextOccurrencesWithEndRule(lastOccurrence, startDate, currentDate)
+        }
+
+        guard result.count < 2 else { return result }
+
+        while result.last ?? startDate < currentDate {
+            if let nextDate = try? frequencyNextDate(newDate, currentDate) {
+                result.append(nextDate)
+                newDate = nextDate
+            } else {
+                return result
+            }
+        }
+        return result
+    }
+
+    private func allNextOccurrencesWithCountRule(_ nbMaxOfOccurrences: Int,
+                                                 _ startDate: Date,
+                                                 _ currentDate: Date = Date()) -> [Date] {
+        var result = [startDate]
+        var newDate = startDate
+
+        for _ in 0 ..< nbMaxOfOccurrences - 1 {
+            if let nextDate = try? frequencyNextDate(newDate, currentDate) {
+                result.append(nextDate)
+                newDate = nextDate
+            }
+        }
+        return result
+    }
+
+    private func allNextOccurrencesWithEndRule(_ lastOccurrence: Date,
+                                               _ startDate: Date,
+                                               _ currentDate: Date = Date()) -> [Date] {
+        var result: [Date] = [startDate]
+        var newDate: Date = startDate
+
+        while result.last ?? lastOccurrence < lastOccurrence {
+            if let nextDate = try? frequencyNextDate(newDate, currentDate) {
+                if nextDate <= lastOccurrence {
+                    result.append(nextDate)
+                    newDate = nextDate
+                } else {
+                    break
+                }
+            }
+        }
+        return result
+    }
+
+    func getNextOccurrence(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
+        let allDates: [Date] = try allNextOccurrences(startDate, currentDate)
+        guard let nearestPassedDate = getNearestPassedDate(currentDate, allDates) else {
+            return nil
+        }
+
+        guard let nextDate = try frequencyNextDate(nearestPassedDate, currentDate) else {
+            return nil
+        }
+
+        if let lastOccurrence = lastOccurrence, lastOccurrence <= nextDate {
+            return nil
+        }
+
+        return nextDate
+    }
+
+    private func getNearestPassedDate(_ targetDate: Date, _ dates: [Date]) -> Date? {
+        for date in dates.reversed() {
+            if let nextDate = try? frequencyNextDate(date),
+               date <= targetDate && targetDate <= nextDate {
+                return date
+            }
+        }
+        return nil
+    }
+}

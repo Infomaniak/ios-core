@@ -62,7 +62,7 @@ public class RecurrenceRuleDecoder {
             }
         }
 
-        guard frequency != nil else {
+        guard let frequency else {
             throw RecurrenceRule.DomainError.missingFrequency
         }
 
@@ -74,8 +74,8 @@ public class RecurrenceRuleDecoder {
             repetitionFrequency: RepetitionFrequency(frequency: frequency, interval: interval ?? 1),
             lastOccurrence: lastOccurrence,
             nbMaxOfOccurrences: nbMaxOfOccurrences,
-            daysWithEvents: daysWithEvents,
-            nthDayOfMonth: nthDayOfMonth
+            daysWithEvents: daysWithEvents ?? [],
+            nthDayOfMonth: nthDayOfMonth ?? []
         )
     }
 }

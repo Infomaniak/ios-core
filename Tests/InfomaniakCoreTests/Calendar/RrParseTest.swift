@@ -51,7 +51,7 @@ struct RecurrenceRuleDecoderTests {
         let rfcString = "FREQ=\(rfcFrequency)"
         let result = try parser.parse(rfcString)
 
-        #expect(result.repetitionFrequency?.frequency == expected)
+        #expect(result.repetitionFrequency.frequency == expected)
     }
 
     @Test("Throws an error for invalid FREQ Rule Part")
@@ -66,7 +66,7 @@ struct RecurrenceRuleDecoderTests {
         let rfcString = "FREQ=DAILY;\(rfcInterval)"
         let result = try parser.parse(rfcString)
 
-        #expect(result.repetitionFrequency?.interval == expected)
+        #expect(result.repetitionFrequency.interval == expected)
     }
 
     @Test("Throws an error for invalid INTERVAL Rule Part", arguments: [
@@ -156,6 +156,7 @@ struct RecurrenceRuleDecoderTests {
         #expect(result == [2, 5, 10, 23, 30])
     }
 
+    @available(macOS 15, *)
     @Test(
         "Get next date occurrence from a parsed rrule with only frequency and interval specified",
         arguments: zip(
@@ -193,6 +194,7 @@ struct RecurrenceRuleDecoderTests {
         #expect(resultDateString == expectedDate)
     }
 
+    @available(macOS 15, *)
     @Test("Get all next date occurrences from a parsed rrule based on count")
     func allNextOccurrences() throws {
         let rfcString = "FREQ=DAILY;COUNT=10"
@@ -223,6 +225,7 @@ struct RecurrenceRuleDecoderTests {
         #expect(result == expectedDatesFormatted)
     }
 
+    @available(macOS 15, *)
     @Test(
         "Get next date occurrence from a parsed rrule with multiple rule parts",
         arguments: zip(
@@ -255,6 +258,7 @@ struct RecurrenceRuleDecoderTests {
         #expect(resultDateString == expectedDate)
     }
 
+    @available(macOS 15, *)
     @Test(
         "Get next date occurrence from a parsed rrule with BYDAY rule parts",
         arguments: zip(
@@ -286,6 +290,7 @@ struct RecurrenceRuleDecoderTests {
         #expect(resultDateString == expectedDate)
     }
 
+    @available(macOS 15, *)
     @Test(
         "Get next date occurrence from a parsed rrule with BYSETPOS rule parts",
         arguments: zip(

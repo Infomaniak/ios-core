@@ -19,7 +19,7 @@
 import Foundation
 
 struct FrequencyParser: RuleValueDecoder {
-    func decode(_ value: String) throws -> Frequency? {
+    func decode(_ value: String) throws -> Frequency {
         guard let frequency = Frequency(rawValue: value) else {
             throw RecurrenceRule.DomainError.missingFrequency
         }

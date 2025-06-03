@@ -18,7 +18,7 @@
 
 import Foundation
 
-public enum Frequency: String {
+public enum Frequency: String, Sendable {
     case secondly = "SECONDLY"
     case minutely = "MINUTELY"
     case hourly = "HOURLY"
@@ -28,7 +28,7 @@ public enum Frequency: String {
     case yearly = "YEARLY"
 }
 
-public enum Weekday: String, CaseIterable {
+public enum Weekday: String, CaseIterable, Sendable {
     case monday = "MO"
     case tuesday = "TU"
     case wednesday = "WE"
@@ -57,7 +57,7 @@ public enum Weekday: String, CaseIterable {
     }
 }
 
-public enum RuleKey: String {
+public enum RuleKey: String, Sendable {
     case frequency = "FREQ"
     case interval = "INTERVAL"
     case count = "COUNT"
@@ -77,9 +77,9 @@ public enum RuleKey: String {
     }
 }
 
-public struct RepetitionFrequency {
-    public var frequency: Frequency
-    public var interval: Int
+public struct RepetitionFrequency: Sendable {
+    public let frequency: Frequency
+    public let interval: Int
 
     public init(frequency: Frequency, interval: Int) {
         self.frequency = frequency

@@ -291,7 +291,12 @@ struct RecurrenceRuleDecoderTests {
     @Test(
         "Get next date occurrence from a parsed rrule with BYSETPOS rule parts",
         arguments: zip(
-            ["FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2", "FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2,3", "FREQ=MONTHLY;BYDAY=TU;BYSETPOS=-1", "FREQ=YEARLY;BYDAY=TU;BYSETPOS=2"],
+            [
+                "FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2",
+                "FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2,3",
+                "FREQ=MONTHLY;BYDAY=TU;BYSETPOS=-1",
+                "FREQ=YEARLY;BYDAY=TU;BYSETPOS=2"
+            ],
             ["20250310", "20250217", "20250225", "20260113"]
         )
     )

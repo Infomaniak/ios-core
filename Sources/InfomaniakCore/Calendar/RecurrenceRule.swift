@@ -18,16 +18,6 @@
 
 import Foundation
 
-extension TimeZone {
-    static var backportedGMT: TimeZone {
-        if #available(iOS 16, macOS 13, *) {
-            TimeZone.gmt
-        } else {
-            TimeZone(secondsFromGMT: 0)!
-        }
-    }
-}
-
 public struct RecurrenceRule {
     public enum DomainError: Error {
         case invalidInterval
@@ -47,8 +37,8 @@ public struct RecurrenceRule {
     public let daysWithEvents: [Weekday]
     public let nthDayOfMonth: [Int]?
 
-    init(_ string: String) throws {
-        self = try RecurrenceRuleDecoder().parse(string)
+    init(_ string: String, calendar: Calendar = .current) throws {
+        self = try RecurrenceRuleDecoder().parse(string, calendar: calendar)
     }
 
     public init(
@@ -59,9 +49,7 @@ public struct RecurrenceRule {
         daysWithEvents: [Weekday] = [],
         nthDayOfMonth: [Int] = []
     ) {
-        var cal = Calendar.current
-        cal.timeZone = TimeZone.backportedGMT
-        self.calendar = cal
+        self.calendar = calendar
         self.repetitionFrequency = repetitionFrequency
         self.lastOccurrence = lastOccurrence
         self.nbMaxOfOccurrences = nbMaxOfOccurrences

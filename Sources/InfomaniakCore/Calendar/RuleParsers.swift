@@ -57,7 +57,6 @@ struct UntilParser: RuleValueDecoder {
         let stringVal = String(value)
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone.backportedGMT
         if formatter.date(from: stringVal) != nil {
             return true
         }

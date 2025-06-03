@@ -27,7 +27,7 @@ struct RecurrenceRuleDecoderTests {
 
     init() {
         var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone.backportedGMT
+        calendar.timeZone = TimeZone.gmt
 
         self.calendar = calendar
         parser = RecurrenceRuleDecoder()
@@ -99,7 +99,7 @@ struct RecurrenceRuleDecoderTests {
     func parseUntilDateRulePart() throws {
         let rfcString = "FREQ=DAILY;UNTIL=20250111"
         let expected = Date(timeIntervalSince1970: 1_736_553_600)
-        let res = try parser.parse(rfcString)
+        let res = try parser.parse(rfcString, calendar: calendar)
 
         guard let result = res.lastOccurrence else {
             return
@@ -175,7 +175,7 @@ struct RecurrenceRuleDecoderTests {
         let currenDate = "20250217"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone.backportedGMT
+        formatter.timeZone = calendar.timeZone
 
         guard let startDateObj = formatter.date(from: startingDate) else {
             return
@@ -185,7 +185,7 @@ struct RecurrenceRuleDecoderTests {
             return
         }
 
-        let rule = try RecurrenceRule(rfcString)
+        let rule = try RecurrenceRule(rfcString, calendar: calendar)
         guard let result = try? rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }
@@ -206,7 +206,7 @@ struct RecurrenceRuleDecoderTests {
         var expectedDatesFormatted: [Date] = []
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone.backportedGMT
+        formatter.timeZone = calendar.timeZone
 
         guard let startDateObj = formatter.date(from: startingDate) else {
             return
@@ -217,7 +217,7 @@ struct RecurrenceRuleDecoderTests {
             expectedDatesFormatted.append(date)
         }
 
-        let rule = try RecurrenceRule(rfcString)
+        let rule = try RecurrenceRule(rfcString, calendar: calendar)
         guard let result = try? rule.allNextOccurrences(startDateObj) else {
             return
         }
@@ -239,7 +239,7 @@ struct RecurrenceRuleDecoderTests {
         let currentDate = "20250225"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone.backportedGMT
+        formatter.timeZone = calendar.timeZone
 
         guard let startDateObj = formatter.date(from: startingDate) else {
             return
@@ -249,7 +249,7 @@ struct RecurrenceRuleDecoderTests {
             return
         }
 
-        let rule = try RecurrenceRule(rfcString)
+        let rule = try RecurrenceRule(rfcString, calendar: calendar)
         guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }
@@ -271,7 +271,7 @@ struct RecurrenceRuleDecoderTests {
         let currentDate = "20250225"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone.backportedGMT
+        formatter.timeZone = calendar.timeZone
 
         guard let startDateObj = formatter.date(from: startingDate) else {
             return
@@ -281,7 +281,7 @@ struct RecurrenceRuleDecoderTests {
             return
         }
 
-        let rule = try RecurrenceRule(rfcString)
+        let rule = try RecurrenceRule(rfcString, calendar: calendar)
         guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }
@@ -303,7 +303,7 @@ struct RecurrenceRuleDecoderTests {
         let currentDate = "20250212"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone.backportedGMT
+        formatter.timeZone = calendar.timeZone
 
         guard let startDateObj = formatter.date(from: startingDate) else {
             return
@@ -313,7 +313,7 @@ struct RecurrenceRuleDecoderTests {
             return
         }
 
-        let rule = try RecurrenceRule(rfcString)
+        let rule = try RecurrenceRule(rfcString, calendar: calendar)
         guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
             return
         }

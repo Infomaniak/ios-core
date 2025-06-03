@@ -19,7 +19,7 @@
 import Foundation
 
 public class RecurrenceRuleDecoder {
-    public func parse(_ value: String) throws -> RecurrenceRule {
+    public func parse(_ value: String, calendar: Calendar = .current) throws -> RecurrenceRule {
         var ruleCountOrUntilSet = 0
         var frequency: Frequency?
         var interval: Int?
@@ -30,7 +30,7 @@ public class RecurrenceRuleDecoder {
 
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        formatter.timeZone = TimeZone.backportedGMT
+        formatter.timeZone = calendar.timeZone
         let parts = value.split(separator: ";")
         for part in parts {
             let keyValue = part.split(separator: "=")
@@ -71,6 +71,7 @@ public class RecurrenceRuleDecoder {
         }
 
         return RecurrenceRule(
+            calendar: calendar,
             repetitionFrequency: RepetitionFrequency(frequency: frequency, interval: interval ?? 1),
             lastOccurrence: lastOccurrence,
             nbMaxOfOccurrences: nbMaxOfOccurrences,

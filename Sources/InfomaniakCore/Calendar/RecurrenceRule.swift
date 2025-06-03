@@ -122,7 +122,7 @@ public extension RecurrenceRule {
         let interval = repetitionFrequency.interval
 
         if !daysWithEvents.isEmpty {
-            if frequency == .monthly && daysWithEvents.count <= 1 {
+            if daysWithEvents.count <= 1 {
                 return getNextDateInPeriod(
                     frequency: frequency,
                     daysWithEvents: daysWithEvents,
@@ -147,8 +147,9 @@ public extension RecurrenceRule {
         currentDate: Date = Date()
     ) -> Date? {
         let unit: Calendar.Component = frequency == .monthly ? .month : .year
+        let components: Set<Calendar.Component> = frequency == .monthly ? [.year, .month] : [.year]
 
-        guard let startOfPeriod = calendar.date(from: calendar.dateComponents([.year, .month], from: startDate)),
+        guard let startOfPeriod = calendar.date(from: calendar.dateComponents(components, from: startDate)),
               let startOfNextPeriod = calendar.date(byAdding: unit, value: 1, to: startOfPeriod) else {
             return nil
         }

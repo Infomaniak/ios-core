@@ -150,10 +150,7 @@ struct RecurrenceRuleDecoderTests {
     func parseBySetPosRulePart() throws {
         let rfcString = "FREQ=MONTHLY;BYSETPOS=2,5,10,23,30"
         let res = try parser.parse(rfcString)
-        guard let result = res.nthDayOfMonth else {
-            return
-        }
-        #expect(result == [2, 5, 10, 23, 30])
+        #expect(res.nthDayOfMonth == [2, 5, 10, 23, 30])
     }
 
     @available(macOS 15, *)
@@ -294,8 +291,8 @@ struct RecurrenceRuleDecoderTests {
     @Test(
         "Get next date occurrence from a parsed rrule with BYSETPOS rule parts",
         arguments: zip(
-            ["FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2", "FREQ=MONTHLY;BYDAY=TU;BYSETPOS=-1"],
-            ["20250310", "20250225"]
+            ["FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2", "FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2,3", "FREQ=MONTHLY;BYDAY=TU;BYSETPOS=-1"],
+            ["20250310", "20250217", "20250225"]
         )
     )
     func nextOccurrenceBySetPosPart(rfcString: String, expectedDate: String) throws {

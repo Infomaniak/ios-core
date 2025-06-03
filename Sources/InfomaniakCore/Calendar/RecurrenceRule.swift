@@ -35,7 +35,7 @@ public struct RecurrenceRule {
     public let lastOccurrence: Date?
     public let nbMaxOfOccurrences: Int?
     public let daysWithEvents: [Weekday]
-    public let nthDayOfMonth: [Int]?
+    public let nthDayOfMonth: [Int]
 
     init(_ string: String, calendar: Calendar = .current) throws {
         self = try RecurrenceRuleDecoder().parse(string, calendar: calendar)
@@ -126,7 +126,7 @@ public extension RecurrenceRule {
                 return getNextDateInPeriod(
                     frequency: frequency,
                     daysWithEvents: daysWithEvents,
-                    nthDayOfMonth: nthDayOfMonth?[0] ?? 1,
+                    nthDayOfMonth: nthDayOfMonth,
                     startDate: startDate,
                     currentDate: currentDate
                 )
@@ -142,7 +142,7 @@ public extension RecurrenceRule {
     private func getNextDateInPeriod(
         frequency: Frequency,
         daysWithEvents: [Weekday],
-        nthDayOfMonth: Int,
+        nthDayOfMonth: [Int],
         startDate: Date,
         currentDate: Date = Date()
     ) -> Date? {
@@ -156,17 +156,25 @@ public extension RecurrenceRule {
         let thisPeriodDates = getPotentialDates(from: startOfPeriod, frequency: frequency, matching: daysWithEvents)
         let nextPeriodDates = getPotentialDates(from: startOfNextPeriod, frequency: frequency, matching: daysWithEvents)
 
-        if let dateThisPeriod = calculateNthday(at: nthDayOfMonth, in: thisPeriodDates), dateThisPeriod > currentDate {
-            return dateThisPeriod
+        let datesThisPeriod = calculateNthDays(at: nthDayOfMonth, in: thisPeriodDates)
+            .filter { $0 > currentDate }
+            .sorted()
+
+        if let firstDateThisPeriod = datesThisPeriod.first {
+            return firstDateThisPeriod
         }
 
-        return calculateNthday(at: nthDayOfMonth, in: nextPeriodDates)
+        let datesNextPeriod = calculateNthDays(at: nthDayOfMonth, in: nextPeriodDates)
+            .sorted()
+
+        return datesNextPeriod.first
     }
 
-    private func calculateNthday(at pos: Int, in dates: [Date]) -> Date? {
-        let index = pos > 0 ? pos - 1 : dates.count + pos
-        guard index >= 0 && index < dates.count else { return nil }
-        return dates[index]
+    private func calculateNthDays(at positions: [Int], in dates: [Date]) -> [Date] {
+        return positions.compactMap { pos in
+            let index = pos >= 0 ? pos - 1 : dates.count + pos
+            return dates.indices.contains(index) ? dates[index] : nil
+        }
     }
 
     @available(macOS 15, *)

@@ -122,18 +122,13 @@ public extension RecurrenceRule {
         let interval = repetitionFrequency.interval
 
         if !daysWithEvents.isEmpty {
-            if daysWithEvents.count <= 1 {
-                return getNextDateInPeriod(
-                    frequency: frequency,
-                    daysWithEvents: daysWithEvents,
-                    nthDayOfMonth: nthDayOfMonth,
-                    startDate: startDate,
-                    currentDate: currentDate
-                )
-            } else {
-                let interval = computeDaysBetween(startDate) ?? 1
-                return calendar.date(byAdding: .day, value: interval, to: startDate)
-            }
+            return getNextDateInPeriod(
+                frequency: frequency,
+                daysWithEvents: daysWithEvents,
+                nthDayOfMonth: nthDayOfMonth,
+                startDate: startDate,
+                currentDate: currentDate
+            )
         }
 
         return calendar.date(byAdding: frequency == .monthly ? .month : .year, value: interval, to: startDate)

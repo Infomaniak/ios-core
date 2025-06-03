@@ -202,23 +202,18 @@ public extension RecurrenceRule {
     }
 
     func allNextOccurrences(_ startDate: Date, _ currentDate: Date = Date()) throws -> [Date] {
+        if let nbMaxOfOccurrences {
+            return allNextOccurrencesWithCountRule(nbMaxOfOccurrences, startDate, currentDate)
+        }
+
+        if let lastOccurrence {
+            return allNextOccurrencesWithEndRule(lastOccurrence, startDate, currentDate)
+        }
+
         var result = [startDate]
-        var newDate = startDate
-
-        if let nbMaxOfOccurrences = nbMaxOfOccurrences {
-            result = allNextOccurrencesWithCountRule(nbMaxOfOccurrences, startDate, currentDate)
-        }
-
-        if let lastOccurrence = lastOccurrence {
-            result = allNextOccurrencesWithEndRule(lastOccurrence, startDate, currentDate)
-        }
-
-        guard result.count < 2 else { return result }
-
         while result.last ?? startDate < currentDate {
-            if let nextDate = try? frequencyNextDate(newDate, currentDate) {
+            if let newDate = result.last, let nextDate = try? frequencyNextDate(newDate, currentDate) {
                 result.append(nextDate)
-                newDate = nextDate
             } else {
                 return result
             }
@@ -230,12 +225,10 @@ public extension RecurrenceRule {
                                                  _ startDate: Date,
                                                  _ currentDate: Date = Date()) -> [Date] {
         var result = [startDate]
-        var newDate = startDate
 
         for _ in 0 ..< nbMaxOfOccurrences - 1 {
-            if let nextDate = try? frequencyNextDate(newDate, currentDate) {
+            if let newDate = result.last, let nextDate = try? frequencyNextDate(newDate, currentDate) {
                 result.append(nextDate)
-                newDate = nextDate
             }
         }
         return result
@@ -244,14 +237,12 @@ public extension RecurrenceRule {
     private func allNextOccurrencesWithEndRule(_ lastOccurrence: Date,
                                                _ startDate: Date,
                                                _ currentDate: Date = Date()) -> [Date] {
-        var result: [Date] = [startDate]
-        var newDate: Date = startDate
+        var result = [startDate]
 
         while result.last ?? lastOccurrence < lastOccurrence {
-            if let nextDate = try? frequencyNextDate(newDate, currentDate) {
+            if let newDate = result.last, let nextDate = try? frequencyNextDate(newDate, currentDate) {
                 if nextDate <= lastOccurrence {
                     result.append(nextDate)
-                    newDate = nextDate
                 } else {
                     break
                 }
@@ -261,7 +252,7 @@ public extension RecurrenceRule {
     }
 
     func getNextOccurrence(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
-        let allDates: [Date] = try allNextOccurrences(startDate, currentDate)
+        let allDates = try allNextOccurrences(startDate, currentDate)
         guard let nearestPassedDate = getNearestPassedDate(currentDate, allDates) else {
             return nil
         }
@@ -270,7 +261,7 @@ public extension RecurrenceRule {
             return nil
         }
 
-        if let lastOccurrence = lastOccurrence, lastOccurrence <= nextDate {
+        if let lastOccurrence, lastOccurrence <= nextDate {
             return nil
         }
 

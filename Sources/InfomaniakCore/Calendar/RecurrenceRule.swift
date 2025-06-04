@@ -62,13 +62,15 @@ public struct RecurrenceRule {
 public extension RecurrenceRule {
     private func daysBetweenPreviousAndNextEvent(date: Date) -> Int? {
         let allOccupiedDays = daysWithEvents.map { $0.value }
-
         let dateDay = calendar.component(.weekday, from: date)
+        let daysInWeek = calendar.maximumRange(of: .weekday)?.count ?? 7
 
         let differences = allOccupiedDays.map { $0 - dateDay }
 
         let pastDayDifference = differences.filter { $0 <= 0 }.max()
-        let nextDayDifference = differences.filter { $0 > 0 }.min()
+        let nextDayDifference = differences
+            .map { ($0 + daysInWeek) % daysInWeek }
+            .filter { $0 > 0 }.min()
 
         guard let pastDayDifference, let nextDayDifference,
               let pastDate = calendar.date(byAdding: .day, value: pastDayDifference, to: date),
@@ -79,7 +81,6 @@ public extension RecurrenceRule {
         return calendar.dateComponents([.day], from: pastDate, to: nextDate).day
     }
 
-    @available(macOS 15, *)
     private func frequencyNextDate(startDate: Date, currentDate: Date) throws -> Date? {
         let interval = repetitionFrequency.interval
 
@@ -116,7 +117,6 @@ public extension RecurrenceRule {
         return calendar.date(byAdding: .day, value: daysBetween, to: startDate)
     }
 
-    @available(macOS 15, *)
     private func handleComplexFrequency(startDate: Date, currentDate: Date) -> Date? {
         if !daysWithEvents.isEmpty {
             return getNextDateInPeriod(
@@ -173,7 +173,6 @@ public extension RecurrenceRule {
         }
     }
 
-    @available(macOS 15, *)
     private func getPotentialDates(
         from startOfPeriod: Date,
         matching weekdays: [Weekday]
@@ -247,8 +246,8 @@ public extension RecurrenceRule {
     }
 
     func getNextOccurrence(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
-        let allDatesBeforeCurrent = try allNextOccurrences(startDate, currentDate)
-        guard let nearestPastDate = getNearestPastDate(targetDate: currentDate, dates: allDatesBeforeCurrent) else {
+        let allDates = try allNextOccurrences(startDate, currentDate)
+        guard let nearestPastDate = getNearestPastDate(targetDate: currentDate, dates: allDates) else {
             return nil
         }
 

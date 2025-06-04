@@ -37,7 +37,7 @@ public struct RecurrenceRule {
     public let daysWithEvents: [Weekday]
     public let nthDayOfMonth: [Int]
 
-    init(_ string: String, calendar: Calendar = .current) throws {
+    public init(_ string: String, calendar: Calendar = .current) throws {
         self = try RecurrenceRuleDecoder().parse(string, calendar: calendar)
     }
 

@@ -19,6 +19,8 @@
 import Foundation
 
 public class RecurrenceRuleDecoder {
+    public init() {}
+
     public func parse(_ value: String, calendar: Calendar = .current) throws -> RecurrenceRule {
         var ruleCountOrUntilSet = 0
         var frequency: Frequency?

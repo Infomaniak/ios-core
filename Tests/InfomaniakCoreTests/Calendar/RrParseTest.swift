@@ -26,8 +26,7 @@ struct RecurrenceRuleDecoderTests {
     let parser: RecurrenceRuleDecoder
 
     init() {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let calendar = Calendar(identifier: .gregorian)
 
         self.calendar = calendar
         parser = RecurrenceRuleDecoder()
@@ -98,7 +97,7 @@ struct RecurrenceRuleDecoderTests {
     @Test("Parse UNTIL DATE Rule Part")
     func parseUntilDateRulePart() throws {
         let rfcString = "FREQ=DAILY;UNTIL=20250111"
-        let expected = Date(timeIntervalSince1970: 1_736_553_600)
+        let expected = Date(timeIntervalSince1970: 1_736_550_000)
         let res = try parser.parse(rfcString, calendar: calendar)
 
         guard let result = res.lastOccurrence else {

@@ -46,21 +46,14 @@ struct CountParser: RuleValueDecoder {
 }
 
 struct UntilParser: RuleValueDecoder {
-    func decode(_ value: String) throws -> Int {
-        guard let intValue = Int(value), isValidDate(intValue) else {
-            throw RecurrenceRule.DomainError.invalidUntil
-        }
-        return intValue
-    }
-
-    private func isValidDate(_ value: Int) -> Bool {
-        let stringVal = String(value)
+    func decode(_ value: String) throws -> Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        if formatter.date(from: stringVal) != nil {
-            return true
+        guard let formattedDate = formatter.date(from: value) else {
+            throw RecurrenceRule.DomainError.invalidUntil
         }
-        return false
+
+        return formattedDate
     }
 }
 

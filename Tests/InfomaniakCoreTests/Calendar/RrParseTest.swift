@@ -27,7 +27,7 @@ struct RecurrenceRuleDecoderTests {
 
     init() {
         var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone.gmt
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
 
         self.calendar = calendar
         parser = RecurrenceRuleDecoder()

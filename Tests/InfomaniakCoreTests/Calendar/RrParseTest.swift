@@ -215,7 +215,7 @@ struct RecurrenceRuleDecoderTests {
         }
 
         let rule = try RecurrenceRule(rfcString, calendar: calendar)
-        guard let result = try? rule.allNextOccurrences(startDateObj) else {
+        guard let result = try? rule.allOccurrencesSinceStartDate(startDateObj) else {
             return
         }
 

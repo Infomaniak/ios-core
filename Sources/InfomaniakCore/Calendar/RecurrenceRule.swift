@@ -191,7 +191,7 @@ public extension RecurrenceRule {
         }
     }
 
-    func allNextOccurrences(_ startDate: Date, _ currentDate: Date = Date()) throws -> [Date] {
+    func allOccurrencesSinceStartDate(_ startDate: Date, _ currentDate: Date = Date()) throws -> [Date] {
         if let nbMaxOfOccurrences {
             return allNextOccurrencesWithCountRule(
                 nbMaxOfOccurrences: nbMaxOfOccurrences,
@@ -246,7 +246,7 @@ public extension RecurrenceRule {
     }
 
     func getNextOccurrence(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
-        let allDates = try allNextOccurrences(startDate, currentDate)
+        let allDates = try allOccurrencesSinceStartDate(startDate, currentDate)
         guard let nearestPastDate = getNearestPastDate(targetDate: currentDate, dates: allDates) else {
             return nil
         }

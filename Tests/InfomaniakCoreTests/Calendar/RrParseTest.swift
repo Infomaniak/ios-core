@@ -323,6 +323,7 @@ struct RecurrenceRuleDecoderTests {
         #expect(resultDateString == expectedDate)
     }
 
+    @available(macOS 15, *)
     @Test(
         "Get next date occurrence if the first occurence didn't happen yet",
         arguments: zip(

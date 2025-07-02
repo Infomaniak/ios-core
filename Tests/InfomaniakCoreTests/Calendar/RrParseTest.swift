@@ -322,4 +322,37 @@ struct RecurrenceRuleDecoderTests {
         let resultDateString = formatter.string(from: result)
         #expect(resultDateString == expectedDate)
     }
+
+    @available(macOS 15, *)
+    @Test(
+        "Get next date occurrence if the first occurence didn't happen yet",
+        arguments: zip(
+            ["FREQ=DAILY;INTERVAL=5;COUNT=3", "FREQ=WEEKLY;INTERVAL=1;UNTIL=20250320", "FREQ=DAILY;INTERVAL=2",
+             "FREQ=MONTHLY;COUNT=9"],
+            ["20250707", "20250707", "20250707", "20250707"]
+        )
+    )
+    func firstOccurence(rfcString: String, expectedDate: String) throws {
+        let startingDate = "20250707"
+        let currentDate = "20250702"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = calendar.timeZone
+
+        guard let startDateObj = formatter.date(from: startingDate) else {
+            return
+        }
+
+        guard let currentDateObj = formatter.date(from: currentDate) else {
+            return
+        }
+
+        let rule = try RecurrenceRule(rfcString, calendar: calendar)
+        guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
+            return
+        }
+
+        let resultDateString = formatter.string(from: result)
+        #expect(resultDateString == expectedDate)
+    }
 }

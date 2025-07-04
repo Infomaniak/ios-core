@@ -106,6 +106,16 @@ struct BySetPosParser: RuleValueDecoder {
     }
 }
 
+struct WkstParser: RuleValueDecoder {
+    func decode(_ value: String) throws -> Weekday {
+        if let day = Weekday(rawValue: value) {
+            return day
+        } else {
+            throw RecurrenceRule.DomainError.invalidWKST
+        }
+    }
+}
+
 protocol RuleValueDecoder {
     associatedtype Output
     func decode(_ value: String) throws -> Output

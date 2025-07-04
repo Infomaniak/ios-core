@@ -29,6 +29,7 @@ public struct RecurrenceRule {
         case missingFrequency
         case bothUntilAndCountSet
         case invalidBySetPos
+        case invalidWKST
     }
 
     public let calendar: Calendar
@@ -38,6 +39,7 @@ public struct RecurrenceRule {
     public let daysWithEvents: [Weekday]
     public let nthDayOfMonth: [Int]
     public let nthOccurenceOfMonth: [Int]
+    public let firstDayOfWeek: Int
 
     public init(_ string: String, calendar: Calendar = .current) throws {
         self = try RecurrenceRuleDecoder().parse(string, calendar: calendar)
@@ -50,7 +52,8 @@ public struct RecurrenceRule {
         nbMaxOfOccurrences: Int? = nil,
         daysWithEvents: [Weekday] = [],
         nthDayOfMonth: [Int] = [],
-        nthOccurenceOfMonth: [Int] = []
+        nthOccurenceOfMonth: [Int] = [],
+        firstDayOfWeek: Int
     ) {
         self.calendar = calendar
         self.repetitionFrequency = repetitionFrequency
@@ -59,6 +62,7 @@ public struct RecurrenceRule {
         self.daysWithEvents = daysWithEvents
         self.nthDayOfMonth = nthDayOfMonth
         self.nthOccurenceOfMonth = nthOccurenceOfMonth
+        self.firstDayOfWeek = firstDayOfWeek
     }
 }
 

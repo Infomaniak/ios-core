@@ -25,6 +25,7 @@ public struct RecurrenceRule {
         case invalidCount
         case invalidUntil
         case invalidByDay
+        case invalidByMonthDay
         case missingFrequency
         case bothUntilAndCountSet
         case invalidBySetPos
@@ -36,6 +37,7 @@ public struct RecurrenceRule {
     public let nbMaxOfOccurrences: Int?
     public let daysWithEvents: [Weekday]
     public let nthDayOfMonth: [Int]
+    public let nthOccurenceOfMonth: [Int]
 
     public init(_ string: String, calendar: Calendar = .current) throws {
         self = try RecurrenceRuleDecoder().parse(string, calendar: calendar)
@@ -47,7 +49,8 @@ public struct RecurrenceRule {
         lastOccurrence: Date? = nil,
         nbMaxOfOccurrences: Int? = nil,
         daysWithEvents: [Weekday] = [],
-        nthDayOfMonth: [Int] = []
+        nthDayOfMonth: [Int] = [],
+        nthOccurenceOfMonth: [Int] = []
     ) {
         self.calendar = calendar
         self.repetitionFrequency = repetitionFrequency
@@ -55,6 +58,7 @@ public struct RecurrenceRule {
         self.nbMaxOfOccurrences = nbMaxOfOccurrences
         self.daysWithEvents = daysWithEvents
         self.nthDayOfMonth = nthDayOfMonth
+        self.nthOccurenceOfMonth = nthOccurenceOfMonth
     }
 }
 
@@ -121,7 +125,7 @@ public extension RecurrenceRule {
         if !daysWithEvents.isEmpty {
             return getNextDateInPeriod(
                 daysWithEvents: daysWithEvents,
-                nthDayOfMonth: nthDayOfMonth,
+                nthOccurenceOfMonth: nthOccurenceOfMonth,
                 startDate: startDate,
                 currentDate: currentDate
             )
@@ -136,7 +140,7 @@ public extension RecurrenceRule {
 
     private func getNextDateInPeriod(
         daysWithEvents: [Weekday],
-        nthDayOfMonth: [Int],
+        nthOccurenceOfMonth: [Int],
         startDate: Date,
         currentDate: Date = Date()
     ) -> Date? {
@@ -152,7 +156,7 @@ public extension RecurrenceRule {
         let thisPeriodDates = getPotentialDates(from: startOfPeriod, matching: daysWithEvents)
         let nextPeriodDates = getPotentialDates(from: startOfNextPeriod, matching: daysWithEvents)
 
-        let datesThisPeriod = calculateNthDays(at: nthDayOfMonth, in: thisPeriodDates)
+        let datesThisPeriod = calculateNthDays(at: nthOccurenceOfMonth, in: thisPeriodDates)
             .filter { $0 > currentDate }
             .sorted()
 
@@ -160,7 +164,7 @@ public extension RecurrenceRule {
             return firstDateThisPeriod
         }
 
-        let datesNextPeriod = calculateNthDays(at: nthDayOfMonth, in: nextPeriodDates)
+        let datesNextPeriod = calculateNthDays(at: nthOccurenceOfMonth, in: nextPeriodDates)
             .sorted()
 
         return datesNextPeriod.first

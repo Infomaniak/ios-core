@@ -74,6 +74,22 @@ struct ByDayParser: RuleValueDecoder {
     }
 }
 
+struct ByMonthDayParser: RuleValueDecoder {
+    func decode(_ value: String) throws -> [Int] {
+        let days = value.split(separator: ",").map { String($0) }
+        var parsedDays: [Int] = []
+
+        for day in days {
+            if let intValue = Int(day) {
+                parsedDays.append(intValue)
+            } else {
+                throw RecurrenceRule.DomainError.invalidByMonthDay
+            }
+        }
+        return parsedDays
+    }
+}
+
 struct BySetPosParser: RuleValueDecoder {
     func decode(_ value: String) throws -> [Int] {
         let days = value.split(separator: ",").map { String($0) }

@@ -63,6 +63,7 @@ public enum RuleKey: String, Sendable {
     case count = "COUNT"
     case until = "UNTIL"
     case byDay = "BYDAY"
+    case byMonthDay = "BYMONTHDAY"
     case bySetPos = "BYSETPOS"
 
     var parser: any RuleValueDecoder {
@@ -72,6 +73,7 @@ public enum RuleKey: String, Sendable {
         case .count: return CountParser()
         case .until: return UntilParser()
         case .byDay: return ByDayParser()
+        case .byMonthDay: return ByMonthDayParser()
         case .bySetPos: return BySetPosParser()
         }
     }

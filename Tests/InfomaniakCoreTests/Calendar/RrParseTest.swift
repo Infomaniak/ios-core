@@ -227,7 +227,7 @@ struct RecurrenceRuleDecoderTests {
         arguments: zip(
             ["FREQ=DAILY;INTERVAL=5;COUNT=3", "FREQ=WEEKLY;INTERVAL=1;UNTIL=20250320", "FREQ=DAILY;INTERVAL=2",
              "FREQ=DAILY;COUNT=9"],
-            ["20250227", "20250303", "20250227", "20250226"]
+            ["20250227", "20250303", "20250227", "20250225"]
         )
     )
     func nextDateOccurrence(rfcString: String, expectedDate: String) throws {

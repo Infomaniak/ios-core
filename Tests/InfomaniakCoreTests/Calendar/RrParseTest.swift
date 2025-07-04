@@ -174,6 +174,28 @@ struct RecurrenceRuleDecoderTests {
         #expect(res.nthOccurenceOfMonth == [2, 5, 10, 23, 30])
     }
 
+    @Test(
+        "Parse WKST Rule Part",
+        arguments: zip(
+            ["WKST=MO", "WKST=SU", "WKST=WE", "WKST=TH", "WKST=FR"],
+            [Weekday.monday, .sunday, .wednesday, .thursday, .friday]
+        )
+    )
+    func parseWKSTRulePart(rfcByDay: String, expected: Weekday) throws {
+        let rfcString = "FREQ=DAILY;\(rfcByDay)"
+        let result = try parser.parse(rfcString)
+
+        #expect(result.firstDayOfWeek == expected.value)
+    }
+
+    @Test("Throws an error for invalid WKST Rule Part", arguments: ["WKST=AB", "WKST=foobar", "WKST=1"])
+    func throwsErrorForInvalidWKSTRulePart(invalidString: String) throws {
+        let rfcString = "FREQ=DAILY;\(invalidString)"
+        #expect(throws: RecurrenceRule.DomainError.invalidWKST) {
+            try parser.parse(rfcString)
+        }
+    }
+
     @available(macOS 15, *)
     @Test(
         "Get next date occurrence from a parsed rrule with only frequency and interval specified",

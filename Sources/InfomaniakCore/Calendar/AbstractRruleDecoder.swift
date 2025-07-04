@@ -65,6 +65,7 @@ public enum RuleKey: String, Sendable {
     case byDay = "BYDAY"
     case byMonthDay = "BYMONTHDAY"
     case bySetPos = "BYSETPOS"
+    case wkst = "WKST"
 
     var parser: any RuleValueDecoder {
         switch self {
@@ -75,6 +76,7 @@ public enum RuleKey: String, Sendable {
         case .byDay: return ByDayParser()
         case .byMonthDay: return ByMonthDayParser()
         case .bySetPos: return BySetPosParser()
+        case .wkst: return WkstParser()
         }
     }
 }

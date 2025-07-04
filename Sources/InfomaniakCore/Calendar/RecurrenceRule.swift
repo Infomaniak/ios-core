@@ -131,11 +131,79 @@ public extension RecurrenceRule {
             )
         }
 
+        if !nthDayOfMonth.isEmpty {
+            return getNextMonthDayDate(startDate: startDate, daysOfMonth: nthDayOfMonth, currentDate: currentDate)
+        }
+
         return calendar.date(
             byAdding: repetitionFrequency.frequency == .monthly ? .month : .year,
             value: repetitionFrequency.interval,
             to: startDate
         )
+    }
+
+    private func getNormalizedDaysOfMonth(days: [Int], currentDate: Date = Date()) -> [Int] {
+        var dayList: [Int] = []
+        for day in days {
+            if day < 0 {
+                guard let range = calendar.range(of: .day, in: .month, for: currentDate) else { continue }
+                let negativeDay = range.upperBound + day
+                dayList.append(negativeDay)
+            } else {
+                dayList.append(day)
+            }
+        }
+        return dayList.sorted()
+    }
+
+    private func getNextMonthDayDate(
+        startDate: Date,
+        daysOfMonth: [Int],
+        currentDate: Date = Date()
+    ) -> Date? {
+        if startDate > currentDate {
+            return startDate
+        }
+
+        let interval = repetitionFrequency.interval
+        let sortedDaysOfCurrentMonth = getNormalizedDaysOfMonth(days: daysOfMonth, currentDate: currentDate)
+        let matchingDatesOfCurrentMonth = getMatchingDaysOfMonth(date: startDate, daysOfMonth: sortedDaysOfCurrentMonth)
+            .filter { $0 > currentDate }
+            .sorted()
+
+        if let nextDateOfMonth = matchingDatesOfCurrentMonth.first {
+            return nextDateOfMonth
+        }
+
+        let sortedDaysOfFirstMonth = getNormalizedDaysOfMonth(days: daysOfMonth, currentDate: startDate)
+        let firstMonthComponents = DateComponents(
+            year: calendar.component(.year, from: startDate),
+            month: calendar.component(.month, from: startDate),
+            day: sortedDaysOfFirstMonth.first
+        )
+
+        guard let dayInFirstMonth = calendar.date(from: firstMonthComponents), let nextDate = calendar.date(
+            byAdding: .month,
+            value: interval,
+            to: dayInFirstMonth
+        ) else { return nil }
+
+        return nextDate
+    }
+
+    private func getMatchingDaysOfMonth(date: Date, daysOfMonth: [Int]) -> [Date] {
+        var dates: [Date] = []
+        for day in daysOfMonth {
+            let components = DateComponents(
+                year: calendar.component(.year, from: date),
+                month: calendar.component(.month, from: date),
+                day: day
+            )
+            if let date = calendar.date(from: components) {
+                dates.append(date)
+            }
+        }
+        return dates
     }
 
     private func getNextDateInPeriod(

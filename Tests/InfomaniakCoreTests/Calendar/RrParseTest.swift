@@ -145,11 +145,33 @@ struct RecurrenceRuleDecoderTests {
         #expect(result.daysWithEvents == [.monday, .thursday])
     }
 
+    @Test(
+        "Parse BYMONTHDAY Rule Part",
+        arguments: zip(
+            ["BYMONTHDAY=1", "BYMONTHDAY=10", "BYMONTHDAY=12", "BYMONTHDAY=-1", "BYMONTHDAY=25"],
+            [1, 10, 12, -1, 25]
+        )
+    )
+    func parseByMonthDayRulePart(rfcByMonthDay: String, expected: Int) throws {
+        let rfcString = "FREQ=DAILY;\(rfcByMonthDay)"
+        let result = try parser.parse(rfcString)
+
+        #expect(result.nthDayOfMonth == [expected])
+    }
+
+    @Test("Parse BYMONTHDAY with multiple days Rule Part")
+    func parseByMonthDayMultipleDaysRulePart() throws {
+        let rfcString = "FREQ=DAILY;BYMONTHDAY=1,4,17,-2"
+        let result = try parser.parse(rfcString)
+
+        #expect(result.nthDayOfMonth == [1, 4, 17, -2])
+    }
+
     @Test("Parse BYSETPOS Rule Part")
     func parseBySetPosRulePart() throws {
-        let rfcString = "FREQ=MONTHLY;BYSETPOS=2,5,10,23,30"
+        let rfcString = "FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYSETPOS=2,5,10,23,30"
         let res = try parser.parse(rfcString)
-        #expect(res.nthDayOfMonth == [2, 5, 10, 23, 30])
+        #expect(res.nthOccurenceOfMonth == [2, 5, 10, 23, 30])
     }
 
     @available(macOS 15, *)

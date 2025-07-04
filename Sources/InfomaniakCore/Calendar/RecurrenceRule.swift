@@ -205,7 +205,10 @@ public extension RecurrenceRule {
         }
 
         var result = [startDate]
-        while result.last ?? startDate < currentDate {
+        guard let lastDate = try? frequencyNextDate(startDate: currentDate, currentDate: currentDate) else {
+            return result
+        }
+        while result.last ?? startDate < lastDate {
             if let newDate = result.last, let nextDate = try? frequencyNextDate(startDate: newDate, currentDate: currentDate) {
                 result.append(nextDate)
             } else {
@@ -257,6 +260,10 @@ public extension RecurrenceRule {
 
         if let lastOccurrence, lastOccurrence <= nextDate {
             return nil
+        }
+
+        guard let lastDate = allDates.last, nextDate <= lastDate else {
+            return allDates.last
         }
 
         return nextDate

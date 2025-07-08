@@ -408,9 +408,9 @@ struct RecurrenceRuleDecoderTests {
     @Test(
         "Get next date occurrence if the first occurence didn't happen yet",
         arguments: zip(
-            ["FREQ=DAILY;INTERVAL=5;COUNT=3", "FREQ=WEEKLY;INTERVAL=1;UNTIL=20250320", "FREQ=DAILY;INTERVAL=2",
-             "FREQ=MONTHLY;COUNT=9"],
-            ["20250707", "20250707", "20250707", "20250707"]
+            ["FREQ=DAILY;INTERVAL=5;COUNT=3", "FREQ=WEEKLY;INTERVAL=1;UNTIL=20250320", "FREQ=DAILY;INTERVAL=2;BYDAY=MO,TU",
+             "FREQ=MONTHLY;COUNT=9", "FREQ=MONTHLY;INTERVAL=1;BYDAY=WE,FR"],
+            ["20250707", "20250707", "20250707", "20250707", "20250707"]
         )
     )
     func firstOccurence(rfcString: String, expectedDate: String) throws {

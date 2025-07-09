@@ -38,7 +38,7 @@ public struct RecurrenceRule {
     public let nbMaxOfOccurrences: Int?
     public let daysWithEvents: [SpecifiedWeekday]
     public let nthDayOfMonth: [Int]
-    public let nthOccurenceOfMonth: [Int]
+    public let nthOccurrenceOfMonth: [Int]
     public let firstDayOfWeek: Int
 
     public init(_ string: String, calendar: Calendar = .current) throws {
@@ -52,7 +52,7 @@ public struct RecurrenceRule {
         nbMaxOfOccurrences: Int? = nil,
         daysWithEvents: [SpecifiedWeekday] = [],
         nthDayOfMonth: [Int] = [],
-        nthOccurenceOfMonth: [Int] = [],
+        nthOccurrenceOfMonth: [Int] = [],
         firstDayOfWeek: Int
     ) {
         var configuredCalendar = calendar
@@ -63,7 +63,7 @@ public struct RecurrenceRule {
         self.nbMaxOfOccurrences = nbMaxOfOccurrences
         self.daysWithEvents = daysWithEvents
         self.nthDayOfMonth = nthDayOfMonth
-        self.nthOccurenceOfMonth = nthOccurenceOfMonth
+        self.nthOccurrenceOfMonth = nthOccurrenceOfMonth
         self.firstDayOfWeek = firstDayOfWeek
     }
 }
@@ -149,15 +149,46 @@ public extension RecurrenceRule {
 
     private func handleComplexFrequency(startDate: Date, currentDate: Date) -> Date? {
         if !daysWithEvents.isEmpty {
+            let unit: Calendar.Component = repetitionFrequency.frequency == .monthly ? .month : .year
+            let periodsSinceStart = calendar.component(unit, from: currentDate) - calendar.component(unit, from: startDate)
+
+            if (periodsSinceStart % repetitionFrequency.interval) == 0 {
+                let nextDateThisPeriod = getNextDateInPeriod(
+                    daysWithEvents: daysWithEvents,
+                    nthOccurrenceOfMonth: nthOccurrenceOfMonth,
+                    startDate: startDate,
+                    currentDate: currentDate
+                )
+
+                if nextDateThisPeriod != nil {
+                    return nextDateThisPeriod
+                }
+            }
+
+            let unitsToAdd = repetitionFrequency.interval - (periodsSinceStart % repetitionFrequency.interval)
+            guard let nextPeriodDate = calendar.date(
+                byAdding: unit,
+                value: unitsToAdd,
+                to: startDate
+            ) else { return nil }
             return getNextDateInPeriod(
                 daysWithEvents: daysWithEvents,
-                nthOccurenceOfMonth: nthOccurenceOfMonth,
-                startDate: startDate,
+                nthOccurrenceOfMonth: nthOccurrenceOfMonth,
+                startDate: nextPeriodDate,
                 currentDate: currentDate
             )
         }
 
         if !nthDayOfMonth.isEmpty {
+            let sortedDaysOfCurrentMonth = getNormalizedDaysOfMonth(days: nthDayOfMonth, currentDate: currentDate)
+            let matchingDatesOfCurrentMonth = getMatchingDaysOfMonth(date: startDate, daysOfMonth: sortedDaysOfCurrentMonth)
+                .filter { $0 > currentDate }
+                .sorted()
+
+            if let nextDateOfMonth = matchingDatesOfCurrentMonth.first {
+                return nextDateOfMonth
+            }
+
             return getNextMonthDayDate(startDate: startDate, daysOfMonth: nthDayOfMonth, currentDate: currentDate)
         }
 
@@ -187,20 +218,6 @@ public extension RecurrenceRule {
         daysOfMonth: [Int],
         currentDate: Date = Date()
     ) -> Date? {
-        if startDate > currentDate {
-            return startDate
-        }
-
-        let interval = repetitionFrequency.interval
-        let sortedDaysOfCurrentMonth = getNormalizedDaysOfMonth(days: daysOfMonth, currentDate: currentDate)
-        let matchingDatesOfCurrentMonth = getMatchingDaysOfMonth(date: startDate, daysOfMonth: sortedDaysOfCurrentMonth)
-            .filter { $0 > currentDate }
-            .sorted()
-
-        if let nextDateOfMonth = matchingDatesOfCurrentMonth.first {
-            return nextDateOfMonth
-        }
-
         let sortedDaysOfFirstMonth = getNormalizedDaysOfMonth(days: daysOfMonth, currentDate: startDate)
         let firstMonthComponents = DateComponents(
             year: calendar.component(.year, from: startDate),
@@ -210,7 +227,7 @@ public extension RecurrenceRule {
 
         guard let dayInFirstMonth = calendar.date(from: firstMonthComponents), let nextDate = calendar.date(
             byAdding: .month,
-            value: interval,
+            value: repetitionFrequency.interval,
             to: dayInFirstMonth
         ) else { return nil }
 
@@ -233,35 +250,50 @@ public extension RecurrenceRule {
     }
 
     private func getNextDateInPeriod(
-        daysWithEvents: [Weekday],
-        nthOccurenceOfMonth: [Int],
+        daysWithEvents: [SpecifiedWeekday],
+        nthOccurrenceOfMonth: [Int],
         startDate: Date,
         currentDate: Date = Date()
     ) -> Date? {
         let frequency = repetitionFrequency.frequency
-        let unit: Calendar.Component = frequency == .monthly ? .month : .year
         let components: Set<Calendar.Component> = frequency == .monthly ? [.year, .month] : [.year]
 
-        guard let startOfPeriod = calendar.date(from: calendar.dateComponents(components, from: startDate)),
-              let startOfNextPeriod = calendar.date(byAdding: unit, value: 1, to: startOfPeriod) else {
+        guard let startOfPeriod = calendar.date(from: calendar.dateComponents(components, from: startDate)) else {
             return nil
         }
 
-        let thisPeriodDates = getPotentialDates(from: startOfPeriod, matching: daysWithEvents)
-        let nextPeriodDates = getPotentialDates(from: startOfNextPeriod, matching: daysWithEvents)
-
-        let datesThisPeriod = calculateNthDays(at: nthOccurenceOfMonth, in: thisPeriodDates)
-            .filter { $0 > currentDate }
-            .sorted()
-
-        if let firstDateThisPeriod = datesThisPeriod.first {
-            return firstDateThisPeriod
+        if daysWithEvents.contains(where: { $0.position != nil }) {
+            let daysWithPosition = daysWithEvents.filter { $0.position != nil }
+            var candidates = [Date]()
+            for day in daysWithPosition {
+                let thisPeriodDates = getPotentialDates(from: startOfPeriod, matching: [day])
+                if let pos = day.position,
+                   let newDate = calculateNthDays(at: [pos], in: thisPeriodDates).first {
+                    candidates.append(newDate)
+                }
+            }
+            if let nextDate = candidates.filter({ $0 > currentDate }).sorted().first {
+                return nextDate
+            }
         }
 
-        let datesNextPeriod = calculateNthDays(at: nthOccurenceOfMonth, in: nextPeriodDates)
-            .sorted()
+        let thisPeriodDates = getPotentialDates(from: startOfPeriod, matching: daysWithEvents)
+        if !nthOccurrenceOfMonth.isEmpty {
+            let datesThisPeriod = calculateNthDays(at: nthOccurrenceOfMonth, in: thisPeriodDates)
+                .filter { $0 > currentDate }
+                .sorted()
+            if let firstDateThisPeriod = datesThisPeriod.first {
+                return firstDateThisPeriod
+            }
+        }
 
-        return datesNextPeriod.first
+        if nthOccurrenceOfMonth.isEmpty && !daysWithEvents.contains(where: { $0.position != nil }) {
+            if let nextDate = thisPeriodDates.filter({ $0 > currentDate }).sorted().first {
+                return nextDate
+            }
+        }
+
+        return nil
     }
 
     private func calculateNthDays(at positions: [Int], in dates: [Date]) -> [Date] {
@@ -283,7 +315,7 @@ public extension RecurrenceRule {
         }
 
         return dayRange.compactMap { offset -> Date? in
-            guard let date = calendar.date(byAdding: .day, value: offset, to: startOfPeriod) else { return nil }
+            guard let date = calendar.date(byAdding: .day, value: offset - 1, to: startOfPeriod) else { return nil }
             let weekday = calendar.component(.weekday, from: date)
             return weekdays.contains { $0.weekday.value == weekday } ? date : nil
         }

@@ -73,42 +73,25 @@ public extension RecurrenceRule {
     private func getNextWeekDayDate(daysWithEvents: [SpecifiedWeekday],
                                     startDate: Date,
                                     currentDate: Date = Date()) -> Date? {
-        guard let weeksSinceStart = calendar.dateComponents([.weekOfYear], from: startDate, to: currentDate).weekOfYear,
-              let startOfCurrentWeek = calendar.dateInterval(of: .weekOfYear, for: currentDate)?.start else {
+        guard let startOfCurrentWeek = calendar.dateInterval(of: .weekOfYear, for: startDate)?.start else {
             return nil
         }
 
-        if (weeksSinceStart % repetitionFrequency.interval) == 0 {
-            let daysThisWeek = daysWithEvents.compactMap { specifiedWeekday -> Date? in
-                var components = DateComponents()
-                components.weekday = specifiedWeekday.weekday.value
-                return calendar.nextDate(
-                    after: startOfCurrentWeek,
-                    matching: components,
-                    matchingPolicy: .nextTimePreservingSmallerComponents
-                )
-            }.sorted()
-
-            if let nextInWeek = daysThisWeek.first(where: { $0 >= currentDate }) {
-                return nextInWeek
-            }
-        }
-
-        let weeksToAdd = repetitionFrequency.interval - (weeksSinceStart % repetitionFrequency.interval)
-        guard let nextWeekStart = calendar.date(byAdding: .weekOfYear, value: weeksToAdd, to: startOfCurrentWeek)
-        else { return nil }
-
-        let daysNextWeek = daysWithEvents.compactMap { specifiedWeekday -> Date? in
+        let daysThisWeek = daysWithEvents.compactMap { specifiedWeekday -> Date? in
             var components = DateComponents()
             components.weekday = specifiedWeekday.weekday.value
             return calendar.nextDate(
-                after: nextWeekStart,
+                after: startOfCurrentWeek,
                 matching: components,
                 matchingPolicy: .nextTimePreservingSmallerComponents
             )
         }.sorted()
 
-        return daysNextWeek.first
+        if let nextInWeek = daysThisWeek.first(where: { $0 >= currentDate }) {
+            return nextInWeek
+        }
+
+        return nil
     }
 
     private func frequencyNextDate(startDate: Date, currentDate: Date) throws -> Date? {
@@ -140,11 +123,29 @@ public extension RecurrenceRule {
             return calendar.date(byAdding: .weekOfYear, value: repetitionFrequency.interval, to: startDate)
         }
 
-        guard let date = getNextWeekDayDate(daysWithEvents: daysWithEvents, startDate: startDate, currentDate: currentDate) else {
-            return nil
+        let weeksSinceStart = calendar.component(.weekOfYear, from: currentDate) - calendar.component(.weekOfYear, from: startDate)
+
+        if (weeksSinceStart % repetitionFrequency.interval) == 0 {
+            let nextDateThisPeriod = getNextWeekDayDate(
+                daysWithEvents: daysWithEvents,
+                startDate: currentDate,
+                currentDate: currentDate
+            )
+
+            if nextDateThisPeriod != nil {
+                return nextDateThisPeriod
+            }
         }
 
-        return date
+        let weeksToAdd = repetitionFrequency.interval - (weeksSinceStart % repetitionFrequency.interval)
+        guard let nextWeekStart = calendar.date(byAdding: .weekOfYear, value: weeksToAdd, to: currentDate)
+        else { return nil }
+
+        return getNextWeekDayDate(
+            daysWithEvents: daysWithEvents,
+            startDate: nextWeekStart,
+            currentDate: currentDate
+        )
     }
 
     private func handleComplexFrequency(startDate: Date, currentDate: Date) -> Date? {
@@ -156,7 +157,7 @@ public extension RecurrenceRule {
                 let nextDateThisPeriod = getNextDateInPeriod(
                     daysWithEvents: daysWithEvents,
                     nthOccurrenceOfMonth: nthOccurrenceOfMonth,
-                    startDate: startDate,
+                    startDate: currentDate,
                     currentDate: currentDate
                 )
 
@@ -169,7 +170,7 @@ public extension RecurrenceRule {
             guard let nextPeriodDate = calendar.date(
                 byAdding: unit,
                 value: unitsToAdd,
-                to: startDate
+                to: currentDate
             ) else { return nil }
             return getNextDateInPeriod(
                 daysWithEvents: daysWithEvents,

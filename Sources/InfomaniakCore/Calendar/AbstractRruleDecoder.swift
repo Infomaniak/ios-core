@@ -57,6 +57,11 @@ public enum Weekday: String, CaseIterable, Sendable {
     }
 }
 
+public struct SpecifiedWeekday: Sendable {
+    public let position: Int?
+    public let weekday: Weekday
+}
+
 public enum RuleKey: String, Sendable {
     case frequency = "FREQ"
     case interval = "INTERVAL"

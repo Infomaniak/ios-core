@@ -134,7 +134,7 @@ struct RecurrenceRuleDecoderTests {
         let rfcString = "FREQ=DAILY;\(rfcByDay)"
         let result = try parser.parse(rfcString)
 
-        #expect(result.daysWithEvents == [expected])
+        #expect(result.daysWithEvents.map(\.weekday) == [expected])
     }
 
     @Test("Parse BYDAY with multiple weekdays Rule Part")
@@ -142,7 +142,7 @@ struct RecurrenceRuleDecoderTests {
         let rfcString = "FREQ=DAILY;BYDAY=MO,TH"
         let result = try parser.parse(rfcString)
 
-        #expect(result.daysWithEvents == [.monday, .thursday])
+        #expect(result.daysWithEvents.map(\.weekday) == [.monday, .thursday])
     }
 
     @Test(

@@ -80,7 +80,7 @@ struct ByDayParser: RuleValueDecoder {
                 } else {
                     throw RecurrenceRule.DomainError.invalidByDay
                 }
-                let specifiedWeekday = SpecifiedWeekday(weekday: decodedWeekday, position: decodedWeekdayPosition)
+                let specifiedWeekday = SpecifiedWeekday(position: decodedWeekdayPosition, weekday: decodedWeekday)
                 parsedWeekdays.append(specifiedWeekday)
             }
         }

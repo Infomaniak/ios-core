@@ -36,7 +36,7 @@ public struct RecurrenceRule {
     public var repetitionFrequency: RepetitionFrequency
     public let lastOccurrence: Date?
     public let nbMaxOfOccurrences: Int?
-    public let daysWithEvents: [Weekday]
+    public let daysWithEvents: [SpecifiedWeekday]
     public let nthDayOfMonth: [Int]
     public let nthOccurenceOfMonth: [Int]
     public let firstDayOfWeek: Int
@@ -50,7 +50,7 @@ public struct RecurrenceRule {
         repetitionFrequency: RepetitionFrequency,
         lastOccurrence: Date? = nil,
         nbMaxOfOccurrences: Int? = nil,
-        daysWithEvents: [Weekday] = [],
+        daysWithEvents: [SpecifiedWeekday] = [],
         nthDayOfMonth: [Int] = [],
         nthOccurenceOfMonth: [Int] = [],
         firstDayOfWeek: Int
@@ -70,7 +70,7 @@ public struct RecurrenceRule {
 
 @available(macOS 15, *)
 public extension RecurrenceRule {
-    private func getNextWeekDayDate(daysWithEvents: [Weekday],
+    private func getNextWeekDayDate(daysWithEvents: [SpecifiedWeekday],
                                     startDate: Date,
                                     currentDate: Date = Date()) -> Date? {
         guard let weeksSinceStart = calendar.dateComponents([.weekOfYear], from: startDate, to: currentDate).weekOfYear,
@@ -79,9 +79,9 @@ public extension RecurrenceRule {
         }
 
         if (weeksSinceStart % repetitionFrequency.interval) == 0 {
-            let daysThisWeek = daysWithEvents.compactMap { weekday -> Date? in
+            let daysThisWeek = daysWithEvents.compactMap { specifiedWeekday -> Date? in
                 var components = DateComponents()
-                components.weekday = weekday.value
+                components.weekday = specifiedWeekday.weekday.value
                 return calendar.nextDate(
                     after: startOfCurrentWeek,
                     matching: components,
@@ -98,9 +98,9 @@ public extension RecurrenceRule {
         guard let nextWeekStart = calendar.date(byAdding: .weekOfYear, value: weeksToAdd, to: startOfCurrentWeek)
         else { return nil }
 
-        let daysNextWeek = daysWithEvents.compactMap { weekday -> Date? in
+        let daysNextWeek = daysWithEvents.compactMap { specifiedWeekday -> Date? in
             var components = DateComponents()
-            components.weekday = weekday.value
+            components.weekday = specifiedWeekday.weekday.value
             return calendar.nextDate(
                 after: nextWeekStart,
                 matching: components,
@@ -273,7 +273,7 @@ public extension RecurrenceRule {
 
     private func getPotentialDates(
         from startOfPeriod: Date,
-        matching weekdays: [Weekday]
+        matching weekdays: [SpecifiedWeekday]
     ) -> [Date] {
         let frequency = repetitionFrequency.frequency
         let periodUnit: Calendar.Component = (frequency == .monthly) ? .month : .year
@@ -285,7 +285,7 @@ public extension RecurrenceRule {
         return dayRange.compactMap { offset -> Date? in
             guard let date = calendar.date(byAdding: .day, value: offset, to: startOfPeriod) else { return nil }
             let weekday = calendar.component(.weekday, from: date)
-            return weekdays.contains { $0.value == weekday } ? date : nil
+            return weekdays.contains { $0.weekday.value == weekday } ? date : nil
         }
     }
 

@@ -58,15 +58,30 @@ struct UntilParser: RuleValueDecoder {
 }
 
 struct ByDayParser: RuleValueDecoder {
-    func decode(_ value: String) throws -> [Weekday] {
+    func decode(_ value: String) throws -> [SpecifiedWeekday] {
+        let allDays = Weekday.allCases.map { $0.rawValue }.joined(separator: "|")
+        let regex = try NSRegularExpression(pattern: "([+-]?\\d+)?(\(allDays))")
         let weekdays = value.split(separator: ",").map { String($0) }
-        var parsedWeekdays: [Weekday] = []
+        var parsedWeekdays: [SpecifiedWeekday] = []
 
         for weekday in weekdays {
-            if let day = Weekday(rawValue: weekday) {
-                parsedWeekdays.append(day)
-            } else {
-                throw RecurrenceRule.DomainError.invalidByDay
+            let range = NSRange(weekday.startIndex..., in: weekday)
+            if let match = regex.firstMatch(in: weekday, options: [], range: range) {
+                let decodedWeekdayPosition: Int?
+                let decodedWeekday: Weekday
+                if let positionRange = Range(match.range(at: 1), in: weekday),
+                   let position = Int(String(weekday[positionRange])) {
+                    decodedWeekdayPosition = position
+                } else {
+                    decodedWeekdayPosition = nil
+                }
+                if let dayRange = Range(match.range(at: 2), in: weekday), let day = Weekday(rawValue: String(weekday[dayRange])) {
+                    decodedWeekday = day
+                } else {
+                    throw RecurrenceRule.DomainError.invalidByDay
+                }
+                let specifiedWeekday = SpecifiedWeekday(weekday: decodedWeekday, position: decodedWeekdayPosition)
+                parsedWeekdays.append(specifiedWeekday)
             }
         }
 

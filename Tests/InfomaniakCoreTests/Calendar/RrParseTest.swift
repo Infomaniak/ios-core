@@ -171,7 +171,7 @@ struct RecurrenceRuleDecoderTests {
     func parseBySetPosRulePart() throws {
         let rfcString = "FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYSETPOS=2,5,10,23,30"
         let res = try parser.parse(rfcString)
-        #expect(res.nthOccurenceOfMonth == [2, 5, 10, 23, 30])
+        #expect(res.nthOccurrenceOfMonth == [2, 5, 10, 23, 30])
     }
 
     @Test(
@@ -332,20 +332,76 @@ struct RecurrenceRuleDecoderTests {
 
     @available(macOS 15, *)
     @Test(
-        "Get next date occurrence from a parsed rrule with BYSETPOS rule parts",
+        "Get next date occurrence from a parsed rrule with BYDAY/BYSETPOS rule parts",
         arguments: zip(
             [
-                "FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2",
-                "FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2,3",
-                "FREQ=MONTHLY;BYDAY=TU,TH;BYSETPOS=-1",
-                "FREQ=YEARLY;BYDAY=TU;BYSETPOS=2"
+                "FREQ=MONTHLY;BYDAY=2MO",
+                "FREQ=MONTHLY;BYDAY=MO;BYSETPOS=1",
+                "FREQ=MONTHLY;BYDAY=MO,TU,WE;BYSETPOS=3",
+                "FREQ=MONTHLY;BYDAY=MO,TU,WE;BYSETPOS=-1",
+                "FREQ=MONTHLY;BYDAY=MO",
+                "FREQ=MONTHLY;BYDAY=MO;BYSETPOS=2,"
             ],
-            ["20250310", "20250217", "20250227", "20260113"]
+            [
+                "20250310",
+                "20250303",
+                "20250305",
+                "20250226",
+                "20250217",
+                "20250310"
+            ]
         )
     )
     func nextOccurrenceBySetPosPart(rfcString: String, expectedDate: String) throws {
         let startingDate = "20250210"
         let currentDate = "20250212"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = calendar.timeZone
+
+        guard let startDateObj = formatter.date(from: startingDate) else {
+            return
+        }
+
+        guard let currentDateObj = formatter.date(from: currentDate) else {
+            return
+        }
+
+        let rule = try RecurrenceRule(rfcString, calendar: calendar)
+        guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
+            return
+        }
+
+        let resultDateString = formatter.string(from: result)
+        #expect(resultDateString == expectedDate)
+    }
+
+    @available(macOS 15, *)
+    @Test(
+        "Get next date occurrence from a parsed rrule with INTERVAL and BYDAY/BYSETPOS parts",
+        arguments: zip(
+            [
+                "FREQ=MONTHLY;INTERVAL=2;BYDAY=2MO",
+                "FREQ=MONTHLY;INTERVAL=2;BYDAY=MO;BYSETPOS=1",
+                "FREQ=MONTHLY;INTERVAL=3;BYDAY=-1FR",
+                "FREQ=MONTHLY;INTERVAL=2;BYDAY=MO,TU,WE;BYSETPOS=-1",
+                "FREQ=MONTHLY;INTERVAL=2;BYDAY=+1FR;COUNT=27",
+                "FREQ=MONTHLY;INTERVAL=5;BYDAY=+2TU"
+
+            ],
+            [
+                "20250714",
+                "20250901",
+                "20250725",
+                "20250730",
+                "20250905",
+                "20251209"
+            ]
+        )
+    )
+    func nextOccurrenceIntervalAndBySetPosPart(rfcString: String, expectedDate: String) throws {
+        let startingDate = "20250704"
+        let currentDate = "20250709"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = calendar.timeZone

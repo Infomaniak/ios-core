@@ -29,7 +29,7 @@ public class RecurrenceRuleDecoder {
         var nbMaxOfOccurrences: Int?
         var daysWithEvents: [SpecifiedWeekday]?
         var nthDayOfMonth: [Int]?
-        var nthOccurenceOfMonth: [Int]?
+        var nthOccurrenceOfMonth: [Int]?
         var firstDayOfWeek: Weekday?
 
         let parts = value.split(separator: ";")
@@ -60,7 +60,7 @@ public class RecurrenceRuleDecoder {
             case .byMonthDay:
                 nthDayOfMonth = try ruleKey.parser.decode(value) as? [Int] ?? []
             case .bySetPos:
-                nthOccurenceOfMonth = try ruleKey.parser.decode(value) as? [Int] ?? []
+                nthOccurrenceOfMonth = try ruleKey.parser.decode(value) as? [Int] ?? []
             case .wkst:
                 firstDayOfWeek = try ruleKey.parser.decode(value) as? Weekday ?? .monday
             }
@@ -81,7 +81,7 @@ public class RecurrenceRuleDecoder {
             nbMaxOfOccurrences: nbMaxOfOccurrences,
             daysWithEvents: daysWithEvents ?? [],
             nthDayOfMonth: nthDayOfMonth ?? [],
-            nthOccurenceOfMonth: nthOccurenceOfMonth ?? [],
+            nthOccurrenceOfMonth: nthOccurrenceOfMonth ?? [],
             firstDayOfWeek: firstDayOfWeek?.value ?? Weekday.monday.value
         )
     }

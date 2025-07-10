@@ -73,7 +73,9 @@ public extension RecurrenceRule {
     private func getNextWeekDayDate(daysWithEvents: [SpecifiedWeekday],
                                     startDate: Date,
                                     currentDate: Date = Date()) -> Date? {
-        guard let startOfCurrentWeek = calendar.dateInterval(of: .weekOfYear, for: startDate)?.start else {
+        guard let startOfCurrentWeek = calendar.dateInterval(of: .weekOfYear, for: startDate)?.start,
+              let searchStartDate = calendar.date(byAdding: .second, value: -1, to: startOfCurrentWeek)
+        else {
             return nil
         }
 
@@ -81,7 +83,7 @@ public extension RecurrenceRule {
             var components = DateComponents()
             components.weekday = specifiedWeekday.weekday.value
             return calendar.nextDate(
-                after: startOfCurrentWeek,
+                after: searchStartDate,
                 matching: components,
                 matchingPolicy: .nextTimePreservingSmallerComponents
             )
@@ -123,7 +125,10 @@ public extension RecurrenceRule {
             return calendar.date(byAdding: .weekOfYear, value: repetitionFrequency.interval, to: startDate)
         }
 
-        let weeksSinceStart = calendar.component(.weekOfYear, from: currentDate) - calendar.component(.weekOfYear, from: startDate)
+        let weeksSinceStart = calendar.component(.weekOfYear, from: currentDate) - calendar.component(
+            .weekOfYear,
+            from: startDate
+        )
 
         if (weeksSinceStart % repetitionFrequency.interval) == 0 {
             let nextDateThisPeriod = getNextWeekDayDate(

@@ -309,7 +309,7 @@ struct RecurrenceRuleDecoderTests {
                 "FREQ=WEEKLY;BYDAY=SU"
             ],
             [
-                "20250702",
+                "20250630",
                 "20250712",
                 "20250701",
                 "20250706"
@@ -518,6 +518,44 @@ struct RecurrenceRuleDecoderTests {
     func nextOccurrenceAfterOneIteration(rfcString: String, expectedDate: String) throws {
         let startingDate = "20250610"
         let currentDate = "20250820"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = calendar.timeZone
+
+        guard let startDateObj = formatter.date(from: startingDate) else {
+            return
+        }
+
+        guard let currentDateObj = formatter.date(from: currentDate) else {
+            return
+        }
+
+        let rule = try RecurrenceRule(rfcString, calendar: calendar)
+        guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
+            return
+        }
+
+        let resultDateString = formatter.string(from: result)
+        #expect(resultDateString == expectedDate)
+    }
+
+    @available(macOS 15, *)
+    @Test(
+        "Get next date occurrence from a parsed rrule with WKST rule parts",
+        arguments: zip(
+            [
+                "FREQ=WEEKLY;INTERVAL=2;BYDAY=SU;WKST=SU",
+                "FREQ=WEEKLY;INTERVAL=2;BYDAY=SU;WKST=MO"
+            ],
+            [
+                "20250622",
+                "20250629"
+            ]
+        )
+    )
+    func nextOccurrenceWKSTPart(rfcString: String, expectedDate: String) throws {
+        let startingDate = "20250609"
+        let currentDate = "20250620"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = calendar.timeZone

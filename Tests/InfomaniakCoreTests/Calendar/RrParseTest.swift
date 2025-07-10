@@ -185,7 +185,7 @@ struct RecurrenceRuleDecoderTests {
         let rfcString = "FREQ=DAILY;\(rfcByDay)"
         let result = try parser.parse(rfcString)
 
-        #expect(result.firstDayOfWeek == expected.value)
+        #expect(result.repetitionFrequency.firstDayOfWeek == expected.value)
     }
 
     @Test("Throws an error for invalid WKST Rule Part", arguments: ["WKST=AB", "WKST=foobar", "WKST=1"])

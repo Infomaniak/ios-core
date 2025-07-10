@@ -60,6 +60,11 @@ public enum Weekday: String, CaseIterable, Sendable {
 public struct SpecifiedWeekday: Sendable {
     public let position: Int?
     public let weekday: Weekday
+
+    public init(position: Int?, weekday: Weekday) {
+        self.position = position
+        self.weekday = weekday
+    }
 }
 
 public enum RuleKey: String, Sendable {
@@ -89,9 +94,11 @@ public enum RuleKey: String, Sendable {
 public struct RepetitionFrequency: Sendable {
     public let frequency: Frequency
     public let interval: Int
+    public let firstDayOfWeek: Int
 
-    public init(frequency: Frequency, interval: Int) {
+    public init(frequency: Frequency, interval: Int, firstDayOfWeek: Int) {
         self.frequency = frequency
         self.interval = interval
+        self.firstDayOfWeek = firstDayOfWeek
     }
 }

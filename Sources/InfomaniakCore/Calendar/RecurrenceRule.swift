@@ -39,7 +39,6 @@ public struct RecurrenceRule {
     public let daysWithEvents: [SpecifiedWeekday]
     public let nthDayOfMonth: [Int]
     public let nthOccurrenceOfMonth: [Int]
-    public let firstDayOfWeek: Int
 
     public init(_ string: String, calendar: Calendar = .current) throws {
         self = try RecurrenceRuleDecoder().parse(string, calendar: calendar)
@@ -53,10 +52,9 @@ public struct RecurrenceRule {
         daysWithEvents: [SpecifiedWeekday] = [],
         nthDayOfMonth: [Int] = [],
         nthOccurrenceOfMonth: [Int] = [],
-        firstDayOfWeek: Int
     ) {
         var configuredCalendar = calendar
-        configuredCalendar.firstWeekday = firstDayOfWeek
+        configuredCalendar.firstWeekday = repetitionFrequency.firstDayOfWeek
         self.calendar = configuredCalendar
         self.repetitionFrequency = repetitionFrequency
         self.lastOccurrence = lastOccurrence
@@ -64,7 +62,6 @@ public struct RecurrenceRule {
         self.daysWithEvents = daysWithEvents
         self.nthDayOfMonth = nthDayOfMonth
         self.nthOccurrenceOfMonth = nthOccurrenceOfMonth
-        self.firstDayOfWeek = firstDayOfWeek
     }
 }
 

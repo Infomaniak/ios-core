@@ -76,13 +76,12 @@ public class RecurrenceRuleDecoder {
 
         return RecurrenceRule(
             calendar: calendar,
-            repetitionFrequency: RepetitionFrequency(frequency: frequency, interval: interval ?? 1),
+            repetitionFrequency: RepetitionFrequency(frequency: frequency, interval: interval ?? 1, firstDayOfWeek: firstDayOfWeek?.value ?? Weekday.monday.value),
             lastOccurrence: lastOccurrence,
             nbMaxOfOccurrences: nbMaxOfOccurrences,
             daysWithEvents: daysWithEvents ?? [],
             nthDayOfMonth: nthDayOfMonth ?? [],
-            nthOccurrenceOfMonth: nthOccurrenceOfMonth ?? [],
-            firstDayOfWeek: firstDayOfWeek?.value ?? Weekday.monday.value
+            nthOccurrenceOfMonth: nthOccurrenceOfMonth ?? []
         )
     }
 }

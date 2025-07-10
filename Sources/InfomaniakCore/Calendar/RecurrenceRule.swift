@@ -387,6 +387,9 @@ public extension RecurrenceRule {
     func getNextOccurrence(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
         let allDates = try allOccurrencesSinceStartDate(startDate, currentDate)
         guard let nearestPastDate = getNearestPastDate(targetDate: currentDate, dates: allDates) else {
+            if let lastDate = allDates.last, lastDate <= currentDate {
+                return lastDate
+            }
             return startDate
         }
 

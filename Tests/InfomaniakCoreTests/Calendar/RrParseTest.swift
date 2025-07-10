@@ -576,4 +576,42 @@ struct RecurrenceRuleDecoderTests {
         let resultDateString = formatter.string(from: result)
         #expect(resultDateString == expectedDate)
     }
+
+    @available(macOS 15, *)
+    @Test(
+        "Get last date occurrence in case the rule has a limit",
+        arguments: zip(
+            [
+                "FREQ=DAILY;INTERVAL=1;COUNT=3",
+                "FREQ=DAILY;INTERVAL=1;UNTIL=20250708"
+            ],
+            [
+                "20250706",
+                "20250708"
+            ]
+        )
+    )
+    func lastOccurrence(rfcString: String, expectedDate: String) throws {
+        let startingDate = "20250704"
+        let currentDate = "20250710"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = calendar.timeZone
+
+        guard let startDateObj = formatter.date(from: startingDate) else {
+            return
+        }
+
+        guard let currentDateObj = formatter.date(from: currentDate) else {
+            return
+        }
+
+        let rule = try RecurrenceRule(rfcString, calendar: calendar)
+        guard let result = try rule.getNextOccurrence(startDateObj, currentDateObj) else {
+            return
+        }
+
+        let resultDateString = formatter.string(from: result)
+        #expect(resultDateString == expectedDate)
+    }
 }

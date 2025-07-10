@@ -395,7 +395,7 @@ public extension RecurrenceRule {
         }
 
         if let lastOccurrence, lastOccurrence <= nextDate {
-            return nil
+            return allDates.last
         }
 
         guard let lastDate = allDates.last, nextDate <= lastDate else {

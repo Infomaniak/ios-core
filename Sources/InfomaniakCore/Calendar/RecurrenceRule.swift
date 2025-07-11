@@ -143,32 +143,27 @@ public extension RecurrenceRule {
     private func handleComplexFrequency(startDate: Date, currentDate: Date) -> Date? {
         if !daysWithEvents.isEmpty {
             let unit: Calendar.Component = repetitionFrequency.frequency == .monthly ? .month : .year
-            let periodsSinceStart = calendar.component(unit, from: currentDate) - calendar.component(unit, from: startDate)
 
-            if (periodsSinceStart % repetitionFrequency.interval) == 0 {
-                let nextDateThisPeriod = getNextDateInPeriod(
-                    daysWithEvents: daysWithEvents,
-                    nthOccurrenceOfMonth: nthOccurrenceOfMonth,
-                    startDate: currentDate,
-                    currentDate: currentDate
-                )
-
-                if nextDateThisPeriod != nil {
-                    return nextDateThisPeriod
-                }
+            if let nextDateThisPeriod = getNextDateInPeriod(
+                daysWithEvents: daysWithEvents,
+                nthOccurrenceOfMonth: nthOccurrenceOfMonth,
+                startDate: startDate,
+                currentDate: startDate
+            ) {
+                return nextDateThisPeriod
             }
 
-            let unitsToAdd = repetitionFrequency.interval - (periodsSinceStart % repetitionFrequency.interval)
-            guard let nextPeriodDate = calendar.date(
-                byAdding: unit,
-                value: unitsToAdd,
-                to: currentDate
-            ) else { return nil }
+            let unitsToAdd = repetitionFrequency.interval
+            let components: Set<Calendar.Component> = repetitionFrequency.frequency == .monthly ? [.year, .month] : [.year]
+            guard let nextPeriodDate = calendar.date(byAdding: unit, value: unitsToAdd, to: startDate),
+                  let startOfNextPeriod = calendar.date(from: calendar.dateComponents(components, from: nextPeriodDate))
+            else { return nil }
+
             return getNextDateInPeriod(
                 daysWithEvents: daysWithEvents,
                 nthOccurrenceOfMonth: nthOccurrenceOfMonth,
-                startDate: nextPeriodDate,
-                currentDate: currentDate
+                startDate: startOfNextPeriod,
+                currentDate: startOfNextPeriod
             )
         }
 

@@ -163,7 +163,7 @@ public extension RecurrenceRule {
                 daysWithEvents: daysWithEvents,
                 nthOccurrenceOfMonth: nthOccurrenceOfMonth,
                 startDate: startOfNextPeriod,
-                currentDate: startOfNextPeriod
+                currentDate: startDate
             )
         }
 
@@ -339,7 +339,13 @@ public extension RecurrenceRule {
     private func allNextOccurrencesWithCountRule(nbMaxOfOccurrences: Int,
                                                  startDate: Date,
                                                  currentDate: Date = Date()) -> [Date] {
-        var result = [startDate]
+        var result = [Date]()
+        if daysWithEvents.isEmpty {
+            result.append(startDate)
+        } else {
+            guard let firstDate = try? frequencyNextDate(startDate: startDate, currentDate: currentDate) else { return [] }
+            result.append(firstDate)
+        }
 
         for _ in 0 ..< nbMaxOfOccurrences - 1 {
             if let newDate = result.last, let nextDate = try? frequencyNextDate(startDate: newDate, currentDate: currentDate) {

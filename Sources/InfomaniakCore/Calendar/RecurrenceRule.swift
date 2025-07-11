@@ -68,8 +68,7 @@ public struct RecurrenceRule {
 @available(macOS 15, *)
 public extension RecurrenceRule {
     private func getNextWeekDayDate(daysWithEvents: [SpecifiedWeekday],
-                                    startDate: Date,
-                                    currentDate: Date = Date()) -> Date? {
+                                    startDate: Date) -> Date? {
         guard let startOfCurrentWeek = calendar.dateInterval(of: .weekOfYear, for: startDate)?.start,
               let searchStartDate = calendar.date(byAdding: .second, value: -1, to: startOfCurrentWeek)
         else {
@@ -86,8 +85,8 @@ public extension RecurrenceRule {
             )
         }.sorted()
 
-        if let nextInWeek = daysThisWeek.first(where: { $0 >= currentDate }) {
-            return nextInWeek
+        if let nextDate = daysThisWeek.first(where: { $0 > startDate }) {
+            return nextDate
         }
 
         return nil
@@ -107,7 +106,7 @@ public extension RecurrenceRule {
             return calendar.date(byAdding: .day, value: interval, to: startDate)
 
         case .weekly:
-            return handleWeeklyFrequency(startDate: startDate, currentDate: currentDate)
+            return handleWeeklyFrequency(startDate: startDate)
 
         case .monthly, .yearly:
             return handleComplexFrequency(startDate: startDate, currentDate: currentDate)
@@ -117,37 +116,28 @@ public extension RecurrenceRule {
         }
     }
 
-    private func handleWeeklyFrequency(startDate: Date, currentDate: Date = Date()) -> Date? {
+    private func handleWeeklyFrequency(startDate: Date) -> Date? {
         guard !daysWithEvents.isEmpty else {
             return calendar.date(byAdding: .weekOfYear, value: repetitionFrequency.interval, to: startDate)
         }
 
-        let weeksSinceStart = calendar.component(.weekOfYear, from: currentDate) - calendar.component(
-            .weekOfYear,
-            from: startDate
-        )
-
-        if (weeksSinceStart % repetitionFrequency.interval) == 0 {
-            let nextDateThisPeriod = getNextWeekDayDate(
-                daysWithEvents: daysWithEvents,
-                startDate: currentDate,
-                currentDate: currentDate
-            )
-
-            if nextDateThisPeriod != nil {
-                return nextDateThisPeriod
-            }
+        if let nextDateThisWeek = getNextWeekDayDate(
+            daysWithEvents: daysWithEvents,
+            startDate: startDate
+        ) {
+            return nextDateThisWeek
         }
 
-        let weeksToAdd = repetitionFrequency.interval - (weeksSinceStart % repetitionFrequency.interval)
-        guard let nextWeekStart = calendar.date(byAdding: .weekOfYear, value: weeksToAdd, to: currentDate)
+        guard let firstEventOfWeek = daysWithEvents.first,
+              let nextWeekDate = calendar.date(byAdding: .weekOfYear, value: repetitionFrequency.interval, to: startDate)
         else { return nil }
-
-        return getNextWeekDayDate(
-            daysWithEvents: daysWithEvents,
-            startDate: nextWeekStart,
-            currentDate: currentDate
+        let firstEventNextWeekComponents = DateComponents(
+            year: calendar.component(.year, from: startDate),
+            weekday: firstEventOfWeek.weekday.value,
+            weekOfYear: calendar.component(.weekOfYear, from: nextWeekDate)
         )
+
+        return calendar.date(from: firstEventNextWeekComponents)
     }
 
     private func handleComplexFrequency(startDate: Date, currentDate: Date) -> Date? {

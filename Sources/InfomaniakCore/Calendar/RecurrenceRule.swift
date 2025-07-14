@@ -310,10 +310,20 @@ public extension RecurrenceRule {
     }
 
     func allOccurrencesSinceStartDate(_ startDate: Date, _ currentDate: Date = Date()) throws -> [Date] {
+        var firstOccurrence = startDate
+        if !daysWithEvents.isEmpty {
+            let weekdayNumber = calendar.component(.weekday, from: startDate)
+            if !daysWithEvents.contains(where: { $0.weekday.value == weekdayNumber }) {
+                if let nextDate = try? frequencyNextDate(startDate: startDate, currentDate: startDate) {
+                    firstOccurrence = nextDate
+                }
+            }
+        }
+
         if let nbMaxOfOccurrences {
             return allNextOccurrencesWithCountRule(
                 nbMaxOfOccurrences: nbMaxOfOccurrences,
-                startDate: startDate,
+                startDate: firstOccurrence,
                 currentDate: currentDate
             )
         }
@@ -321,16 +331,16 @@ public extension RecurrenceRule {
         if let lastOccurrence {
             return allNextOccurrencesWithEndRule(
                 lastOccurrence: lastOccurrence,
-                startDate: startDate,
+                startDate: firstOccurrence,
                 currentDate: currentDate
             )
         }
 
-        var result = [startDate]
+        var result = [firstOccurrence]
         guard let lastDate = try? frequencyNextDate(startDate: currentDate, currentDate: currentDate) else {
             return result
         }
-        while result.last ?? startDate < lastDate {
+        while result.last ?? firstOccurrence < lastDate {
             if let newDate = result.last, let nextDate = try? frequencyNextDate(startDate: newDate, currentDate: currentDate) {
                 result.append(nextDate)
             } else {
@@ -343,16 +353,8 @@ public extension RecurrenceRule {
     private func allNextOccurrencesWithCountRule(nbMaxOfOccurrences: Int,
                                                  startDate: Date,
                                                  currentDate: Date = Date()) -> [Date] {
-        var nbOfOccurrences = nbMaxOfOccurrences - 1
-        if !daysWithEvents.isEmpty {
-            let weekdayNumber = calendar.component(.weekday, from: startDate)
-            if !daysWithEvents.contains(where: { $0.weekday.value == weekdayNumber }) {
-                nbOfOccurrences += 1
-            }
-        }
-
         var result = [startDate]
-        for _ in 0 ..< nbOfOccurrences {
+        for _ in 0 ..< nbMaxOfOccurrences - 1 {
             if let newDate = result.last, let nextDate = try? frequencyNextDate(startDate: newDate, currentDate: currentDate) {
                 result.append(nextDate)
             }

@@ -319,7 +319,11 @@ public extension RecurrenceRule {
         }
 
         if let lastOccurrence {
-            return allNextOccurrencesWithEndRule(lastOccurrence: lastOccurrence, startDate: startDate, currentDate: currentDate)
+            return allNextOccurrencesWithEndRule(
+                lastOccurrence: lastOccurrence,
+                startDate: startDate,
+                currentDate: currentDate
+            )
         }
 
         var result = [startDate]
@@ -339,15 +343,16 @@ public extension RecurrenceRule {
     private func allNextOccurrencesWithCountRule(nbMaxOfOccurrences: Int,
                                                  startDate: Date,
                                                  currentDate: Date = Date()) -> [Date] {
-        var result = [Date]()
-        if daysWithEvents.isEmpty {
-            result.append(startDate)
-        } else {
-            guard let firstDate = try? frequencyNextDate(startDate: startDate, currentDate: currentDate) else { return [] }
-            result.append(firstDate)
+        var nbOfOccurrences = nbMaxOfOccurrences - 1
+        if !daysWithEvents.isEmpty {
+            let weekdayNumber = calendar.component(.weekday, from: startDate)
+            if !daysWithEvents.contains(where: { $0.weekday.value == weekdayNumber }) {
+                nbOfOccurrences += 1
+            }
         }
 
-        for _ in 0 ..< nbMaxOfOccurrences - 1 {
+        var result = [startDate]
+        for _ in 0 ..< nbOfOccurrences {
             if let newDate = result.last, let nextDate = try? frequencyNextDate(startDate: newDate, currentDate: currentDate) {
                 result.append(nextDate)
             }
@@ -378,7 +383,7 @@ public extension RecurrenceRule {
             if let lastDate = allDates.last, lastDate <= currentDate {
                 return lastDate
             }
-            return startDate
+            return allDates.first ?? startDate
         }
 
         guard let nextDate = try frequencyNextDate(startDate: nearestPastDate, currentDate: currentDate) else {

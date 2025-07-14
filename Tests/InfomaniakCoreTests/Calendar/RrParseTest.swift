@@ -96,8 +96,15 @@ struct RecurrenceRuleDecoderTests {
 
     @Test("Parse UNTIL DATE Rule Part")
     func parseUntilDateRulePart() throws {
-        let rfcString = "FREQ=DAILY;UNTIL=20250111"
-        let expected = Date(timeIntervalSince1970: 1_736_550_000)
+        let rfcString = "FREQ=DAILY;UNTIL=20250111T215959Z"
+        var components = DateComponents()
+        components.year = 2025
+        components.month = 1
+        components.day = 11
+        components.hour = 21
+        components.minute = 59
+        components.second = 59
+        let expected = calendar.date(from: components)!
         let res = try parser.parse(rfcString, calendar: calendar)
 
         guard let result = res.lastOccurrence else {
@@ -107,7 +114,7 @@ struct RecurrenceRuleDecoderTests {
         #expect(result.timeIntervalSince1970 == expected.timeIntervalSince1970)
     }
 
-    @Test("Throws an error for invalid UNTIL Rule Part", arguments: ["UNTIL=20251350", "UNTIL=foobar", "UNTIL=1"])
+    @Test("Throws an error for invalid UNTIL Rule Part", arguments: ["UNTIL=20251350T215959Z", "UNTIL=foobar", "UNTIL=1"])
     func throwsErrorForInvalidUntilRulePart(invalidString: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidString)"
         #expect(throws: RecurrenceRule.DomainError.invalidUntil) {
@@ -117,7 +124,7 @@ struct RecurrenceRuleDecoderTests {
 
     @Test("Throws an error when both UNTIL and COUNT are specified")
     func throwsErrorWhenBothUntilAndCountAreSpecified() throws {
-        let rfcString = "FREQ=DAILY;UNTIL=21000101;COUNT=1"
+        let rfcString = "FREQ=DAILY;UNTIL=21000101T215959Z;COUNT=1"
         #expect(throws: RecurrenceRule.DomainError.bothUntilAndCountSet) {
             try parser.parse(rfcString)
         }
@@ -269,7 +276,7 @@ struct RecurrenceRuleDecoderTests {
     @Test(
         "Get next date occurrence from a parsed rrule with multiple rule parts",
         arguments: zip(
-            ["FREQ=DAILY;INTERVAL=5;COUNT=3", "FREQ=WEEKLY;INTERVAL=1;UNTIL=20250320", "FREQ=DAILY;INTERVAL=2",
+            ["FREQ=DAILY;INTERVAL=5;COUNT=3", "FREQ=WEEKLY;INTERVAL=1;UNTIL=20250320T215959Z", "FREQ=DAILY;INTERVAL=2",
              "FREQ=DAILY;COUNT=9"],
             ["20250227", "20250303", "20250227", "20250225"]
         )
@@ -476,8 +483,13 @@ struct RecurrenceRuleDecoderTests {
     @Test(
         "Get next date occurrence if the first occurence didn't happen yet",
         arguments: zip(
-            ["FREQ=DAILY;INTERVAL=5;COUNT=3", "FREQ=WEEKLY;INTERVAL=1;UNTIL=20250320", "FREQ=DAILY;INTERVAL=2;BYDAY=MO,TU",
-             "FREQ=MONTHLY;COUNT=9", "FREQ=MONTHLY;INTERVAL=1;BYDAY=WE,FR"],
+            [
+                "FREQ=DAILY;INTERVAL=5;COUNT=3",
+                "FREQ=WEEKLY;INTERVAL=1;UNTIL=20250320T215959Z",
+                "FREQ=DAILY;INTERVAL=2;BYDAY=MO,TU",
+                "FREQ=MONTHLY;COUNT=9",
+                "FREQ=MONTHLY;INTERVAL=1;BYDAY=WE,FR"
+            ],
             ["20250707", "20250707", "20250707", "20250707", "20250709"]
         )
     )
@@ -585,11 +597,11 @@ struct RecurrenceRuleDecoderTests {
         arguments: zip(
             [
                 "FREQ=DAILY;INTERVAL=1;COUNT=3",
-                "FREQ=DAILY;INTERVAL=3;UNTIL=20250623",
+                "FREQ=DAILY;INTERVAL=3;UNTIL=20250623T215959Z",
                 "FREQ=WEEKLY;INTERVAL=1;BYDAY=TU,TH;COUNT=6",
-                "FREQ=WEEKLY;INTERVAL=1;BYDAY=TH;UNTIL=20250610",
-                "FREQ=MONTHLY;INTERVAL=1;BYDAY=MO;UNTIL=20250607",
-                "FREQ=MONTHLY;INTERVAL=1;BYDAY=2MO;UNTIL=20250607",
+                "FREQ=WEEKLY;INTERVAL=1;BYDAY=TH;UNTIL=20250610T215959Z",
+                "FREQ=MONTHLY;INTERVAL=1;BYDAY=MO;UNTIL=20250607T215959Z",
+                "FREQ=MONTHLY;INTERVAL=1;BYDAY=2MO;UNTIL=20250607T215959Z",
                 "FREQ=MONTHLY;INTERVAL=1;BYDAY=TH;COUNT=4",
                 "FREQ=MONTHLY;INTERVAL=1;BYMONTHDAY=1",
                 "FREQ=MONTHLY;INTERVAL=1;BYDAY=+1FR",

@@ -48,7 +48,7 @@ struct CountParser: RuleValueDecoder {
 struct UntilParser: RuleValueDecoder {
     func decode(_ value: String) throws -> Date {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
+        formatter.dateFormat = "yyyyMMdd'T'HHmmss'Z'"
         guard let formattedDate = formatter.date(from: value) else {
             throw RecurrenceRule.DomainError.invalidUntil
         }

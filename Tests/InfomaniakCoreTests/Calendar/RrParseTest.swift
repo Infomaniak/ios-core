@@ -309,7 +309,7 @@ struct RecurrenceRuleDecoderTests {
                 "FREQ=WEEKLY;BYDAY=SU"
             ],
             [
-                "20250630",
+                "20250702",
                 "20250712",
                 "20250701",
                 "20250706"
@@ -392,25 +392,27 @@ struct RecurrenceRuleDecoderTests {
         arguments: zip(
             [
                 "FREQ=MONTHLY;INTERVAL=2;BYDAY=2MO",
-                "FREQ=MONTHLY;INTERVAL=2;BYDAY=MO;BYSETPOS=1",
+                "FREQ=MONTHLY;INTERVAL=3;BYDAY=MO;BYSETPOS=2",
+                "FREQ=WEEKLY;INTERVAL=7;BYDAY=TU",
                 "FREQ=MONTHLY;INTERVAL=3;BYDAY=-1FR",
                 "FREQ=MONTHLY;INTERVAL=2;BYDAY=MO,TU,WE;BYSETPOS=-1",
-                "FREQ=MONTHLY;INTERVAL=2;BYDAY=+1FR;COUNT=27",
-                "FREQ=MONTHLY;INTERVAL=5;BYDAY=+2TU"
+                "FREQ=MONTHLY;INTERVAL=3;BYDAY=+1FR;COUNT=27",
+                "FREQ=MONTHLY;INTERVAL=5;BYDAY=+2WE"
 
             ],
             [
-                "20250714",
-                "20250901",
-                "20250725",
-                "20250730",
+                "20250811",
+                "20250908",
+                "20250722",
+                "20250926",
+                "20250827",
                 "20250905",
-                "20251209"
+                "20251112"
             ]
         )
     )
     func nextOccurrenceIntervalAndBySetPosPart(rfcString: String, expectedDate: String) throws {
-        let startingDate = "20250704"
+        let startingDate = "20250604"
         let currentDate = "20250709"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
@@ -583,17 +585,34 @@ struct RecurrenceRuleDecoderTests {
         arguments: zip(
             [
                 "FREQ=DAILY;INTERVAL=1;COUNT=3",
-                "FREQ=DAILY;INTERVAL=1;UNTIL=20250708"
+                "FREQ=DAILY;INTERVAL=3;UNTIL=20250623",
+                "FREQ=WEEKLY;INTERVAL=1;BYDAY=TU,TH;COUNT=6",
+                "FREQ=WEEKLY;INTERVAL=1;BYDAY=TH;UNTIL=20250610",
+                "FREQ=MONTHLY;INTERVAL=1;BYDAY=MO;UNTIL=20250607",
+                "FREQ=MONTHLY;INTERVAL=1;BYDAY=2MO;UNTIL=20250607",
+                "FREQ=MONTHLY;INTERVAL=1;BYDAY=TH;COUNT=4",
+                "FREQ=MONTHLY;INTERVAL=1;BYMONTHDAY=1",
+                "FREQ=MONTHLY;INTERVAL=1;BYDAY=+1FR",
+                "FREQ=WEEKLY;INTERVAL=1;WKST=MO;BYDAY=TU,WE"
             ],
             [
-                "20250706",
-                "20250708"
+                "20250511",
+                "20250623",
+                "20250529",
+                "20250605",
+                "20250602",
+                "20250512",
+                "20250605",
+                "20250801",
+                "20250801",
+                "20250715"
+
             ]
         )
     )
     func lastOccurrence(rfcString: String, expectedDate: String) throws {
-        let startingDate = "20250704"
-        let currentDate = "20250710"
+        let startingDate = "20250509"
+        let currentDate = "20250711"
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = calendar.timeZone

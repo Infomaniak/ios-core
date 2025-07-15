@@ -17,32 +17,16 @@
  */
 
 import Foundation
-import MachO
 #if canImport(UIKit)
 import UIKit
 #endif
 
 /// Something to construct a standard Infomaniak User-Agent
 public struct UserAgentBuilder {
+    private let metadataReader = MetadataReader()
+
     public init() {
         // META: Keep SonarCloud happy
-    }
-
-    func modelIdentifier() -> String? {
-        if let simulatorModelIdentifier = ProcessInfo()
-            .environment["SIMULATOR_MODEL_IDENTIFIER"] { return simulatorModelIdentifier }
-        var sysinfo = utsname()
-        uname(&sysinfo) // ignore return value
-        return String(bytes: Data(bytes: &sysinfo.machine,
-                                  count: Int(_SYS_NAMELEN)), encoding: .ascii)?
-            .trimmingCharacters(in: .controlCharacters)
-    }
-
-    func microarchitecture() -> String? {
-        guard let archRaw = NXGetLocalArchInfo().pointee.name else {
-            return nil
-        }
-        return String(cString: archRaw)
     }
 
     /// The standard Infomaniak app user agent
@@ -52,7 +36,7 @@ public struct UserAgentBuilder {
 
         let executableName = Bundle.main.bundleIdentifier ?? "com.infomaniak.x"
         let appVersion = "\(release)-\(build)"
-        let hardwareDevice = modelIdentifier() ?? "unknownModel"
+        let hardwareDevice = metadataReader.modelIdentifier ?? "unknownModel"
 
         let operatingSystemVersion = ProcessInfo.processInfo.operatingSystemVersion
         #if canImport(UIKit)
@@ -63,7 +47,7 @@ public struct UserAgentBuilder {
         let operatingSystemNameAndVersion =
             "\(osName) \(operatingSystemVersion.majorVersion).\(operatingSystemVersion.minorVersion).\(operatingSystemVersion.patchVersion)"
 
-        let cpuArchitecture = microarchitecture() ?? "unknownArch"
+        let cpuArchitecture = metadataReader.microarchitecture ?? "unknownArch"
 
         /// Something like:
         /// `com.infomaniak.mail/1.0.5-1 (iPhone15,2; iOS16.4.0; arm64e)`

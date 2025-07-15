@@ -27,6 +27,13 @@ public struct MetadataReader: Sendable {
         // META: Keep SonarCloud happy
     }
 
+    public var microarchitecture: String? {
+        guard let archRaw = NXGetLocalArchInfo().pointee.name else {
+            return nil
+        }
+        return String(cString: archRaw)
+    }
+
     public var modelIdentifier: String? {
         #if canImport(UIKit)
         if let simulatorModelIdentifier = ProcessInfo()
@@ -41,63 +48,13 @@ public struct MetadataReader: Sendable {
         #endif
     }
 
-    public var microarchitecture: String? {
-        guard let archRaw = NXGetLocalArchInfo().pointee.name else {
-            return nil
-        }
-        return String(cString: archRaw)
-    }
-
-    @MainActor
-    public var deviceUUID: String {
-        #if canImport(UIKit)
-        UIDevice.current.identifierForVendor?.uuidString ?? UUID().emptyUUIDString
-        #else
-        macHardwareUUID
-        #endif
-    }
-
-    private var macHardwareUUID: String {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
-        task.arguments = ["SPHardwareDataType"]
-
-        let pipe = Pipe()
-        task.standardOutput = pipe
-
-        try? task.run()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: .utf8)
-        guard let output = output,
-              let newlineIndex = output.firstIndex(of: "\n"),
-              let range = output.range(of: "Hardware UUID: ") else {
-            return UUID.emptyUUIDString
-        }
-
-        let buffer = output[range.upperBound...]
-        guard buffer.count >= UUID.length else {
-            return UUID.emptyUUIDString
-        }
-
-        let uuid = String(output[range.upperBound...].prefix(UUID.length - 1))
-        return uuid
-    }
-    
     var macModelIdentifier: String? {
         var size: size_t = 0
         sysctlbyname("hw.model", nil, &size, nil, 0)
-        
+
         var model = [CChar](repeating: 0, count: Int(size))
         sysctlbyname("hw.model", &model, &size, nil, 0)
-        
+
         return String(cString: model)
     }
-}
-
-public extension UUID {
-    static var emptyUUIDString: String {
-        "00000000-0000-0000-0000-000000000000"
-    }
-
-    static let length = 37
 }

@@ -75,7 +75,7 @@ public extension RecurrenceRule {
             return nil
         }
 
-        let daysThisWeek = daysWithEvents.compactMap { specifiedWeekday -> Date? in
+        let daysThisWeek = daysWithEvents.compactMap { specifiedWeekday in
             var components = DateComponents()
             components.weekday = specifiedWeekday.weekday.value
             return calendar.nextDate(

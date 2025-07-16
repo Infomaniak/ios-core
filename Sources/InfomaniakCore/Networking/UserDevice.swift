@@ -43,7 +43,7 @@ extension UserDevice {
                           "uid": uid,
                           "make": make]
 
-        if let model, model.isEmpty == false {
+        if let model, !model.isEmpty {
             parameters["model"] = model
         }
 

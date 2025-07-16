@@ -61,7 +61,7 @@ public class RecurrenceRuleDecoder {
                 nthDayOfMonth = try ruleKey.parser.decode(value) as? [Int] ?? []
             case .bySetPos:
                 nthOccurrenceOfMonth = try ruleKey.parser.decode(value) as? [Int] ?? []
-            case .wkst:
+            case .firstWeekday:
                 firstDayOfWeek = try ruleKey.parser.decode(value) as? Weekday ?? .monday
             }
         }

@@ -17,12 +17,15 @@
 import Foundation
 import InfomaniakLogin
 
-public protocol DeviceManagerable {
+public protocol DeviceManagerable: Sendable {
     func getOrCreateCurrentDevice() async throws -> UserDevice
-    func attachCurrentDevice() async throws
+
+    @discardableResult
+    func attachDevice(_ device: UserDevice, to token: ApiToken,
+                      apiFetcher: ApiFetcher) async throws -> ValidServerResponse<Bool>
 }
 
-public struct DeviceManager: Sendable {
+public struct DeviceManager: DeviceManagerable {
     let appGroupIdentifier: String
 
     enum ErrorDomain: Error {
@@ -66,14 +69,9 @@ public struct DeviceManager: Sendable {
         }
     }
 
-    public func attachCurrentDevice(to token: ApiToken, apiFetcher: ApiFetcher) async throws {
-        let currentDevice = try await getOrCreateCurrentDevice()
-        try await attachDevice(currentDevice, to: token, apiFetcher: apiFetcher)
-    }
-
     @discardableResult
-    func attachDevice(_ device: UserDevice, to token: ApiToken,
-                      apiFetcher: ApiFetcher) async throws -> ValidServerResponse<Bool> {
+    public func attachDevice(_ device: UserDevice, to token: ApiToken,
+                             apiFetcher: ApiFetcher) async throws -> ValidServerResponse<Bool> {
         return try await apiFetcher.attachDevice(toAPIToken: token, deviceMetaData: device)
     }
 }

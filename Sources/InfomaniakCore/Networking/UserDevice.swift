@@ -22,7 +22,7 @@ import UIKit
 public struct UserDevice: Sendable {
     private let metadataReader = MetadataReader()
 
-    let make: String = "Apple"
+    let brand: String = "Apple"
     let model: String?
     let platform: AttachDeviceOS
     let type: AttachDeviceType
@@ -41,7 +41,7 @@ extension UserDevice {
         var parameters = ["platform": platform.rawValue,
                           "type": type.rawValue,
                           "uid": uid,
-                          "make": make]
+                          "brand": brand]
 
         if let model, !model.isEmpty {
             parameters["model"] = model

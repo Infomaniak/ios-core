@@ -19,7 +19,7 @@ import Foundation
 import UIKit
 #endif
 
-public struct UserDevice: Sendable {
+public struct UserDevice: Sendable, Codable {
     private let metadataReader = MetadataReader()
 
     let brand = "Apple"
@@ -33,6 +33,26 @@ public struct UserDevice: Sendable {
         model = metadataReader.modelIdentifier
         platform = await AttachDeviceOS.current
         type = await AttachDeviceType.current
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case model, platform, type, uid
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        model = try container.decodeIfPresent(String.self, forKey: .model)
+        platform = try container.decode(AttachDeviceOS.self, forKey: .platform)
+        type = try container.decode(AttachDeviceType.self, forKey: .type)
+        uid = try container.decode(String.self, forKey: .uid)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(model, forKey: .model)
+        try container.encode(platform, forKey: .platform)
+        try container.encode(type, forKey: .type)
+        try container.encode(uid, forKey: .uid)
     }
 }
 
@@ -51,7 +71,7 @@ extension UserDevice {
     }
 }
 
-public enum AttachDeviceType: String, Sendable {
+public enum AttachDeviceType: String, Sendable, Codable {
     case computer
     case phone
     case tablet
@@ -73,7 +93,7 @@ public enum AttachDeviceType: String, Sendable {
     }
 }
 
-public enum AttachDeviceOS: String, Sendable {
+public enum AttachDeviceOS: String, Sendable, Codable {
     case ios
     case macos
 

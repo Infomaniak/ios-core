@@ -21,16 +21,10 @@ public protocol DeviceManagerable: Sendable {
     func getOrCreateCurrentDevice() async throws -> UserDevice
 
     @discardableResult
-    func attachDevice(_ device: UserDevice, to token: ApiToken,
-                      apiFetcher: ApiFetcher) async throws -> ValidServerResponse<Bool>
+    func attachDeviceIfNeeded(_ device: UserDevice, to token: ApiToken,
+                              apiFetcher: ApiFetcher) async throws -> ValidServerResponse<Bool>?
 
-    func storeDeviceHash(_ device: UserDevice, forUserId userId: String)
-
-    func removeDeviceHash(forUserId userId: String)
-
-    func setDeviceHash(_ deviceHash: String, forUserId userId: String)
-
-    func getDeviceHash(forUserId userId: String) -> String?
+    func forgetLocalDeviceHash(forUserId userId: Int)
 }
 
 public struct DeviceManager: DeviceManagerable {
@@ -78,30 +72,46 @@ public struct DeviceManager: DeviceManagerable {
     }
 
     @discardableResult
-    public func attachDevice(_ device: UserDevice, to token: ApiToken,
-                             apiFetcher: ApiFetcher) async throws -> ValidServerResponse<Bool> {
-        return try await apiFetcher.attachDevice(toAPIToken: token, deviceMetaData: device)
+    public func attachDeviceIfNeeded(_ device: UserDevice,
+                                     to token: ApiToken,
+                                     apiFetcher: ApiFetcher) async throws -> ValidServerResponse<Bool>? {
+        guard shouldAttachDevice(device, to: token) else {
+            return nil
+        }
+
+        let apiResponse = try await apiFetcher.attachDevice(toAPIToken: token, deviceMetaData: device)
+        setDeviceHash(device, forUserId: token.userId)
+
+        return apiResponse
+    }
+
+    public func forgetLocalDeviceHash(forUserId userId: Int) {
+        removeDeviceHash(forUserId: userId)
     }
 }
 
-public extension DeviceManager {
-    func storeDeviceHash(_ device: UserDevice, forUserId userId: String) {
+extension DeviceManager {
+    func shouldAttachDevice(_ device: UserDevice, to token: ApiToken) -> Bool {
         let deviceHash = device.hashValue
-        setDeviceHash(String(deviceHash), forUserId: userId)
+        guard let previousDeviceHash = getDeviceHash(forUserId: token.userId) else {
+            return true
+        }
+
+        return previousDeviceHash != deviceHash
     }
 
-    func removeDeviceHash(forUserId userId: String) {
+    func removeDeviceHash(forUserId userId: Int) {
         let key = "deviceHash_\(userId)"
         UserDefaults.standard.removeObject(forKey: key)
     }
 
-    func setDeviceHash(_ deviceHash: String, forUserId userId: String) {
+    func setDeviceHash(_ device: UserDevice, forUserId userId: Int) {
         let key = "deviceHash_\(userId)"
-        UserDefaults.standard.set(deviceHash, forKey: key)
+        UserDefaults.standard.set(device.hashValue, forKey: key)
     }
 
-    func getDeviceHash(forUserId userId: String) -> String? {
+    func getDeviceHash(forUserId userId: Int) -> Int? {
         let key = "deviceHash_\(userId)"
-        return UserDefaults.standard.string(forKey: key)
+        return UserDefaults.standard.integer(forKey: key)
     }
 }

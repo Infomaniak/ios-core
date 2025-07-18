@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import InfomaniakCore
 #if canImport(UIKit)
 import UIKit
 #endif

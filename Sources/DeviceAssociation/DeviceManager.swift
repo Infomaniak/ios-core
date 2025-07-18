@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import InfomaniakCore
 import InfomaniakLogin
 
 public protocol DeviceManagerable: Sendable {

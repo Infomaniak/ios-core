@@ -19,7 +19,7 @@ import Foundation
 import UIKit
 #endif
 
-public struct UserDevice: Sendable, Codable, Equatable {
+public struct UserDevice: Sendable, Codable, Equatable, Hashable {
     static let metadataReader = MetadataReader()
 
     let brand = "Apple"
@@ -71,7 +71,7 @@ extension UserDevice {
     }
 }
 
-public enum AttachDeviceType: String, Sendable, Codable, Equatable {
+public enum AttachDeviceType: String, Sendable, Codable, Equatable, Hashable{
     case computer
     case phone
     case tablet
@@ -93,7 +93,7 @@ public enum AttachDeviceType: String, Sendable, Codable, Equatable {
     }
 }
 
-public enum AttachDeviceOS: String, Sendable, Codable, Equatable {
+public enum AttachDeviceOS: String, Sendable, Codable, Equatable, Hashable {
     case ios
     case macos
 

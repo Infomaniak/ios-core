@@ -22,7 +22,7 @@ import UIKit
 public struct UserDevice: Sendable {
     private let metadataReader = MetadataReader()
 
-    let brand: String = "Apple"
+    let brand = "Apple"
     let model: String?
     let platform: AttachDeviceOS
     let type: AttachDeviceType

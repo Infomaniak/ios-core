@@ -19,8 +19,8 @@ import Foundation
 import UIKit
 #endif
 
-public struct UserDevice: Sendable, Codable {
-    private let metadataReader = MetadataReader()
+public struct UserDevice: Sendable, Codable, Equatable {
+    static let metadataReader = MetadataReader()
 
     let brand = "Apple"
     let model: String?
@@ -30,7 +30,7 @@ public struct UserDevice: Sendable, Codable {
 
     public init(uid: String) async {
         self.uid = uid
-        model = metadataReader.modelIdentifier
+        model = Self.metadataReader.modelIdentifier
         platform = await AttachDeviceOS.current
         type = await AttachDeviceType.current
     }
@@ -71,7 +71,7 @@ extension UserDevice {
     }
 }
 
-public enum AttachDeviceType: String, Sendable, Codable {
+public enum AttachDeviceType: String, Sendable, Codable, Equatable {
     case computer
     case phone
     case tablet
@@ -93,7 +93,7 @@ public enum AttachDeviceType: String, Sendable, Codable {
     }
 }
 
-public enum AttachDeviceOS: String, Sendable, Codable {
+public enum AttachDeviceOS: String, Sendable, Codable, Equatable {
     case ios
     case macos
 

@@ -23,6 +23,14 @@ public protocol DeviceManagerable: Sendable {
     @discardableResult
     func attachDevice(_ device: UserDevice, to token: ApiToken,
                       apiFetcher: ApiFetcher) async throws -> ValidServerResponse<Bool>
+
+    func storeDeviceHash(_ device: UserDevice, forUserId userId: String)
+
+    func removeDeviceHash(forUserId userId: String)
+
+    func setDeviceHash(_ deviceHash: String, forUserId userId: String)
+
+    func getDeviceHash(forUserId userId: String) -> String?
 }
 
 public struct DeviceManager: DeviceManagerable {
@@ -73,5 +81,27 @@ public struct DeviceManager: DeviceManagerable {
     public func attachDevice(_ device: UserDevice, to token: ApiToken,
                              apiFetcher: ApiFetcher) async throws -> ValidServerResponse<Bool> {
         return try await apiFetcher.attachDevice(toAPIToken: token, deviceMetaData: device)
+    }
+}
+
+public extension DeviceManager {
+    func storeDeviceHash(_ device: UserDevice, forUserId userId: String) {
+        let deviceHash = device.hashValue
+        setDeviceHash(String(deviceHash), forUserId: userId)
+    }
+
+    func removeDeviceHash(forUserId userId: String) {
+        let key = "deviceHash_\(userId)"
+        UserDefaults.standard.removeObject(forKey: key)
+    }
+
+    func setDeviceHash(_ deviceHash: String, forUserId userId: String) {
+        let key = "deviceHash_\(userId)"
+        UserDefaults.standard.set(deviceHash, forKey: key)
+    }
+
+    func getDeviceHash(forUserId userId: String) -> String? {
+        let key = "deviceHash_\(userId)"
+        return UserDefaults.standard.string(forKey: key)
     }
 }

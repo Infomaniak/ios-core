@@ -37,6 +37,16 @@ struct UTUserDevice {
         }
         #expect(model.contains(","))
     }
+    
+    @Test("UserDevice hash stability", arguments: [UUID().uuidString])
+    func userDeviceHashStability(uuid: String) async throws {
+        // WHEN
+        let device = await UserDevice(uid: uuid)
+        let sameDevice = await UserDevice(uid: uuid)
+
+        // THEN
+        #expect(device.hashValue == sameDevice.hashValue, "Two devices with same uuid should have same hash")
+    }
 }
 
 @Suite("UTDeviceManager_keyValueStore")

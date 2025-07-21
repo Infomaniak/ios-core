@@ -113,6 +113,8 @@ extension DeviceManager {
 
     func getDeviceHash(forUserId userId: Int) -> Int? {
         let key = "deviceHash_\(userId)"
-        return UserDefaults.standard.integer(forKey: key)
+        let hash = UserDefaults.standard.integer(forKey: key)
+        guard hash != 0 else { return nil }
+        return hash
     }
 }

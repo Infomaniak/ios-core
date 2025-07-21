@@ -38,3 +38,43 @@ struct UTUserDevice {
         #expect(model.contains(","))
     }
 }
+
+@Suite("UTDeviceManager_keyValueStore")
+struct UTDeviceManager_keyValueStore {
+    @Test("Save Device with DeviceManager", arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
+    func deviceManagerSaveDevice(userId: Int) async throws {
+        // GIVEN
+        let uuid = UUID().uuidString
+        let device = await UserDevice(uid: uuid)
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        let expectedDeviceHash = device.hashValue
+        deviceManager.removeDeviceHash(forUserId: userId)
+
+        // WHEN
+        deviceManager.setDeviceHash(device, forUserId: userId)
+
+        // THEN
+        guard let fetchedDeviceHash = deviceManager.getDeviceHash(forUserId: userId) else {
+            Issue.record("unable to fetch the device, it should exist")
+            return
+        }
+        #expect(fetchedDeviceHash == expectedDeviceHash, "The device hash does not match")
+    }
+
+    @Test("Remove Device hash with DeviceManager", arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
+    func deviceManagerRemoveDeviceHash(userId: Int) async throws {
+        // GIVEN
+        let uuid = UUID().uuidString
+        let device = await UserDevice(uid: uuid)
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        deviceManager.setDeviceHash(device, forUserId: userId)
+        #expect(deviceManager.getDeviceHash(forUserId: userId) != nil, "The device hash should exist at this point")
+
+        // WHEN
+        deviceManager.removeDeviceHash(forUserId: userId)
+
+        // THEN
+        let b = deviceManager.getDeviceHash(forUserId: userId)
+        #expect(deviceManager.getDeviceHash(forUserId: userId) == nil)
+    }
+}

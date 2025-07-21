@@ -200,3 +200,24 @@ struct UTDeviceManager_shouldAttachDevice {
         #expect(shouldAttachDevice == false, "The same device should not be re-attached to the same userId")
     }
 }
+
+@Suite("UTDeviceManager_getOrCreateCurrentDevice")
+struct UTDeviceManager_getOrCreateCurrentDevice {
+    @Test("get a userDevice from the public interface and check stability",
+          arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
+    func currentDevice(userId: Int) async throws {
+        // GIVEN
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+
+        // WHEN
+        do {
+            let currentDevice = try await deviceManager.getOrCreateCurrentDevice()
+            let otherCurrentDevice = try await deviceManager.getOrCreateCurrentDevice()
+
+            // THEN
+            #expect(currentDevice.hashValue == otherCurrentDevice.hashValue, "Current devices should have identical hash values")
+        } catch {
+            Issue.record("unable to fetch current device twice: \(error)")
+        }
+    }
+}

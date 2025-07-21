@@ -19,6 +19,7 @@
 @testable import DeviceAssociation
 import Foundation
 import InfomaniakCore
+import InfomaniakLogin
 import Testing
 
 @Suite("UTUserDevice")
@@ -37,7 +38,7 @@ struct UTUserDevice {
         }
         #expect(model.contains(","))
     }
-    
+
     @Test("UserDevice hash stability", arguments: [UUID().uuidString])
     func userDeviceHashStability(uuid: String) async throws {
         // WHEN
@@ -84,7 +85,118 @@ struct UTDeviceManager_keyValueStore {
         deviceManager.removeDeviceHash(forUserId: userId)
 
         // THEN
-        let b = deviceManager.getDeviceHash(forUserId: userId)
         #expect(deviceManager.getDeviceHash(forUserId: userId) == nil)
+    }
+}
+
+@Suite("UTDeviceManager_shouldAttachDevice")
+struct UTDeviceManager_shouldAttachDevice {
+    @Test("Device cache logic in DeviceManager, attach on no device stored",
+          arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
+    func deviceManagerShouldAttach(userId: Int) async throws {
+        // GIVEN
+        let uuid = UUID().uuidString
+        let device = await UserDevice(uid: uuid)
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        deviceManager.removeDeviceHash(forUserId: userId)
+        #expect(deviceManager.getDeviceHash(forUserId: userId) == nil, "The device hash should not exist at this point")
+
+        let apiToken = ApiToken(
+            accessToken: "123",
+            expiresIn: 456,
+            refreshToken: "789",
+            scope: "101112",
+            tokenType: "131415",
+            userId: userId,
+            expirationDate: Date(timeIntervalSinceNow: 120)
+        )
+
+        // WHEN
+        let shouldAttachDevice = deviceManager.shouldAttachDevice(device, to: apiToken)
+
+        // THEN
+        #expect(shouldAttachDevice == true, "The device should be attached to the userId")
+    }
+
+    @Test("Device cache logic in DeviceManager, attach on different device stored",
+          arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
+    func deviceManagerShouldAttachOther(userId: Int) async throws {
+        // GIVEN
+        let device = await UserDevice(uid: UUID().uuidString)
+        let otherDevice = await UserDevice(uid: UUID().uuidString)
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        deviceManager.setDeviceHash(device, forUserId: userId)
+        #expect(deviceManager.getDeviceHash(forUserId: userId) != nil, "A device hash should exist at this point")
+
+        let apiToken = ApiToken(
+            accessToken: "123",
+            expiresIn: 456,
+            refreshToken: "789",
+            scope: "101112",
+            tokenType: "131415",
+            userId: userId,
+            expirationDate: Date(timeIntervalSinceNow: 120)
+        )
+
+        // WHEN
+        let shouldAttachDevice = deviceManager.shouldAttachDevice(otherDevice, to: apiToken)
+
+        // THEN
+        #expect(shouldAttachDevice == true, "The device should be attached")
+    }
+
+    @Test("Device cache logic in DeviceManager, attach on userId missmatch",
+          arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
+    func deviceManagerShouldAttachOtherUserId(userId: Int) async throws {
+        // GIVEN
+        let device = await UserDevice(uid: UUID().uuidString)
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        deviceManager.setDeviceHash(device, forUserId: userId)
+        #expect(deviceManager.getDeviceHash(forUserId: userId) != nil, "A device hash should exist at this point")
+        let otherUserId = userId + 1
+        #expect(otherUserId != userId, "We expect to have two different userId")
+
+        let apiToken = ApiToken(
+            accessToken: "123",
+            expiresIn: 456,
+            refreshToken: "789",
+            scope: "101112",
+            tokenType: "131415",
+            userId: otherUserId,
+            expirationDate: Date(timeIntervalSinceNow: 120)
+        )
+
+        // WHEN
+        let shouldAttachDevice = deviceManager.shouldAttachDevice(device, to: apiToken)
+
+        // THEN
+        #expect(shouldAttachDevice == true, "The device should be attached on a userId difference")
+    }
+
+    @Test("Device cache logic in DeviceManager, prevent double attach",
+          arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
+    func deviceManagerShouldNotAttach(userId: Int) async throws {
+        // GIVEN
+        let uuid = UUID().uuidString
+        let device = await UserDevice(uid: uuid)
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        deviceManager.setDeviceHash(device, forUserId: userId)
+        #expect(deviceManager.getDeviceHash(forUserId: userId) != nil, "A device hash should exist at this point")
+
+        let apiToken = ApiToken(
+            accessToken: "123",
+            expiresIn: 456,
+            refreshToken: "789",
+            scope: "101112",
+            tokenType: "131415",
+            userId: userId,
+            expirationDate: Date(timeIntervalSinceNow: 120)
+        )
+
+        // WHEN
+        let shouldAttachDevice = deviceManager.shouldAttachDevice(device, to: apiToken)
+
+        // THEN
+        #expect(shouldAttachDevice == false, "The same device should not be re-attached to the same userId")
     }
 }

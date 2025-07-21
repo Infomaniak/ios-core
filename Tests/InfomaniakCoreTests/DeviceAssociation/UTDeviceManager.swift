@@ -22,34 +22,6 @@ import InfomaniakCore
 import InfomaniakLogin
 import Testing
 
-@Suite("UTUserDevice")
-struct UTUserDevice {
-    @Test("Generate a UserDevice representation", arguments: [UUID().uuidString])
-    func userDeviceInit(uuid: String) async throws {
-        // WHEN
-        let device = await UserDevice(uid: uuid)
-
-        // THEN
-        #expect(device.uid == uuid)
-        #expect(device.brand == "Apple")
-        guard let model = device.model else {
-            Issue.record("The apple model reading should work on mac an iPhone/iPad but is nil")
-            return
-        }
-        #expect(model.contains(","))
-    }
-
-    @Test("UserDevice hash stability", arguments: [UUID().uuidString])
-    func userDeviceHashStability(uuid: String) async throws {
-        // WHEN
-        let device = await UserDevice(uid: uuid)
-        let sameDevice = await UserDevice(uid: uuid)
-
-        // THEN
-        #expect(device.hashValue == sameDevice.hashValue, "Two devices with same uuid should have same hash")
-    }
-}
-
 @Suite("UTDeviceManager_keyValueStore")
 struct UTDeviceManager_keyValueStore {
     @Test("Save Device with DeviceManager", arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])

@@ -32,6 +32,10 @@ let package = Package(
         .library(
             name: "InfomaniakCoreDB",
             targets: ["InfomaniakCoreDB"]
+        ),
+        .library(
+            name: "DeviceAssociation",
+            targets: ["DeviceAssociation"]
         )
     ],
     dependencies: [
@@ -61,9 +65,17 @@ let package = Package(
                 .product(name: "InfomaniakDI", package: "ios-dependency-injection")
             ] + realmDependencies
         ),
+        .target(
+            name: "DeviceAssociation",
+            dependencies: [
+                "InfomaniakCore",
+                .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
+                .product(name: "InfomaniakLogin", package: "ios-login")
+            ]
+        ),
         .testTarget(
             name: "InfomaniakCoreTests",
-            dependencies: ["InfomaniakCore", "InfomaniakCoreDB", "ZIPFoundation"],
+            dependencies: ["InfomaniakCore", "InfomaniakCoreDB", "DeviceAssociation", "ZIPFoundation"],
             resources: [
                 Resource
                     .copy("Resources/Matterhorn_as_seen_from_Zermatt,_Wallis,_Switzerland,_2012_August,Wikimedia_Commons.heic"),

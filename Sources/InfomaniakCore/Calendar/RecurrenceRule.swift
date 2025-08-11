@@ -94,6 +94,8 @@ public extension RecurrenceRule {
 
     private func frequencyNextDate(startDate: Date, currentDate: Date) throws -> Date? {
         let interval = repetitionFrequency.interval
+        let startDateComponents = calendar.dateComponents([.hour, .minute], from: startDate)
+        var nextDate: Date?
 
         switch repetitionFrequency.frequency {
         case .minutely:
@@ -106,14 +108,20 @@ public extension RecurrenceRule {
             return calendar.date(byAdding: .day, value: interval, to: startDate)
 
         case .weekly:
-            return handleWeeklyFrequency(startDate: startDate)
+            nextDate = handleWeeklyFrequency(startDate: startDate)
 
         case .monthly, .yearly:
-            return handleComplexFrequency(startDate: startDate, currentDate: currentDate)
+            nextDate = handleComplexFrequency(startDate: startDate, currentDate: currentDate)
 
         default:
             return nil
         }
+
+        guard let nextDate else { return nil }
+        var components = calendar.dateComponents([.year, .month, .day], from: nextDate)
+        components.hour = startDateComponents.hour
+        components.minute = startDateComponents.minute
+        return calendar.date(from: components)
     }
 
     private func handleWeeklyFrequency(startDate: Date) -> Date? {
@@ -381,20 +389,12 @@ public extension RecurrenceRule {
 
     func getNextOccurrence(_ startDate: Date, _ currentDate: Date = Date()) throws -> Date? {
         let allDates = try allOccurrencesSinceStartDate(startDate, currentDate)
-        let startDateComponents = calendar.dateComponents([.hour, .minute], from: startDate)
-        let updatedDates = allDates.compactMap { originalDate -> Date? in
-            var components = calendar.dateComponents([.year, .month, .day], from: originalDate)
-            components.hour = startDateComponents.hour
-            components.minute = startDateComponents.minute
 
-            return calendar.date(from: components)
-        }
-
-        guard let nearestPastDate = getNearestPastDate(targetDate: currentDate, dates: updatedDates) else {
-            if let lastDate = updatedDates.last, lastDate <= currentDate {
+        guard let nearestPastDate = getNearestPastDate(targetDate: currentDate, dates: allDates) else {
+            if let lastDate = allDates.last, lastDate <= currentDate {
                 return lastDate
             }
-            return updatedDates.first ?? startDate
+            return allDates.first ?? startDate
         }
 
         guard let nextDate = try frequencyNextDate(startDate: nearestPastDate, currentDate: currentDate) else {
@@ -402,11 +402,11 @@ public extension RecurrenceRule {
         }
 
         if let lastOccurrence, lastOccurrence <= nextDate {
-            return updatedDates.last
+            return allDates.last
         }
 
-        guard let lastDate = updatedDates.last, nextDate <= lastDate else {
-            return updatedDates.last
+        guard let lastDate = allDates.last, nextDate <= lastDate else {
+            return allDates.last
         }
 
         return nextDate

@@ -20,7 +20,7 @@ import InfomaniakCore
 import UIKit
 #endif
 
-public struct UserDevice: Sendable, Hashable {
+public struct UserDevice: Sendable {
     static let metadataReader = MetadataReader()
 
     let brand = "Apple"
@@ -34,6 +34,10 @@ public struct UserDevice: Sendable, Hashable {
         model = Self.metadataReader.modelIdentifier
         platform = await AttachDeviceOS.current
         type = await AttachDeviceType.current
+    }
+
+    var stableHashValue: String {
+        "\(platform.rawValue)_\(type.rawValue)_\(uid)_\(brand)_\(model ?? "")"
     }
 }
 
@@ -52,7 +56,7 @@ extension UserDevice {
     }
 }
 
-public enum AttachDeviceType: String, Sendable, Hashable {
+public enum AttachDeviceType: String, Sendable {
     case computer
     case phone
     case tablet
@@ -74,7 +78,7 @@ public enum AttachDeviceType: String, Sendable, Hashable {
     }
 }
 
-public enum AttachDeviceOS: String, Sendable, Hashable {
+public enum AttachDeviceOS: String, Sendable {
     case ios
     case macos
 

@@ -30,7 +30,7 @@ struct UTDeviceManager_keyValueStore {
         let uuid = UUID().uuidString
         let device = await UserDevice(uid: uuid)
         let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
-        let expectedDeviceHash = device.hashValue
+        let expectedDeviceHash = device.stableHashValue
         deviceManager.removeDeviceHash(forUserId: userId)
 
         // WHEN
@@ -187,7 +187,10 @@ struct UTDeviceManager_getOrCreateCurrentDevice {
             let otherCurrentDevice = try await deviceManager.getOrCreateCurrentDevice()
 
             // THEN
-            #expect(currentDevice.hashValue == otherCurrentDevice.hashValue, "Current devices should have identical hash values")
+            #expect(
+                currentDevice.stableHashValue == otherCurrentDevice.stableHashValue,
+                "Current devices should have identical hash values"
+            )
         } catch {
             Issue.record("unable to fetch current device twice: \(error)")
         }

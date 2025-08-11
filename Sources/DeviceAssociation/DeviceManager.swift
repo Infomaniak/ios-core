@@ -93,12 +93,12 @@ public struct DeviceManager: DeviceManagerable {
 
 extension DeviceManager {
     func shouldAttachDevice(_ device: UserDevice, to token: ApiToken) -> Bool {
-        let deviceHash = device.hashValue
         guard let previousDeviceHash = getDeviceHash(forUserId: token.userId) else {
             return true
         }
 
-        return previousDeviceHash != deviceHash
+        let currentDeviceHash = device.stableHashValue
+        return currentDeviceHash != previousDeviceHash
     }
 
     func removeDeviceHash(forUserId userId: Int) {
@@ -108,13 +108,12 @@ extension DeviceManager {
 
     func setDeviceHash(_ device: UserDevice, forUserId userId: Int) {
         let key = "deviceHash_\(userId)"
-        UserDefaults.standard.set(device.hashValue, forKey: key)
+        UserDefaults.standard.set(device.stableHashValue, forKey: key)
     }
 
-    func getDeviceHash(forUserId userId: Int) -> Int? {
+    func getDeviceHash(forUserId userId: Int) -> String? {
         let key = "deviceHash_\(userId)"
-        let hash = UserDefaults.standard.integer(forKey: key)
-        guard hash != 0 else { return nil }
+        let hash = UserDefaults.standard.string(forKey: key)
         return hash
     }
 }

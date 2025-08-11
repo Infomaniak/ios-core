@@ -344,8 +344,13 @@ public extension RecurrenceRule {
             )
         }
 
+        var components = calendar.dateComponents([.year, .month, .day], from: currentDate)
+        let startDateComponents = calendar.dateComponents([.hour, .minute], from: startDate)
+        components.hour = startDateComponents.hour
+        components.minute = startDateComponents.minute
         var result = [firstOccurrence]
-        guard let lastDate = try? frequencyNextDate(startDate: currentDate, currentDate: currentDate) else {
+        guard let startDate = calendar.date(from: components),
+              let lastDate = try? frequencyNextDate(startDate: startDate, currentDate: currentDate) else {
             return result
         }
         while result.last ?? firstOccurrence < lastDate {

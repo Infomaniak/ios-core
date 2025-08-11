@@ -94,7 +94,6 @@ public extension RecurrenceRule {
 
     private func frequencyNextDate(startDate: Date, currentDate: Date) throws -> Date? {
         let interval = repetitionFrequency.interval
-        let startDateComponents = calendar.dateComponents([.hour, .minute], from: startDate)
         var nextDate: Date?
 
         switch repetitionFrequency.frequency {
@@ -119,6 +118,7 @@ public extension RecurrenceRule {
 
         guard let nextDate else { return nil }
         var components = calendar.dateComponents([.year, .month, .day], from: nextDate)
+        let startDateComponents = calendar.dateComponents([.hour, .minute], from: startDate)
         components.hour = startDateComponents.hour
         components.minute = startDateComponents.minute
         return calendar.date(from: components)

@@ -46,7 +46,7 @@ struct UTUserDevice {
         let sameDevice = await UserDevice(uid: uuid)
 
         // THEN
-        #expect(device.hashValue == sameDevice.hashValue, "Two devices with same uuid should have same hash")
+        #expect(device.stableHashValue == sameDevice.stableHashValue, "Two devices with same uuid should have same hash")
     }
 
     @Test("UserDevice hash UnEqual", arguments: [UUID().uuidString])
@@ -56,6 +56,6 @@ struct UTUserDevice {
         let sameDevice = await UserDevice(uid: UUID().uuidString)
 
         // THEN
-        #expect(device.hashValue != sameDevice.hashValue, "Two devices with same uuid should have same hash")
+        #expect(device.stableHashValue != sameDevice.stableHashValue, "Two devices with same uuid should have same hash")
     }
 }

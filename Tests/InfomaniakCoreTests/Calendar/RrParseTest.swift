@@ -83,7 +83,7 @@ struct RecurrenceRuleDecoderTests {
         let rfcString = "FREQ=DAILY;\(rfcCount)"
         let result = try parser.parse(rfcString)
 
-        #expect(result.nbMaxOfOccurrences == expected)
+        #expect(result.maxOccurrences == expected)
     }
 
     @Test("Throws an error for invalid COUNT Rule Part", arguments: ["COUNT=-2", "COUNT=1- ", "COUNT=foobar"])

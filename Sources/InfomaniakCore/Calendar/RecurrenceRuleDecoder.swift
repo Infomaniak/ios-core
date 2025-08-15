@@ -26,7 +26,7 @@ public class RecurrenceRuleDecoder {
         var frequency: Frequency?
         var interval: Int?
         var lastOccurrence: Date?
-        var nbMaxOfOccurrences: Int?
+        var maxOccurrences: Int?
         var daysWithEvents: [SpecifiedWeekday]?
         var nthDayOfMonth: [Int]?
         var nthOccurrenceOfMonth: [Int]?
@@ -50,7 +50,7 @@ public class RecurrenceRuleDecoder {
             case .interval:
                 interval = try ruleKey.parser.decode(value) as? Int
             case .count:
-                nbMaxOfOccurrences = try ruleKey.parser.decode(value) as? Int
+                maxOccurrences = try ruleKey.parser.decode(value) as? Int
                 ruleCountOrUntilSet += 1
             case .until:
                 lastOccurrence = try ruleKey.parser.decode(value) as? Date
@@ -82,7 +82,7 @@ public class RecurrenceRuleDecoder {
                 firstDayOfWeek: firstDayOfWeek?.value ?? Weekday.monday.value
             ),
             lastOccurrence: lastOccurrence,
-            nbMaxOfOccurrences: nbMaxOfOccurrences,
+            maxOccurrences: maxOccurrences,
             daysWithEvents: daysWithEvents ?? [],
             nthDayOfMonth: nthDayOfMonth ?? [],
             nthOccurrenceOfMonth: nthOccurrenceOfMonth ?? []

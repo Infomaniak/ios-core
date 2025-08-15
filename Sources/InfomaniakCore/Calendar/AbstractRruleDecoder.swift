@@ -86,7 +86,7 @@ public enum RuleKey: String, Sendable {
         case .byDay: return ByDayParser()
         case .byMonthDay: return ByMonthDayParser()
         case .bySetPos: return BySetPosParser()
-        case .firstWeekday: return WkstParser()
+        case .firstWeekday: return FirstWeekdayParser()
         }
     }
 }

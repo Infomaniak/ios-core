@@ -37,7 +37,7 @@ struct RecurrenceRuleDecoderTests {
     ])
     func throwsErrorForInvalidKeyRulePart(invalidInterval: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidInterval)"
-        #expect(throws: RecurrenceRule.DomainError.invalidKey) {
+        #expect(throws: RecurrenceRule.ErrorDomain.invalidKey) {
             try parser.parse(rfcString)
         }
     }
@@ -55,7 +55,7 @@ struct RecurrenceRuleDecoderTests {
 
     @Test("Throws an error for invalid FREQ Rule Part")
     func returnsNilForInvalidFrequencyRulePart() throws {
-        #expect(throws: RecurrenceRule.DomainError.missingFrequency) {
+        #expect(throws: RecurrenceRule.ErrorDomain.missingFrequency) {
             try parser.parse("FREQ=FOOBAR")
         }
     }
@@ -73,7 +73,7 @@ struct RecurrenceRuleDecoderTests {
     ])
     func throwsErrorForInvalidIntervalRulePart(invalidInterval: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidInterval)"
-        #expect(throws: RecurrenceRule.DomainError.invalidInterval) {
+        #expect(throws: RecurrenceRule.ErrorDomain.invalidInterval) {
             try parser.parse(rfcString)
         }
     }
@@ -89,7 +89,7 @@ struct RecurrenceRuleDecoderTests {
     @Test("Throws an error for invalid COUNT Rule Part", arguments: ["COUNT=-2", "COUNT=1- ", "COUNT=foobar"])
     func throwsErrorForInvalidCountRulePart(invalidCount: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidCount)"
-        #expect(throws: RecurrenceRule.DomainError.invalidCount) {
+        #expect(throws: RecurrenceRule.ErrorDomain.invalidCount) {
             try parser.parse(rfcString)
         }
     }
@@ -117,7 +117,7 @@ struct RecurrenceRuleDecoderTests {
     @Test("Throws an error for invalid UNTIL Rule Part", arguments: ["UNTIL=20251350T215959Z", "UNTIL=foobar", "UNTIL=1"])
     func throwsErrorForInvalidUntilRulePart(invalidString: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidString)"
-        #expect(throws: RecurrenceRule.DomainError.invalidUntil) {
+        #expect(throws: RecurrenceRule.ErrorDomain.invalidUntil) {
             try parser.parse(rfcString)
         }
     }
@@ -125,7 +125,7 @@ struct RecurrenceRuleDecoderTests {
     @Test("Throws an error when both UNTIL and COUNT are specified")
     func throwsErrorWhenBothUntilAndCountAreSpecified() throws {
         let rfcString = "FREQ=DAILY;UNTIL=21000101T215959Z;COUNT=1"
-        #expect(throws: RecurrenceRule.DomainError.bothUntilAndCountSet) {
+        #expect(throws: RecurrenceRule.ErrorDomain.bothUntilAndCountSet) {
             try parser.parse(rfcString)
         }
     }
@@ -198,7 +198,7 @@ struct RecurrenceRuleDecoderTests {
     @Test("Throws an error for invalid WKST Rule Part", arguments: ["WKST=AB", "WKST=foobar", "WKST=1"])
     func throwsErrorForInvalidWKSTRulePart(invalidString: String) throws {
         let rfcString = "FREQ=DAILY;\(invalidString)"
-        #expect(throws: RecurrenceRule.DomainError.invalidWKST) {
+        #expect(throws: RecurrenceRule.ErrorDomain.invalidWKST) {
             try parser.parse(rfcString)
         }
     }

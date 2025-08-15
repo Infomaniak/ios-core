@@ -36,11 +36,11 @@ public class RecurrenceRuleDecoder {
         for part in parts {
             let keyValue = part.split(separator: "=")
             guard keyValue.count == 2 else {
-                throw RecurrenceRule.DomainError.invalidKey
+                throw RecurrenceRule.ErrorDomain.invalidKey
             }
 
             guard let ruleKey = RuleKey(rawValue: "\(keyValue[0])") else {
-                throw RecurrenceRule.DomainError.invalidKey
+                throw RecurrenceRule.ErrorDomain.invalidKey
             }
             let value = "\(keyValue[1])"
 
@@ -67,11 +67,11 @@ public class RecurrenceRuleDecoder {
         }
 
         guard let frequency else {
-            throw RecurrenceRule.DomainError.missingFrequency
+            throw RecurrenceRule.ErrorDomain.missingFrequency
         }
 
         guard ruleCountOrUntilSet < 2 else {
-            throw RecurrenceRule.DomainError.bothUntilAndCountSet
+            throw RecurrenceRule.ErrorDomain.bothUntilAndCountSet
         }
 
         return RecurrenceRule(

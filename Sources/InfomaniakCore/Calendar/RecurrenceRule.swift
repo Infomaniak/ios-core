@@ -19,7 +19,7 @@
 import Foundation
 
 public struct RecurrenceRule: Sendable {
-    public enum DomainError: Error {
+    public enum ErrorDomain: Error {
         case invalidInterval
         case invalidKey
         case invalidCount

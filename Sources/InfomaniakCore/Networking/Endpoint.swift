@@ -20,8 +20,10 @@ import Foundation
 
 // MARK: - Type definition
 
-public enum ApiEnvironment {
-    case prod, preprod
+public enum ApiEnvironment: Equatable, Hashable {
+    case prod
+    case preprod
+    case customHost(String)
 
     public static var current = ApiEnvironment.prod
 
@@ -31,6 +33,8 @@ public enum ApiEnvironment {
             return "infomaniak.com"
         case .preprod:
             return "preprod.dev.infomaniak.ch"
+        case .customHost(let host):
+            return host
         }
     }
 

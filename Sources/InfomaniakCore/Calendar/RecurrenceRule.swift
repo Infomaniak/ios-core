@@ -91,15 +91,14 @@ public extension RecurrenceRule {
 
         return nextDate
     }
-    
+
     func allOccurrencesSinceStartDate(_ startDate: Date, _ currentDate: Date = Date()) throws -> [Date] {
         var firstOccurrence = startDate
         if !daysWithEvents.isEmpty {
             let weekdayNumber = calendar.component(.weekday, from: startDate)
-            if !daysWithEvents.contains(where: { $0.weekday.value == weekdayNumber }) {
-                if let nextDate = try? frequencyNextDate(startDate: startDate, currentDate: startDate) {
-                    firstOccurrence = nextDate
-                }
+            if !daysWithEvents.contains(where: { $0.weekday.value == weekdayNumber }),
+               let nextDate = try? frequencyNextDate(startDate: startDate, currentDate: startDate) {
+                firstOccurrence = nextDate
             }
         }
 

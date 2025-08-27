@@ -57,13 +57,25 @@ public enum Weekday: String, CaseIterable, Sendable {
     }
 }
 
+public struct SpecifiedWeekday: Sendable {
+    public let position: Int?
+    public let weekday: Weekday
+
+    public init(position: Int?, weekday: Weekday) {
+        self.position = position
+        self.weekday = weekday
+    }
+}
+
 public enum RuleKey: String, Sendable {
     case frequency = "FREQ"
     case interval = "INTERVAL"
     case count = "COUNT"
     case until = "UNTIL"
     case byDay = "BYDAY"
+    case byMonthDay = "BYMONTHDAY"
     case bySetPos = "BYSETPOS"
+    case firstWeekday = "WKST"
 
     var parser: any RuleValueDecoder {
         switch self {
@@ -72,7 +84,9 @@ public enum RuleKey: String, Sendable {
         case .count: return CountParser()
         case .until: return UntilParser()
         case .byDay: return ByDayParser()
+        case .byMonthDay: return ByMonthDayParser()
         case .bySetPos: return BySetPosParser()
+        case .firstWeekday: return FirstWeekdayParser()
         }
     }
 }
@@ -80,9 +94,11 @@ public enum RuleKey: String, Sendable {
 public struct RepetitionFrequency: Sendable {
     public let frequency: Frequency
     public let interval: Int
+    public let firstDayOfWeek: Int
 
-    public init(frequency: Frequency, interval: Int) {
+    public init(frequency: Frequency, interval: Int, firstDayOfWeek: Int) {
         self.frequency = frequency
         self.interval = interval
+        self.firstDayOfWeek = firstDayOfWeek
     }
 }

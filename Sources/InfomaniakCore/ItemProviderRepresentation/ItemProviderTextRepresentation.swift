@@ -17,7 +17,6 @@
  */
 
 import Foundation
-import InfomaniakDI
 
 /// Something that can provide a `Progress` and an async `Result` in order to make a raw text file from a `NSItemProvider`
 public final class ItemProviderTextRepresentation: NSObject, ProgressResultable {

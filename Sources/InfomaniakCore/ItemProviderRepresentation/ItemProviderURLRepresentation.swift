@@ -17,7 +17,6 @@
  */
 
 import Foundation
-import InfomaniakDI
 
 /// Something that provides an URL to a usable recourse
 ///

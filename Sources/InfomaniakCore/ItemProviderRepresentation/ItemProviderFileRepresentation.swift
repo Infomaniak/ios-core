@@ -17,7 +17,6 @@
  */
 
 import Foundation
-import InfomaniakDI
 
 /// Something that can provide a `Progress` and an async `Result` in order to load an url from a `NSItemProvider`
 public final class ItemProviderFileRepresentation: NSObject, ProgressResultable {
@@ -88,7 +87,6 @@ public final class ItemProviderFileRepresentation: NSObject, ProgressResultable 
 
                 do {
                     let uti = UTI(rawValue: fileIdentifierToUse as CFString)
-                    @InjectService var pathProvider: AppGroupPathProvidable
                     let temporaryURL = try URL.temporaryUniqueFolderURL()
 
                     let title = (fileProviderURL.lastPathComponent as NSString).deletingPathExtension

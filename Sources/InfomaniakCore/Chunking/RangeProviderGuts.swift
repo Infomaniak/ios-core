@@ -17,7 +17,6 @@
  */
 
 import Foundation
-import InfomaniakDI
 
 /// The internal methods of RangeProviderGuts, made testable
 public protocol RangeProviderGutsable {

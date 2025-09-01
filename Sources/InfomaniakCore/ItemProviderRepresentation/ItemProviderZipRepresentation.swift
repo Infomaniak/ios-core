@@ -18,7 +18,6 @@
 
 import Combine
 import Foundation
-import InfomaniakDI
 
 /// Something that can provide a `Progress` and an async `Result` in order to make a zip from a `NSItemProvider`
 public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
@@ -75,8 +74,6 @@ public final class ItemProviderZipRepresentation: NSObject, ProgressResultable {
             var error: NSError?
             coordinator.coordinate(readingItemAt: path, options: [.forUploading], error: &error) { zipURL in
                 do {
-                    @InjectService var pathProvider: AppGroupPathProvidable
-
                     // Use a unique folder to prevent collisions
                     let tmpDirectoryURL = try URL.temporaryUniqueFolderURL()
 

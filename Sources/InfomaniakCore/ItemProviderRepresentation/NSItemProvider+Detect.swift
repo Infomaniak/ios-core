@@ -17,7 +17,6 @@
  */
 
 import Foundation
-import InfomaniakDI
 
 /// Extending NSItemProvider for detecting file type, business logic.
 public extension NSItemProvider {

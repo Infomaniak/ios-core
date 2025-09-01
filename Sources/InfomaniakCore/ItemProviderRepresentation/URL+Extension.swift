@@ -17,7 +17,6 @@
  */
 
 import Foundation
-import InfomaniakDI
 
 /// Extending URL with UTI helpers
 public extension URL {
@@ -65,9 +64,7 @@ public extension URL {
 
     /// Build a path where a file can be moved to prevent collisions
     static func temporaryUniqueFolderURL() throws -> URL {
-        // Use a unique folder to prevent collisions
-        @InjectService var pathProvider: AppGroupPathProvidable
-        let targetFolderURL = pathProvider.tmpDirectoryURL
+        let targetFolderURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: targetFolderURL, withIntermediateDirectories: true)
         return targetFolderURL

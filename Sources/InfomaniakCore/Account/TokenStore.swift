@@ -34,8 +34,8 @@ public class TokenStore {
 
     public init() {
         let keychainTokens = keychainHelper.loadTokens()
-        for token in keychainTokens {
-            tokens[token.userId] = token
+        for associatedToken in keychainTokens {
+            tokens[associatedToken.token.userId] = associatedToken.token
         }
     }
 
@@ -55,16 +55,16 @@ public class TokenStore {
     public func tokenFor(userId: UserId, fetchLocation: TokenStoreFetchLocation = .cache) -> ApiToken? {
         if fetchLocation == .keychain {
             let keychainTokens = keychainHelper.loadTokens()
-            for token in keychainTokens {
-                tokens[token.userId] = token
+            for associatedToken in keychainTokens {
+                tokens[associatedToken.token.userId] = associatedToken.token
             }
         }
 
         return tokens[userId]
     }
 
-    public func addToken(newToken: ApiToken) {
-        keychainHelper.storeToken(newToken)
+    public func addToken(newToken: ApiToken, associatedDeviceId: AssociatedDeviceId) {
+        keychainHelper.storeToken(newToken, associatedDeviceId: associatedDeviceId)
         tokens[newToken.userId] = newToken
     }
 

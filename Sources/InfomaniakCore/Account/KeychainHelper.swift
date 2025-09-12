@@ -21,6 +21,8 @@ import InfomaniakLogin
 import OSLog
 import Sentry
 
+public typealias AssociatedDeviceId = String
+
 public class KeychainHelper {
     private let logger = Logger(category: "KeychainHelper")
 
@@ -110,8 +112,12 @@ public class KeychainHelper {
         }
     }
 
-    public func storeToken(_ token: ApiToken) {
+    public func storeToken(_ token: ApiToken, associatedDeviceId: AssociatedDeviceId) {
         var resultCode: OSStatus = noErr
+
+        guard let associatedDeviceIdData = associatedDeviceId.data(using: .utf8) else {
+            fatalError("Failed to encode associatedDeviceId")
+        }
 
         let tokenData: Data
         do {
@@ -120,7 +126,7 @@ public class KeychainHelper {
             fatalError("Failed to encode token: \(error)")
         }
 
-        if let savedToken = getSavedToken(for: token.userId) {
+        if let savedToken = getSavedToken(for: token.userId).token {
             keychainQueue.sync {
                 let queryUpdate: [String: Any] = [
                     kSecClass as String: kSecClassGenericPassword,
@@ -129,6 +135,7 @@ public class KeychainHelper {
                 ]
 
                 let attributes: [String: Any] = [
+                    kSecAttrGeneric as String: associatedDeviceIdData,
                     kSecValueData as String: tokenData
                 ]
 
@@ -158,6 +165,7 @@ public class KeychainHelper {
                     kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
                     kSecAttrService as String: tag,
                     kSecAttrAccount as String: "\(token.userId)",
+                    kSecAttrGeneric as String: associatedDeviceIdData,
                     kSecValueData as String: tokenData
                 ]
                 resultCode = SecItemAdd(queryAdd as CFDictionary, nil)
@@ -172,8 +180,10 @@ public class KeychainHelper {
         }
     }
 
-    public func getSavedToken(for userId: Int) -> ApiToken? {
+    public func getSavedToken(for userId: Int) -> (token: ApiToken?, associatedDeviceId: AssociatedDeviceId?) {
         var savedToken: ApiToken?
+        var associatedDeviceId: AssociatedDeviceId?
+
         keychainQueue.sync {
             let queryFindOne: [String: Any] = [
                 kSecClass as String: kSecClassGenericPassword,
@@ -197,13 +207,14 @@ public class KeychainHelper {
                let value = keychainItem[kSecValueData as String] as? Data,
                let token = try? jsonDecoder.decode(ApiToken.self, from: value) {
                 savedToken = token
+                associatedDeviceId = getAssociatedDeviceId(for: keychainItem)
             }
         }
-        return savedToken
+        return (savedToken, associatedDeviceId)
     }
 
-    public func loadTokens() -> [ApiToken] {
-        var values = [ApiToken]()
+    public func loadTokens() -> [(token: ApiToken, associatedDeviceId: AssociatedDeviceId?)] {
+        var values = [(token: ApiToken, associatedDeviceId: AssociatedDeviceId?)]()
         keychainQueue.sync {
             let query: [String: Any] = [
                 kSecClass as String: kSecClassGenericPassword,
@@ -236,16 +247,27 @@ public class KeychainHelper {
                 for item in array {
                     if let value = item[kSecValueData as String] as? Data,
                        let token = try? jsonDecoder.decode(ApiToken.self, from: value) {
-                        values.append(token)
+                        let associatedDeviceId = getAssociatedDeviceId(for: item)
+
+                        values.append((token, associatedDeviceId))
                     }
                 }
-                if let token = values.first {
+                if let token = values.first?.token {
                     SentrySDK
                         .addBreadcrumb(token.generateBreadcrumb(level: .info, message: "Successfully loaded token"))
                 }
             }
         }
         return values
+    }
+
+    private func getAssociatedDeviceId(for item: [String: Any]) -> AssociatedDeviceId? {
+        guard let deviceIdData = item[kSecAttrGeneric as String] as? Data,
+              let deviceId = String(data: deviceIdData, encoding: .utf8) else {
+            return nil
+        }
+
+        return deviceId
     }
 }
 

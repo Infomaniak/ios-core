@@ -23,11 +23,11 @@ import UIKit
 public struct UserDevice: Sendable {
     static let metadataReader = MetadataReader()
 
-    let brand = "Apple"
-    let model: String?
-    let platform: AttachDeviceOS
-    let type: AttachDeviceType
-    let uid: String
+    public let brand = "Apple"
+    public let model: String?
+    public let platform: AttachDeviceOS
+    public let type: AttachDeviceType
+    public let uid: String
 
     public init(uid: String) async {
         self.uid = uid

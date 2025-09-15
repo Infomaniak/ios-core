@@ -21,8 +21,6 @@ import InfomaniakLogin
 import OSLog
 import Sentry
 
-public typealias AssociatedDeviceId = String
-
 public class KeychainHelper {
     private let logger = Logger(category: "KeychainHelper")
 
@@ -126,7 +124,7 @@ public class KeychainHelper {
             fatalError("Failed to encode token: \(error)")
         }
 
-        if let savedToken = getSavedToken(for: token.userId).token {
+        if let savedToken = getSavedToken(for: token.userId)?.token {
             keychainQueue.sync {
                 let queryUpdate: [String: Any] = [
                     kSecClass as String: kSecClassGenericPassword,
@@ -180,9 +178,8 @@ public class KeychainHelper {
         }
     }
 
-    public func getSavedToken(for userId: Int) -> (token: ApiToken?, associatedDeviceId: AssociatedDeviceId?) {
-        var savedToken: ApiToken?
-        var associatedDeviceId: AssociatedDeviceId?
+    public func getSavedToken(for userId: Int) -> AssociatedApiToken? {
+        var savedToken: AssociatedApiToken?
 
         keychainQueue.sync {
             let queryFindOne: [String: Any] = [
@@ -206,15 +203,16 @@ public class KeychainHelper {
                let keychainItem = result as? [String: Any],
                let value = keychainItem[kSecValueData as String] as? Data,
                let token = try? jsonDecoder.decode(ApiToken.self, from: value) {
-                savedToken = token
-                associatedDeviceId = getAssociatedDeviceId(for: keychainItem)
+                let associatedDeviceId = getAssociatedDeviceId(for: keychainItem)
+
+                savedToken = AssociatedApiToken(deviceId: associatedDeviceId, token: token)
             }
         }
-        return (savedToken, associatedDeviceId)
+        return savedToken
     }
 
-    public func loadTokens() -> [(token: ApiToken, associatedDeviceId: AssociatedDeviceId?)] {
-        var values = [(token: ApiToken, associatedDeviceId: AssociatedDeviceId?)]()
+    public func loadTokens() -> [AssociatedApiToken] {
+        var values = [AssociatedApiToken]()
         keychainQueue.sync {
             let query: [String: Any] = [
                 kSecClass as String: kSecClassGenericPassword,
@@ -249,7 +247,7 @@ public class KeychainHelper {
                        let token = try? jsonDecoder.decode(ApiToken.self, from: value) {
                         let associatedDeviceId = getAssociatedDeviceId(for: item)
 
-                        values.append((token, associatedDeviceId))
+                        values.append(AssociatedApiToken(deviceId: associatedDeviceId, token: token))
                     }
                 }
                 if let token = values.first?.token {

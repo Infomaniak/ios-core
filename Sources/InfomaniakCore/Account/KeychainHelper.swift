@@ -124,7 +124,7 @@ public class KeychainHelper {
             fatalError("Failed to encode token: \(error)")
         }
 
-        if let savedToken = getSavedToken(for: token.userId)?.token {
+        if let savedToken = getSavedToken(for: token.userId)?.apiToken {
             keychainQueue.sync {
                 let queryUpdate: [String: Any] = [
                     kSecClass as String: kSecClassGenericPassword,
@@ -205,7 +205,7 @@ public class KeychainHelper {
                let token = try? jsonDecoder.decode(ApiToken.self, from: value) {
                 let associatedDeviceId = getAssociatedDeviceId(for: keychainItem)
 
-                savedToken = AssociatedApiToken(deviceId: associatedDeviceId, token: token)
+                savedToken = AssociatedApiToken(deviceId: associatedDeviceId, apiToken: token)
             }
         }
         return savedToken
@@ -247,10 +247,10 @@ public class KeychainHelper {
                        let token = try? jsonDecoder.decode(ApiToken.self, from: value) {
                         let associatedDeviceId = getAssociatedDeviceId(for: item)
 
-                        values.append(AssociatedApiToken(deviceId: associatedDeviceId, token: token))
+                        values.append(AssociatedApiToken(deviceId: associatedDeviceId, apiToken: token))
                     }
                 }
-                if let token = values.first?.token {
+                if let token = values.first?.apiToken {
                     SentrySDK
                         .addBreadcrumb(token.generateBreadcrumb(level: .info, message: "Successfully loaded token"))
                 }

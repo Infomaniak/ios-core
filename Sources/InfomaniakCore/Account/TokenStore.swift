@@ -44,7 +44,7 @@ public class TokenStore {
         let removedToken = tokens.removeValue(forKey: userId)
         keychainHelper.deleteToken(for: userId)
 
-        return removedToken?.token
+        return removedToken?.apiToken
     }
 
     @discardableResult
@@ -56,7 +56,7 @@ public class TokenStore {
         if fetchLocation == .keychain {
             let keychainTokens = keychainHelper.loadTokens()
             for associatedToken in keychainTokens {
-                tokens[associatedToken.token.userId] = associatedToken
+                tokens[associatedToken.apiToken.userId] = associatedToken
             }
         }
 
@@ -65,7 +65,7 @@ public class TokenStore {
 
     public func addToken(newToken: ApiToken, associatedDeviceId: AssociatedDeviceId) {
         keychainHelper.storeToken(newToken, associatedDeviceId: associatedDeviceId)
-        tokens[newToken.userId] = AssociatedApiToken(deviceId: associatedDeviceId, token: newToken)
+        tokens[newToken.userId] = AssociatedApiToken(deviceId: associatedDeviceId, apiToken: newToken)
     }
 
     public func getAllTokens() -> [UserId: AssociatedApiToken] {

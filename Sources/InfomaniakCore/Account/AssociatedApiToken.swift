@@ -23,18 +23,14 @@ public typealias AssociatedDeviceId = String
 
 public struct AssociatedApiToken: Sendable {
     public let deviceId: AssociatedDeviceId?
-    public let token: ApiToken
+    public let apiToken: ApiToken
 
     public var userId: Int {
-        return token.userId
+        return apiToken.userId
     }
 
-    public var accessToken: String {
-        return token.accessToken
-    }
-
-    public init(deviceId: AssociatedDeviceId?, token: ApiToken) {
+    public init(deviceId: AssociatedDeviceId?, apiToken: ApiToken) {
         self.deviceId = deviceId
-        self.token = token
+        self.apiToken = apiToken
     }
 }

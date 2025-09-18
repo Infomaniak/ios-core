@@ -30,12 +30,12 @@ public class TokenStore {
         case keychain
     }
 
-    let tokens = SendableDictionary<UserId, ApiToken>()
+    let tokens = SendableDictionary<UserId, AssociatedApiToken>()
 
     public init() {
         let keychainTokens = keychainHelper.loadTokens()
-        for token in keychainTokens {
-            tokens[token.userId] = token
+        for associatedToken in keychainTokens {
+            tokens[associatedToken.userId] = associatedToken
         }
     }
 
@@ -44,7 +44,7 @@ public class TokenStore {
         let removedToken = tokens.removeValue(forKey: userId)
         keychainHelper.deleteToken(for: userId)
 
-        return removedToken
+        return removedToken?.apiToken
     }
 
     @discardableResult
@@ -52,23 +52,23 @@ public class TokenStore {
         return removeTokenFor(userId: account.userId)
     }
 
-    public func tokenFor(userId: UserId, fetchLocation: TokenStoreFetchLocation = .cache) -> ApiToken? {
+    public func tokenFor(userId: UserId, fetchLocation: TokenStoreFetchLocation = .cache) -> AssociatedApiToken? {
         if fetchLocation == .keychain {
             let keychainTokens = keychainHelper.loadTokens()
-            for token in keychainTokens {
-                tokens[token.userId] = token
+            for associatedToken in keychainTokens {
+                tokens[associatedToken.apiToken.userId] = associatedToken
             }
         }
 
         return tokens[userId]
     }
 
-    public func addToken(newToken: ApiToken) {
-        keychainHelper.storeToken(newToken)
-        tokens[newToken.userId] = newToken
+    public func addToken(newToken: ApiToken, associatedDeviceId: AssociatedDeviceId) {
+        keychainHelper.storeToken(newToken, associatedDeviceId: associatedDeviceId)
+        tokens[newToken.userId] = AssociatedApiToken(deviceId: associatedDeviceId, apiToken: newToken)
     }
 
-    public func getAllTokens() -> [UserId: ApiToken] {
+    public func getAllTokens() -> [UserId: AssociatedApiToken] {
         return tokens.content
     }
 

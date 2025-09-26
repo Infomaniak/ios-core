@@ -29,7 +29,11 @@ public enum InfomaniakError: Error {
     @objc public let errorDescription: String?
 }
 
-open class ApiError: Codable, Error {
+public protocol ErrorWithCode: Error {
+    var code: String { get }
+}
+
+open class ApiError: Codable, Error, ErrorWithCode {
     public var code: String
     public var description: String
 }

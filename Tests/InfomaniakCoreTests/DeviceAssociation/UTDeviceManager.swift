@@ -28,8 +28,10 @@ struct UTDeviceManager_keyValueStore {
     func deviceManagerSaveDevice(userId: Int) async throws {
         // GIVEN
         let uuid = UUID().uuidString
-        let device = await UserDevice(uid: uuid)
-        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        let device = await UserDevice(uid: uuid, appMarketingVersion: "1.0.0", capabilities: [])
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation",
+                                          appMarketingVersion: "1.0.0",
+                                          capabilities: [])
         let expectedDeviceHash = device.stableHashValue
         deviceManager.removeDeviceHash(forUserId: userId)
 
@@ -48,8 +50,10 @@ struct UTDeviceManager_keyValueStore {
     func deviceManagerRemoveDeviceHash(userId: Int) async throws {
         // GIVEN
         let uuid = UUID().uuidString
-        let device = await UserDevice(uid: uuid)
-        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        let device = await UserDevice(uid: uuid, appMarketingVersion: "1.0.0", capabilities: [])
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation",
+                                          appMarketingVersion: "1.0.0",
+                                          capabilities: [])
         deviceManager.setDeviceHash(device, forUserId: userId)
         #expect(deviceManager.getDeviceHash(forUserId: userId) != nil, "The device hash should exist at this point")
 
@@ -68,8 +72,10 @@ struct UTDeviceManager_shouldAttachDevice {
     func deviceManagerShouldAttach(userId: Int) async throws {
         // GIVEN
         let uuid = UUID().uuidString
-        let device = await UserDevice(uid: uuid)
-        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        let device = await UserDevice(uid: uuid, appMarketingVersion: "1.0.0", capabilities: [])
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation",
+                                          appMarketingVersion: "1.0.0",
+                                          capabilities: [])
         deviceManager.removeDeviceHash(forUserId: userId)
         #expect(deviceManager.getDeviceHash(forUserId: userId) == nil, "The device hash should not exist at this point")
 
@@ -94,9 +100,11 @@ struct UTDeviceManager_shouldAttachDevice {
           arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
     func deviceManagerShouldAttachOther(userId: Int) async throws {
         // GIVEN
-        let device = await UserDevice(uid: UUID().uuidString)
-        let otherDevice = await UserDevice(uid: UUID().uuidString)
-        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        let device = await UserDevice(uid: UUID().uuidString, appMarketingVersion: "1.0.0", capabilities: [])
+        let otherDevice = await UserDevice(uid: UUID().uuidString, appMarketingVersion: "1.0.0", capabilities: [])
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation",
+                                          appMarketingVersion: "1.0.0",
+                                          capabilities: [])
         deviceManager.setDeviceHash(device, forUserId: userId)
         #expect(deviceManager.getDeviceHash(forUserId: userId) != nil, "A device hash should exist at this point")
 
@@ -121,8 +129,10 @@ struct UTDeviceManager_shouldAttachDevice {
           arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
     func deviceManagerShouldAttachOtherUserId(userId: Int) async throws {
         // GIVEN
-        let device = await UserDevice(uid: UUID().uuidString)
-        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        let device = await UserDevice(uid: UUID().uuidString, appMarketingVersion: "1.0.0", capabilities: [])
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation",
+                                          appMarketingVersion: "1.0.0",
+                                          capabilities: [])
         deviceManager.setDeviceHash(device, forUserId: userId)
         #expect(deviceManager.getDeviceHash(forUserId: userId) != nil, "A device hash should exist at this point")
         let otherUserId = userId + 1
@@ -150,8 +160,10 @@ struct UTDeviceManager_shouldAttachDevice {
     func deviceManagerShouldNotAttach(userId: Int) async throws {
         // GIVEN
         let uuid = UUID().uuidString
-        let device = await UserDevice(uid: uuid)
-        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        let device = await UserDevice(uid: uuid, appMarketingVersion: "1.0.0", capabilities: [])
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation",
+                                          appMarketingVersion: "1.0.0",
+                                          capabilities: [])
         deviceManager.setDeviceHash(device, forUserId: userId)
         #expect(deviceManager.getDeviceHash(forUserId: userId) != nil, "A device hash should exist at this point")
 
@@ -179,7 +191,9 @@ struct UTDeviceManager_getOrCreateCurrentDevice {
           arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
     func currentDevice(userId: Int) async throws {
         // GIVEN
-        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation")
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation",
+                                          appMarketingVersion: "1.0.0",
+                                          capabilities: [])
 
         // WHEN
         do {

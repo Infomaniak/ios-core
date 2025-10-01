@@ -30,14 +30,18 @@ public protocol DeviceManagerable: Sendable {
 
 public struct DeviceManager: DeviceManagerable {
     let appGroupIdentifier: String
+    let appMarketingVersion: String
+    let capabilities: [Capability]
 
     enum ErrorDomain: Error {
         case containerURLUnavailable
         case writeError
     }
 
-    public init(appGroupIdentifier: String) {
+    public init(appGroupIdentifier: String, appMarketingVersion: String, capabilities: [Capability]) {
         self.appGroupIdentifier = appGroupIdentifier
+        self.appMarketingVersion = appMarketingVersion
+        self.capabilities = capabilities
     }
 
     public func getOrCreateCurrentDevice() async throws -> UserDevice {
@@ -59,7 +63,7 @@ public struct DeviceManager: DeviceManagerable {
         if FileManager.default.fileExists(atPath: deviceIdFileURL.path),
            let deviceIdData = try? Data(contentsOf: deviceIdFileURL),
            let deviceIdString = String(data: deviceIdData, encoding: .utf8) {
-            return await UserDevice(uid: deviceIdString)
+            return await UserDevice(uid: deviceIdString, appMarketingVersion: appMarketingVersion, capabilities: capabilities)
         } else {
             let userDeviceUUID = UUID().uuidString
             guard let deviceIdData = userDeviceUUID.data(using: .utf8) else {
@@ -68,7 +72,7 @@ public struct DeviceManager: DeviceManagerable {
 
             try deviceIdData.write(to: deviceIdFileURL)
 
-            return await UserDevice(uid: userDeviceUUID)
+            return await UserDevice(uid: userDeviceUUID, appMarketingVersion: appMarketingVersion, capabilities: capabilities)
         }
     }
 

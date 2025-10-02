@@ -63,6 +63,24 @@ struct UTDeviceManager_keyValueStore {
         // THEN
         #expect(deviceManager.getDeviceHash(forUserId: userId) == nil)
     }
+
+    @Test("Forget Device hash with DeviceManager", arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
+    func deviceManagerForgetDeviceHash(userId: Int) async throws {
+        // GIVEN
+        let uuid = UUID().uuidString
+        let device = await UserDevice(uid: uuid, appMarketingVersion: "1.0.0", capabilities: [])
+        let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation",
+                                          appMarketingVersion: "1.0.0",
+                                          capabilities: [])
+        deviceManager.setDeviceHash(device, forUserId: userId)
+        #expect(deviceManager.getDeviceHash(forUserId: userId) != nil, "The device hash should exist at this point")
+
+        // WHEN
+        deviceManager.forgetLocalDeviceHash(forUserId: userId)
+
+        // THEN
+        #expect(deviceManager.getDeviceHash(forUserId: userId) == nil)
+    }
 }
 
 @Suite("UTDeviceManager_shouldAttachDevice")

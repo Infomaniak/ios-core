@@ -27,7 +27,7 @@ struct UTUserDevice {
     @Test("Generate a UserDevice representation", arguments: [UUID().uuidString])
     func userDeviceInit(uuid: String) async throws {
         // WHEN
-        let device = await UserDevice(uid: uuid)
+        let device = await UserDevice(uid: uuid, appMarketingVersion: "1.0.0", capabilities: [])
 
         // THEN
         #expect(device.uid == uuid)
@@ -42,8 +42,8 @@ struct UTUserDevice {
     @Test("UserDevice hash stability", arguments: [UUID().uuidString])
     func userDeviceHashStability(uuid: String) async throws {
         // WHEN
-        let device = await UserDevice(uid: uuid)
-        let sameDevice = await UserDevice(uid: uuid)
+        let device = await UserDevice(uid: uuid, appMarketingVersion: "1.0.0", capabilities: [])
+        let sameDevice = await UserDevice(uid: uuid, appMarketingVersion: "1.0.0", capabilities: [])
 
         // THEN
         #expect(device.stableHashValue == sameDevice.stableHashValue, "Two devices with same uuid should have same hash")
@@ -52,8 +52,8 @@ struct UTUserDevice {
     @Test("UserDevice hash UnEqual", arguments: [UUID().uuidString])
     func userDeviceHashUnEqual(uuid: String) async throws {
         // WHEN
-        let device = await UserDevice(uid: uuid)
-        let sameDevice = await UserDevice(uid: UUID().uuidString)
+        let device = await UserDevice(uid: uuid, appMarketingVersion: "1.0.0", capabilities: [])
+        let sameDevice = await UserDevice(uid: UUID().uuidString, appMarketingVersion: "1.0.0", capabilities: [])
 
         // THEN
         #expect(device.stableHashValue != sameDevice.stableHashValue, "Two devices with same uuid should have same hash")

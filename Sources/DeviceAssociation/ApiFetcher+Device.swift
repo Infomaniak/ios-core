@@ -26,7 +26,7 @@ public extension ApiFetcher {
         return try await perform(request: authenticatedRequest(
             .attachDevice(toApiToken: token),
             method: .post,
-            parameters: deviceMetaData.asParameters
+            parameters: deviceMetaData
         ))
     }
 }

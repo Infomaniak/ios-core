@@ -20,43 +20,41 @@ import InfomaniakCore
 import UIKit
 #endif
 
-public struct UserDevice: Sendable {
-    static let metadataReader = MetadataReader()
+public typealias Capability = String
 
+public struct UserDevice: Sendable, Encodable {
+    public let uid: String
     public let brand = "Apple"
     public let model: String?
     public let platform: AttachDeviceOS
     public let type: AttachDeviceType
-    public let uid: String
 
-    public init(uid: String) async {
+    public let appMarketingVersion: String
+    public let capabilities: [Capability]
+
+    public init(uid: String, appMarketingVersion: String, capabilities: [Capability]) async {
         self.uid = uid
-        model = Self.metadataReader.modelIdentifier
+        model = MetadataReader().modelIdentifier
         platform = await AttachDeviceOS.current
         type = await AttachDeviceType.current
+        self.appMarketingVersion = appMarketingVersion
+        self.capabilities = capabilities
     }
 
     var stableHashValue: String {
-        "\(platform.rawValue)_\(type.rawValue)_\(uid)_\(brand)_\(model ?? "")"
-    }
-}
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
 
-extension UserDevice {
-    var asParameters: [String: String] {
-        var parameters = ["platform": platform.rawValue,
-                          "type": type.rawValue,
-                          "uid": uid,
-                          "brand": brand]
-
-        if let model, !model.isEmpty {
-            parameters["model"] = model
+        guard let jsonData = try? encoder.encode(self),
+              let jsonDataString = String(data: jsonData, encoding: .utf8) else {
+            return ""
         }
 
-        return parameters
+        return jsonDataString
     }
 }
 
-public enum AttachDeviceType: String, Sendable {
+public enum AttachDeviceType: String, Encodable, Sendable {
     case computer
     case phone
     case tablet
@@ -78,7 +76,7 @@ public enum AttachDeviceType: String, Sendable {
     }
 }
 
-public enum AttachDeviceOS: String, Sendable {
+public enum AttachDeviceOS: String, Encodable, Sendable {
     case ios
     case macos
 

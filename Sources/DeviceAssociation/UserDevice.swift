@@ -20,8 +20,6 @@ import InfomaniakCore
 import UIKit
 #endif
 
-public typealias Capability = String
-
 public struct UserDevice: Sendable, Encodable {
     public let uid: String
     public let brand = "Apple"

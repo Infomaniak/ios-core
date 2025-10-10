@@ -58,4 +58,16 @@ struct UTUserDevice {
         // THEN
         #expect(device.stableHashValue != sameDevice.stableHashValue, "Two devices with same uuid should have same hash")
     }
+
+    @Test("UserDevice capabilities encoding", arguments: [UUID().uuidString])
+    func userDeviceEncoding(uuid: String) async throws {
+        // WHEN
+        let device = await UserDevice(uid: uuid, appMarketingVersion: "1.0.0", capabilities: ["2fa"])
+
+        let encodedJson = try JSONEncoder().encode(device)
+        let jsonString = String(data: encodedJson, encoding: .utf8) ?? "Encoding failed"
+
+        // THEN
+        #expect(jsonString.contains("\"capabilities\":[\"2fa\"]"), "Encoding did not match expectation: \(jsonString)")
+    }
 }

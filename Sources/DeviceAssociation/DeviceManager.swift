@@ -41,7 +41,7 @@ public struct DeviceManager: DeviceManagerable {
     public init(appGroupIdentifier: String, appMarketingVersion: String, capabilities: [Capability]) {
         self.appGroupIdentifier = appGroupIdentifier
         self.appMarketingVersion = appMarketingVersion
-        self.capabilities = capabilities
+        self.capabilities = Array(Set(capabilities))
     }
 
     public func getOrCreateCurrentDevice() async throws -> UserDevice {

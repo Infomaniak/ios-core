@@ -211,9 +211,11 @@ open class ApiFetcher {
                   let value = NullableType.init(nilLiteral: ()) as? T {
             responseData = value
         } else if let apiError = apiResponse.error {
-            throw InfomaniakError.apiError(apiError)
+            @InjectService var errorRegistry: IKErrorRegistry
+            throw errorRegistry.apiError(apiError, statusCode: serverResponse.statusCode)
         } else {
-            throw InfomaniakError.serverError(statusCode: serverResponse.statusCode)
+            @InjectService var errorRegistry: IKErrorRegistry
+            throw errorRegistry.serverError(statusCode: serverResponse.statusCode)
         }
         let validApiResponse = ValidApiResponse(
             result: apiResponse.result,

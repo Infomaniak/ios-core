@@ -18,29 +18,13 @@
 
 import Foundation
 
-public enum InfomaniakError: Error {
-    case apiError(ApiError)
-    case serverError(statusCode: Int)
-}
-
 /// An  api error for `InfomaniakLogin` form
 @objc public class LoginApiError: NSObject, Codable {
     @objc public let error: String
     @objc public let errorDescription: String?
 }
 
-public protocol ErrorWithCode: Error {
-    var code: String { get }
-}
-
-open class ApiError: Codable, Error, ErrorWithCode {
-    public var code: String
-    public var description: String
-}
-
-extension ApiError: CustomNSError {
-    public static var errorDomain = "com.infomaniak.ApiError"
-    public var errorUserInfo: [String: Any] {
-        return ["code": code, "description": description]
-    }
+public struct DecodableApiError: Decodable {
+    public let code: String
+    public let description: String
 }

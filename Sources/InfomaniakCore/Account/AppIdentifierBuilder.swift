@@ -24,7 +24,7 @@ public extension AppIdentifierBuilder {
     static let mailKeychainIdentifier = ikAppIdentifierBuilder.keychainAccessGroupFor(identifier: "com.infomaniak.mail")
     static let euriaKeychainIdentifier = ikAppIdentifierBuilder.keychainAccessGroupFor(identifier: "com.infomaniak.euria")
 
-    static let knownAppKeychainIdentifiers = [driveKeychainIdentifier, mailKeychainIdentifier]
+    static let knownAppKeychainIdentifiers = [driveKeychainIdentifier, mailKeychainIdentifier, euriaKeychainIdentifier]
 }
 
 public struct AppIdentifierBuilder: Sendable {

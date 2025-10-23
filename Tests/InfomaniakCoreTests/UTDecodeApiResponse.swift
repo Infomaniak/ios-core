@@ -18,9 +18,29 @@
 
 @testable import Alamofire
 @testable import InfomaniakCore
+import InfomaniakDI
 import XCTest
 
 final class UTDecodeApiResponse: XCTestCase {
+    override func setUp() {
+        let factory = Factory(
+            type: IKErrorRegistry.self
+        ) { _, _ in
+            return IKErrorRegistry(
+                unknownHandledError: HandledError(code: .unknown, localizedMessage: "unknown", shouldDisplay: true),
+                unknownApiHandledError: HandledError(code: .unknown, localizedMessage: "api", shouldDisplay: true),
+                serverHandledError: HandledError(code: .unknown, localizedMessage: "server", shouldDisplay: true),
+                networkHandledError: HandledError(code: .unknown, localizedMessage: "network", shouldDisplay: true),
+                otherErrors: [HandledError(
+                    code: .apiError("testError"),
+                    localizedMessage: "this is a test error",
+                    shouldDisplay: true
+                )]
+            )
+        }
+        SimpleResolver.sharedResolver.store(factory: factory)
+    }
+
     func fakeDataResponse<T: Decodable>(decodedResponse: ApiResponse<T>) -> DataResponse<ApiResponse<T>, AFError> {
         DataResponse(
             request: nil,
@@ -88,10 +108,10 @@ final class UTDecodeApiResponse: XCTestCase {
         // THEN
         XCTAssertNotNil(decodedResponse, "Response shouldn't be nil")
         do {
-            let _ = try apiFetcher.handleApiResponse(dataResponse)
+            _ = try apiFetcher.handleApiResponse(dataResponse)
         } catch {
-            let ikError = error as? InfomaniakError
-            XCTAssertNotNil(ikError, "Error should be InfomaniakError")
+            let ikError = error as? any IKError
+            XCTAssertNotNil(ikError, "Error should be IKError")
         }
     }
 
@@ -112,10 +132,10 @@ final class UTDecodeApiResponse: XCTestCase {
         // THEN
         XCTAssertNotNil(decodedResponse, "Response shouldn't be nil")
         do {
-            let _ = try apiFetcher.handleApiResponse(dataResponse)
+            _ = try apiFetcher.handleApiResponse(dataResponse)
         } catch {
-            let ikError = error as? InfomaniakError
-            XCTAssertNotNil(ikError, "Error should be InfomaniakError")
+            let ikError = error as? any IKError
+            XCTAssertNotNil(ikError, "Error should be IKError")
         }
     }
 
@@ -139,11 +159,11 @@ final class UTDecodeApiResponse: XCTestCase {
         // THEN
         XCTAssertNotNil(decodedResponse, "Response shouldn't be nil")
         do {
-            let _ = try apiFetcher.handleApiResponse(dataResponse)
+            _ = try apiFetcher.handleApiResponse(dataResponse)
         } catch {
-            let ikError = error as? InfomaniakError
-            XCTAssertNotNil(ikError, "Error should be InfomaniakError")
-            if case .apiError(let apiError) = ikError {
+            let ikError = error as? any IKError
+            XCTAssertNotNil(ikError, "Error should be IKError")
+            if let apiError = ikError as? ApiError {
                 XCTAssertEqual(apiError.code, "testError", "Error code should be decoded")
             }
         }

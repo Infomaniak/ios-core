@@ -192,7 +192,38 @@ open class ApiFetcher {
 
         SentryDebug.httpResponseBreadcrumb(urlRequest: request.convertible.urlRequest, urlResponse: dataResponse.response)
 
-        return try handleApiResponse(dataResponse)
+        do {
+            return try handleApiResponse(dataResponse)
+        } catch {
+            @InjectService var errorRegistry: IKErrorRegistry
+
+            guard let afError = error.asAFError else {
+                throw errorRegistry.unknownError(underlyingError: error, shouldDisplay: false)
+            }
+
+            if case .responseSerializationFailed(let reason) = afError,
+               case .decodingFailed(let error) = reason,
+               let statusCode = request.response?.statusCode, (200 ... 299).contains(statusCode) {
+                var rawJson = "No data"
+                if let data = request.data {
+                    rawJson = String(decoding: data, as: UTF8.self)
+                }
+
+                let requestId = request.response?.value(forHTTPHeaderField: "x-request-id") ?? "No request Id"
+                SentrySDK.capture(error: error) { scope in
+                    scope.setExtras(["Request URL": request.request?.url?.absoluteString ?? "No URL",
+                                     "Request Id": requestId,
+                                     "Decoded type": String(describing: T.self),
+                                     "Raw JSON": rawJson])
+                }
+            } else if let underlyingError = afError.underlyingError,
+                      (underlyingError as NSError).code == NSURLErrorNotConnectedToInternet ||
+                      (underlyingError as NSError).code == NSURLErrorTimedOut {
+                throw errorRegistry.networkError(underlyingError: afError)
+            }
+
+            throw errorRegistry.unknownError(underlyingError: error, shouldDisplay: false)
+        }
     }
 
     open func handleApiResponse<T: Decodable>(_ dataResponse: DataResponse<ApiResponse<T>, AFError>) throws

@@ -83,7 +83,23 @@ public struct IKErrorRegistry {
         }
     }
 
-    
+    public func unknownError(underlyingError: Error?, shouldDisplay: Bool) -> LocalError {
+        return LocalError(
+            code: unknownHandledError.code.rawValue,
+            localizedMessage: unknownHandledError.localizedMessage,
+            underlyingError: underlyingError,
+            shouldDisplay: shouldDisplay
+        )
+    }
+
+    public func networkError(underlyingError: Error?) -> LocalError {
+        return LocalError(
+            code: networkHandledError.code.rawValue,
+            localizedMessage: networkHandledError.localizedMessage,
+            underlyingError: underlyingError,
+            shouldDisplay: networkHandledError.shouldDisplay
+        )
+    }
 
     public func serverError(statusCode: Int) -> ServerError {
         return ServerError(

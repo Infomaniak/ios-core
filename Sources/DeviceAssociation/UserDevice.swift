@@ -33,7 +33,7 @@ public struct UserDevice: Sendable, Encodable {
     public init(uid: String, appMarketingVersion: String, capabilities: [Capability]) async {
         self.uid = uid
         model = MetadataReader().modelIdentifier
-        platform = await AttachDeviceOS.current
+        platform = AttachDeviceOS.current
         type = await AttachDeviceType.current
         self.appMarketingVersion = appMarketingVersion
         self.capabilities = capabilities
@@ -58,7 +58,9 @@ public enum AttachDeviceType: String, Encodable, Sendable {
     case tablet
 
     @MainActor static var current: AttachDeviceType {
-        #if canImport(UIKit)
+        #if targetEnvironment(macCatalyst) || os(macOS)
+        return .computer
+        #elseif canImport(UIKit)
         let deviceType = UIDevice.current.userInterfaceIdiom
         switch deviceType {
         case .phone:
@@ -78,15 +80,11 @@ public enum AttachDeviceOS: String, Encodable, Sendable {
     case ios
     case macos
 
-    @MainActor static var current: AttachDeviceOS {
-        #if canImport(UIKit)
-        let deviceType = UIDevice.current.userInterfaceIdiom
-        switch deviceType {
-        case .phone, .pad:
-            return .ios
-        default:
-            return .macos
-        }
+    static var current: AttachDeviceOS {
+        #if targetEnvironment(macCatalyst) || os(macOS)
+        return .macos
+        #elseif canImport(UIKit)
+        return .ios
         #else
         return .macos
         #endif

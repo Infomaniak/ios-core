@@ -97,10 +97,17 @@ public struct LocalError: IKError {
     public let underlyingError: Error?
     public let shouldDisplay: Bool
 
-    public init(code: String, localizedMessage: String, underlyingError: Error?, shouldDisplay: Bool) {
+    public init(code: String, localizedMessage: String, underlyingError: Error? = nil, shouldDisplay: Bool) {
         self.code = code
         self.localizedMessage = localizedMessage
         self.underlyingError = underlyingError
         self.shouldDisplay = shouldDisplay
+    }
+
+    public init(code: String, underlyingError: Error? = nil) {
+        self.code = code
+        localizedMessage = "\(code), underlyingError: \(String(describing: underlyingError))"
+        shouldDisplay = false
+        self.underlyingError = underlyingError
     }
 }

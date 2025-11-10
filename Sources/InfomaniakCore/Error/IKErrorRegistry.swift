@@ -56,7 +56,7 @@ public struct HandledError {
 }
 
 public struct IKErrorRegistry {
-    public let handledErrors: [String: HandledError]
+    public let apiHandledErrors: [String: HandledError]
 
     public let unknownHandledError: HandledError
     public let unknownApiHandledError: HandledError
@@ -67,13 +67,13 @@ public struct IKErrorRegistry {
                 unknownApiHandledError: HandledError,
                 serverHandledError: HandledError,
                 networkHandledError: HandledError,
-                otherErrors: [HandledError]) {
+                apiHandledErrors: [HandledError]) {
         self.unknownHandledError = unknownHandledError
         self.unknownApiHandledError = unknownApiHandledError
         self.serverHandledError = serverHandledError
         self.networkHandledError = networkHandledError
 
-        handledErrors = otherErrors.reduce(into: [String: HandledError]()) { partialResult, error in
+        self.apiHandledErrors = apiHandledErrors.reduce(into: [String: HandledError]()) { partialResult, error in
             #if DEBUG
             if partialResult[error.code.rawValue] != nil {
                 fatalError("Error code \(error.code.rawValue) was registered twice this can lead to unexpected behaviour")
@@ -111,7 +111,7 @@ public struct IKErrorRegistry {
     }
 
     public func apiError(_ decodedApiError: DecodableApiError, statusCode: Int) -> ApiError {
-        guard let handledApiError = handledErrors[decodedApiError.code] else {
+        guard let handledApiError = apiHandledErrors[decodedApiError.code] else {
             return ApiError(
                 code: HandledErrorCode.unknownApiError.rawValue,
                 originalCode: decodedApiError.code,

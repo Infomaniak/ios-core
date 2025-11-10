@@ -31,7 +31,7 @@ final class UTDecodeApiResponse: XCTestCase {
                 unknownApiHandledError: HandledError(code: .unknown, localizedMessage: "api", shouldDisplay: true),
                 serverHandledError: HandledError(code: .unknown, localizedMessage: "server", shouldDisplay: true),
                 networkHandledError: HandledError(code: .unknown, localizedMessage: "network", shouldDisplay: true),
-                otherErrors: [HandledError(
+                apiHandledErrors: [HandledError(
                     code: .apiError("testError"),
                     localizedMessage: "this is a test error",
                     shouldDisplay: true

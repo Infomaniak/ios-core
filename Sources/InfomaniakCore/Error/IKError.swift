@@ -18,7 +18,8 @@
 
 import Foundation
 
-public protocol IKError: Error, LocalizedError, Equatable {
+public protocol IKError: Error, LocalizedError, Equatable, Identifiable {
+    var id: String { get }
     var code: String { get }
     var localizedMessage: String { get }
     var underlyingError: Error? { get }
@@ -26,6 +27,10 @@ public protocol IKError: Error, LocalizedError, Equatable {
 }
 
 public extension IKError {
+    var id: String {
+        return code
+    }
+
     var shouldDisplay: Bool {
         return false
     }

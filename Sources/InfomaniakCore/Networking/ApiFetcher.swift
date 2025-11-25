@@ -53,15 +53,15 @@ open class ApiFetcher {
 
     public var currentToken: ApiToken? {
         get {
-            return authenticationInterceptor.credential
+            return authenticationInterceptor?.credential
         }
         set {
-            authenticationInterceptor.credential = newValue
+            authenticationInterceptor?.credential = newValue
         }
     }
 
     private weak var refreshTokenDelegate: RefreshTokenDelegate?
-    private var authenticationInterceptor: AuthenticationInterceptor<OAuthAuthenticator>!
+    private var authenticationInterceptor: AuthenticationInterceptor<OAuthAuthenticator>?
 
     public init(
         decoder: JSONDecoder? = nil,
@@ -105,7 +105,8 @@ open class ApiFetcher {
     @available(*, deprecated, message: "Use createAuthenticatedSession instead")
     public func setToken(_ token: ApiToken, authenticator: OAuthAuthenticator) {
         refreshTokenDelegate = authenticator.refreshTokenDelegate
-        authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
+        let authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
+        self.authenticationInterceptor = authenticationInterceptor
 
         let retrier = NetworkRequestRetrier()
         let interceptor = Interceptor(adapters: [], retriers: [retrier], interceptors: [authenticationInterceptor])
@@ -123,7 +124,8 @@ open class ApiFetcher {
                                            additionalRetriers: [RequestRetrier] = [],
                                            additionalInterceptors: [RequestInterceptor] = []) {
         refreshTokenDelegate = authenticator.refreshTokenDelegate
-        authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
+        let authenticationInterceptor = AuthenticationInterceptor(authenticator: authenticator, credential: token)
+        self.authenticationInterceptor = authenticationInterceptor
 
         let retrier = NetworkRequestRetrier()
         let interceptor = Interceptor(adapters: additionalAdapters,

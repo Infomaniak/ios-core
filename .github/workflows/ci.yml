@@ -20,10 +20,12 @@ jobs:
         run: xcodebuild -scheme InfomaniakCore build -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest"
       - name: Test
         run: Scripts/prepareForTesting.sh && xcodebuild -scheme InfomaniakCore-Package test -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" -enableCodeCoverage YES -resultBundlePath ResultBundle.xcresult
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 #5.5.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Convert Coverage Report
+        run: ./Scripts/xccov-to-generic.sh ResultBundle.xcresult > coverage.xml
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 #6.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build_and_test_macOS:
     name: Build and Test project on macOS

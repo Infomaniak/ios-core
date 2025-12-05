@@ -17,38 +17,22 @@
  */
 import Foundation
 
-@frozen public struct UserProfile: Codable, InfomaniakUser, Hashable {
+@frozen public struct UserProfile: Codable, InfomaniakUser, Hashable, Equatable {
     public let id: Int
     public let displayName: String
     public let firstName: String
     public let lastName: String
     public let email: String
     public let avatar: String?
-    public let login: String?
-    public let sessions: [UserSession]
-    public let preferences: UserPreferences?
-    public let phones: [UserPhone]
-    public let emails: [UserEmail]
     public let isStaff: Bool?
 
     private enum OldCodingKeys: String, CodingKey {
         case id
-        case userId
-        case login
         case email
         case firstname
         case lastname
         case displayName
-        case sms
-        case smsPhone
-        case doubleAuth
-        case securityCheck
-        case emailValidate
-        case emailReminderValidate
-        case phoneReminderValidate
         case avatar
-        case phones
-        case emails
     }
 
     public init(from decoder: Decoder) throws {
@@ -58,11 +42,6 @@ import Foundation
         var lastName: String
         var email: String
         var avatar: String?
-        var login: String
-        var sessions: [UserSession]
-        var preferences: UserPreferences
-        var phones: [UserPhone]
-        var emails: [UserEmail]
         var isStaff: Bool
 
         // Custom decoder to allow decoding old model (for account decoding)
@@ -74,11 +53,6 @@ import Foundation
             lastName = try container.decode(String.self, forKey: .lastName)
             email = try container.decode(String.self, forKey: .email)
             avatar = try container.decodeIfPresent(String.self, forKey: .avatar)
-            login = try container.decode(String.self, forKey: .login)
-            sessions = try container.decodeIfPresent([UserSession].self, forKey: .sessions) ?? []
-            preferences = try container.decodeIfPresent(UserPreferences.self, forKey: .preferences) ?? UserPreferences()
-            phones = try container.decodeIfPresent([UserPhone].self, forKey: .phones) ?? []
-            emails = try container.decodeIfPresent([UserEmail].self, forKey: .emails) ?? []
             isStaff = try container.decodeIfPresent(Bool.self, forKey: .isStaff) ?? false
         } catch DecodingError.keyNotFound {
             // Try old coding keys
@@ -89,11 +63,6 @@ import Foundation
             lastName = try container.decode(String.self, forKey: .lastname)
             email = try container.decode(String.self, forKey: .email)
             avatar = try container.decodeIfPresent(String.self, forKey: .avatar)
-            login = try container.decode(String.self, forKey: .login)
-            sessions = []
-            preferences = UserPreferences()
-            phones = []
-            emails = []
             isStaff = false
         }
 
@@ -103,11 +72,6 @@ import Foundation
         self.lastName = lastName
         self.email = email
         self.avatar = avatar
-        self.login = login
-        self.sessions = sessions
-        self.preferences = preferences
-        self.phones = phones
-        self.emails = emails
         self.isStaff = isStaff
     }
 
@@ -118,7 +82,6 @@ import Foundation
         lastName: String,
         email: String,
         avatar: String? = nil,
-        login: String? = nil,
         isStaff: Bool? = nil
     ) {
         self.id = id
@@ -127,11 +90,6 @@ import Foundation
         self.lastName = lastName
         self.email = email
         self.avatar = avatar
-        self.login = login
-        sessions = []
-        preferences = nil
-        phones = []
-        emails = []
         self.isStaff = isStaff
     }
 }

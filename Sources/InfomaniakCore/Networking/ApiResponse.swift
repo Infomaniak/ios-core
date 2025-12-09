@@ -30,7 +30,7 @@ public enum ApiResult: String, Codable {
 open class ApiResponse<ResponseContent: Decodable>: Decodable {
     public let result: ApiResult
     public let data: ResponseContent?
-    public let error: ApiError?
+    public let error: DecodableApiError?
     public let total: Int?
     public let pages: Int?
     public let page: Int?
@@ -62,7 +62,7 @@ open class ApiResponse<ResponseContent: Decodable>: Decodable {
         } else {
             data = try container.decodeIfPresent(ResponseContent.self, forKey: .data)
         }
-        error = try container.decodeIfPresent(ApiError.self, forKey: .error)
+        error = try container.decodeIfPresent(DecodableApiError.self, forKey: .error)
         total = try container.decodeIfPresent(Int.self, forKey: .total)
         pages = try container.decodeIfPresent(Int.self, forKey: .pages)
         page = try container.decodeIfPresent(Int.self, forKey: .page)

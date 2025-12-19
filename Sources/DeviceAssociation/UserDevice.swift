@@ -32,6 +32,16 @@ public struct UserDevice: Sendable, Encodable {
     public let appMarketingVersion: String
     public let capabilities: [Capability]
 
+    enum CodingKeys: String, CodingKey {
+        case uid
+        case brand
+        case model
+        case platform
+        case type
+        case appMarketingVersion = "version"
+        case capabilities
+    }
+
     public init(uid: String, appMarketingVersion: String, capabilities: [Capability]) async {
         self.uid = uid
         model = MetadataReader().modelIdentifier

@@ -39,11 +39,29 @@ public enum ApiEnvironment: Equatable, Hashable {
     }
 
     public var apiHost: String {
-        return "api.\(host)"
+        switch self {
+        case .prod, .preprod:
+            return "api.\(host)"
+        case .customHost(let host):
+            if host.contains("orphan") {
+                return host
+            }
+
+            return "api.\(host)"
+        }
     }
 
     public var managerHost: String {
-        return "manager.\(host)"
+        switch self {
+        case .prod, .preprod:
+            return "manager.\(host)"
+        case .customHost(let host):
+            if host.contains("orphan") {
+                return host
+            }
+
+            return "manager.\(host)"
+        }
     }
 }
 

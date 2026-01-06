@@ -33,7 +33,7 @@ public enum ApiEnvironment: Equatable, Hashable {
             return "infomaniak.com"
         case .preprod:
             return "preprod.dev.infomaniak.ch"
-        case let .customHost(host):
+        case .customHost(let host):
             return host
         }
     }
@@ -42,7 +42,7 @@ public enum ApiEnvironment: Equatable, Hashable {
         switch self {
         case .prod, .preprod:
             return "api.\(host)"
-        case let .customHost(host):
+        case .customHost(let host):
             if host.contains("orphan") {
                 return host
             }
@@ -55,7 +55,7 @@ public enum ApiEnvironment: Equatable, Hashable {
         switch self {
         case .prod, .preprod:
             return "manager.\(host)"
-        case let .customHost(host):
+        case .customHost(let host):
             if host.contains("orphan") {
                 return host
             }

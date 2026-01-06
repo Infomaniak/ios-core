@@ -33,7 +33,7 @@ public enum ApiEnvironment: Equatable, Hashable {
             return "infomaniak.com"
         case .preprod:
             return "preprod.dev.infomaniak.ch"
-        case .customHost(let host):
+        case let .customHost(host):
             return host
         }
     }

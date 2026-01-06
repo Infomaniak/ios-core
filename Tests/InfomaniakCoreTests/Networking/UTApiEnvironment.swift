@@ -16,14 +16,13 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Testing
 @testable import InfomaniakCore
+import Testing
 
 @Suite("ApiEnvironment Tests")
 struct UTApiEnvironment {
-
     @Test("Production environment host")
-    func testProductionHost() {
+    func productionHost() {
         let env = ApiEnvironment.prod
         #expect(env.host == "infomaniak.com")
         #expect(env.apiHost == "api.infomaniak.com")
@@ -31,7 +30,7 @@ struct UTApiEnvironment {
     }
 
     @Test("Preproduction environment host")
-    func testPreproductionHost() {
+    func preproductionHost() {
         let env = ApiEnvironment.preprod
         #expect(env.host == "preprod.dev.infomaniak.ch")
         #expect(env.apiHost == "api.preprod.dev.infomaniak.ch")
@@ -47,7 +46,7 @@ struct UTApiEnvironment {
     }
 
     @Test("Custom orphan host environment")
-    func testCustomOrphanHost() {
+    func customOrphanHost() {
         let env = ApiEnvironment.customHost("orphan.example.com")
         #expect(env.host == "orphan.example.com")
         #expect(env.apiHost == "orphan.example.com")
@@ -55,12 +54,12 @@ struct UTApiEnvironment {
     }
 
     @Test("Current environment defaults to production")
-    func testCurrentEnvironment() {
+    func currentEnvironment() {
         #expect(ApiEnvironment.current == .prod)
     }
 
     @Test("Environment equality")
-    func testEnvironmentEquality() {
+    func environmentEquality() {
         #expect(ApiEnvironment.prod == ApiEnvironment.prod)
         #expect(ApiEnvironment.preprod == ApiEnvironment.preprod)
         #expect(ApiEnvironment.customHost("test") == ApiEnvironment.customHost("test"))
@@ -69,7 +68,7 @@ struct UTApiEnvironment {
     }
 
     @Test("Environment hashability")
-    func testEnvironmentHashability() {
+    func environmentHashability() {
         let prod1 = ApiEnvironment.prod
         let prod2 = ApiEnvironment.prod
         let preprod = ApiEnvironment.preprod

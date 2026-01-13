@@ -43,7 +43,7 @@ public enum ApiEnvironment: Equatable, Hashable {
         case .prod, .preprod:
             return "api.\(host)"
         case .customHost(let host):
-            if host.contains("orphan") {
+            if host.contains("orphan") || host.contains("mail-mr") {
                 return host
             }
 
@@ -56,7 +56,7 @@ public enum ApiEnvironment: Equatable, Hashable {
         case .prod, .preprod:
             return "manager.\(host)"
         case .customHost(let host):
-            if host.contains("orphan") {
+            if host.contains("orphan") || host.contains("mail-mr") {
                 return host
             }
 
@@ -128,9 +128,25 @@ public extension Endpoint {
     }
 
     static func profile(ignoreDefaultAvatar: Bool) -> Endpoint {
-        return .baseV2.appending(path: "/profile", queryItems: [
-            noAvatarDefault(ignoreDefaultAvatar),
-            URLQueryItem(name: "with", value: "emails,phones")
-        ])
+        switch ApiEnvironment.current {
+        case .prod, .preprod:
+            return .baseV2.appending(path: "/profile", queryItems: [
+                noAvatarDefault(ignoreDefaultAvatar),
+                URLQueryItem(name: "with", value: "emails,phones")
+            ])
+
+        case .customHost(let host):
+            if host.contains("orphan") || host.contains("mail-mr") {
+                return Endpoint(host: ApiEnvironment.preprod.apiHost, path: "/2/profile", queryItems: [
+                    noAvatarDefault(ignoreDefaultAvatar),
+                    URLQueryItem(name: "with", value: "emails,phones")
+                ])
+            }
+
+            return .baseV2.appending(path: "/profile", queryItems: [
+                noAvatarDefault(ignoreDefaultAvatar),
+                URLQueryItem(name: "with", value: "emails,phones")
+            ])
+        }
     }
 }

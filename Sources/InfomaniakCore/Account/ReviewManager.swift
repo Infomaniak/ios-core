@@ -22,7 +22,7 @@ import SwiftUI
 
 extension UserDefaults.Keys {
     static let openingUntilReview = UserDefaults.Keys(rawValue: "openingUntilReview")
-    static let appReview = UserDefaults.Keys(rawValue: "appReview")
+    static let alreadyAsked = UserDefaults.Keys(rawValue: "alreadyAsked")
 }
 
 public extension UserDefaults {
@@ -35,20 +35,17 @@ public extension UserDefaults {
         }
     }
 
-    var appReview: ReviewType {
+    var alreadyAsked: Bool {
         get {
-            return ReviewType(rawValue: string(forKey: key(.appReview)) ?? "") ?? .none
+            if object(forKey: key(.alreadyAsked)) == nil {
+                return false
+            }
+            return bool(forKey: key(.alreadyAsked))
         }
         set {
-            set(newValue.rawValue, forKey: key(.appReview))
+            set(newValue, forKey: key(.alreadyAsked))
         }
     }
-}
-
-public enum ReviewType: String {
-    case none
-    case feedback
-    case readyForReview
 }
 
 public protocol ReviewManageable {
@@ -59,15 +56,9 @@ public protocol ReviewManageable {
 
 public class ReviewManager: ReviewManageable {
     let userDefaults: UserDefaults
-    let openingBeforeNextReviews: Int
 
-    private var userHasAlreadyAnsweredYes: Bool {
-        return userDefaults.appReview == .readyForReview
-    }
-
-    public init(userDefaults: UserDefaults, openingBeforeFirstReview: Int = 50, openingBeforeNextReviews: Int = 500) {
+    public init(userDefaults: UserDefaults, openingBeforeFirstReview: Int = 50) {
         self.userDefaults = userDefaults
-        self.openingBeforeNextReviews = openingBeforeNextReviews
         if userDefaults.object(forKey: userDefaults.key(.openingUntilReview)) == nil {
             userDefaults.set(openingBeforeFirstReview, forKey: userDefaults.key(.openingUntilReview))
         }
@@ -78,18 +69,11 @@ public class ReviewManager: ReviewManageable {
     }
 
     public func shouldRequestReview() -> Bool {
-        guard userDefaults.openingUntilReview <= 0 else {
-            return false
-        }
-
-        userDefaults.openingUntilReview = openingBeforeNextReviews
-
-        if userHasAlreadyAnsweredYes {
-            // If the user has already answered yes, we will directly present the SKStoreReviewController
-            requestReview()
-            return false
-        } else {
+        if userDefaults.openingUntilReview <= 0 && !userDefaults.alreadyAsked {
+            userDefaults.alreadyAsked = true
             return true
+        } else {
+            return false
         }
     }
 

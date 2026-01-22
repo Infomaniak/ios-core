@@ -21,21 +21,21 @@ import StoreKit
 import SwiftUI
 
 extension UserDefaults.Keys {
-    static let openingUntilReview = UserDefaults.Keys(rawValue: "openingUntilReview")
+    static let actionUntilReview = UserDefaults.Keys(rawValue: "actionUntilReview")
     static let alreadyAsked = UserDefaults.Keys(rawValue: "alreadyAsked")
 }
 
 public extension UserDefaults {
-    var openingUntilReview: Int {
+    var actionUntilReview: Int {
         get {
-            return integer(forKey: key(.openingUntilReview))
+            return integer(forKey: key(.actionUntilReview))
         }
         set {
-            set(newValue, forKey: key(.openingUntilReview))
+            set(newValue, forKey: key(.actionUntilReview))
         }
     }
 
-    var alreadyAsked: Bool {
+    var alreadyAskedReview: Bool {
         get {
             if object(forKey: key(.alreadyAsked)) == nil {
                 return false
@@ -49,7 +49,7 @@ public extension UserDefaults {
 }
 
 public protocol ReviewManageable {
-    func decreaseOpeningUntilReview()
+    func decreaseActionUntilReview()
     func shouldRequestReview() -> Bool
     func requestReview()
 }
@@ -57,20 +57,20 @@ public protocol ReviewManageable {
 public class ReviewManager: ReviewManageable {
     let userDefaults: UserDefaults
 
-    public init(userDefaults: UserDefaults, openingBeforeFirstReview: Int = 50) {
+    public init(userDefaults: UserDefaults, actionBeforeFirstReview: Int) {
         self.userDefaults = userDefaults
-        if userDefaults.object(forKey: userDefaults.key(.openingUntilReview)) == nil {
-            userDefaults.set(openingBeforeFirstReview, forKey: userDefaults.key(.openingUntilReview))
+        if userDefaults.object(forKey: userDefaults.key(.actionUntilReview)) == nil {
+            userDefaults.set(actionBeforeFirstReview, forKey: userDefaults.key(.actionUntilReview))
         }
     }
 
-    public func decreaseOpeningUntilReview() {
-        userDefaults.openingUntilReview -= 1
+    public func decreaseActionUntilReview() {
+        userDefaults.actionUntilReview -= 1
     }
 
     public func shouldRequestReview() -> Bool {
-        if userDefaults.openingUntilReview <= 0 && !userDefaults.alreadyAsked {
-            userDefaults.alreadyAsked = true
+        if userDefaults.actionUntilReview <= 0 && !userDefaults.alreadyAskedReview {
+            userDefaults.alreadyAskedReview = true
             return true
         } else {
             return false

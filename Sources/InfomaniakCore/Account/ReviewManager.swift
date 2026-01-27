@@ -79,7 +79,8 @@ public class ReviewManager: ReviewManageable {
     }
 
     private func migrateFromOldUserDefaults(_ userDefaults: UserDefaults) {
-        if userDefaults.object(forKey: userDefaults.key(.alreadyAskedReview)) == nil && userDefaults.object(forKey: "appReview") != nil {
+        if userDefaults.object(forKey: userDefaults.key(.alreadyAskedReview)) == nil && userDefaults
+            .object(forKey: "appReview") != nil {
             userDefaults.set(true, forKey: userDefaults.key(.alreadyAskedReview))
         }
     }

@@ -21,75 +21,67 @@ import StoreKit
 import SwiftUI
 
 extension UserDefaults.Keys {
-    static let openingUntilReview = UserDefaults.Keys(rawValue: "openingUntilReview")
-    static let appReview = UserDefaults.Keys(rawValue: "appReview")
+    static let actionUntilReview = UserDefaults.Keys(rawValue: "actionUntilReview")
+    static let alreadyAskedReview = UserDefaults.Keys(rawValue: "alreadyAskedReview")
 }
 
 public extension UserDefaults {
-    var openingUntilReview: Int {
+    var actionUntilReview: Int {
         get {
-            return integer(forKey: key(.openingUntilReview))
+            return integer(forKey: key(.actionUntilReview))
         }
         set {
-            set(newValue, forKey: key(.openingUntilReview))
+            set(newValue, forKey: key(.actionUntilReview))
         }
     }
 
-    var appReview: ReviewType {
+    var alreadyAskedReview: Bool {
         get {
-            return ReviewType(rawValue: string(forKey: key(.appReview)) ?? "") ?? .none
+            if object(forKey: key(.alreadyAskedReview)) == nil {
+                return false
+            }
+            return bool(forKey: key(.alreadyAskedReview))
         }
         set {
-            set(newValue.rawValue, forKey: key(.appReview))
+            set(newValue, forKey: key(.alreadyAskedReview))
         }
     }
-}
-
-public enum ReviewType: String {
-    case none
-    case feedback
-    case readyForReview
 }
 
 public protocol ReviewManageable {
-    func decreaseOpeningUntilReview()
+    func decreaseActionUntilReview()
     func shouldRequestReview() -> Bool
     func requestReview()
 }
 
 public class ReviewManager: ReviewManageable {
     let userDefaults: UserDefaults
-    let openingBeforeNextReviews: Int
 
-    private var userHasAlreadyAnsweredYes: Bool {
-        return userDefaults.appReview == .readyForReview
-    }
-
-    public init(userDefaults: UserDefaults, openingBeforeFirstReview: Int = 50, openingBeforeNextReviews: Int = 500) {
+    public init(userDefaults: UserDefaults, actionBeforeFirstReview: Int) {
         self.userDefaults = userDefaults
-        self.openingBeforeNextReviews = openingBeforeNextReviews
-        if userDefaults.object(forKey: userDefaults.key(.openingUntilReview)) == nil {
-            userDefaults.set(openingBeforeFirstReview, forKey: userDefaults.key(.openingUntilReview))
+        if userDefaults.object(forKey: userDefaults.key(.actionUntilReview)) == nil {
+            userDefaults.set(actionBeforeFirstReview, forKey: userDefaults.key(.actionUntilReview))
         }
+        migrateFromOldUserDefaults(userDefaults)
     }
 
-    public func decreaseOpeningUntilReview() {
-        userDefaults.openingUntilReview -= 1
+    public func decreaseActionUntilReview() {
+        userDefaults.actionUntilReview -= 1
     }
 
     public func shouldRequestReview() -> Bool {
-        guard userDefaults.openingUntilReview <= 0 else {
+        if userDefaults.actionUntilReview <= 0 && !userDefaults.alreadyAskedReview {
+            userDefaults.alreadyAskedReview = true
+            return true
+        } else {
             return false
         }
+    }
 
-        userDefaults.openingUntilReview = openingBeforeNextReviews
-
-        if userHasAlreadyAnsweredYes {
-            // If the user has already answered yes, we will directly present the SKStoreReviewController
-            requestReview()
-            return false
-        } else {
-            return true
+    private func migrateFromOldUserDefaults(_ userDefaults: UserDefaults) {
+        if userDefaults.object(forKey: userDefaults.key(.alreadyAskedReview)) == nil && userDefaults
+            .object(forKey: "appReview") != nil {
+            userDefaults.set(true, forKey: userDefaults.key(.alreadyAskedReview))
         }
     }
 

@@ -62,6 +62,7 @@ public class ReviewManager: ReviewManageable {
         if userDefaults.object(forKey: userDefaults.key(.actionUntilReview)) == nil {
             userDefaults.set(actionBeforeFirstReview, forKey: userDefaults.key(.actionUntilReview))
         }
+        migrateFromOldUserDefaults(userDefaults)
     }
 
     public func decreaseActionUntilReview() {
@@ -74,6 +75,12 @@ public class ReviewManager: ReviewManageable {
             return true
         } else {
             return false
+        }
+    }
+
+    private func migrateFromOldUserDefaults(_ userDefaults: UserDefaults) {
+        if userDefaults.object(forKey: userDefaults.key(.alreadyAskedReview)) == nil && userDefaults.object(forKey: "appReview") != nil {
+            userDefaults.set(true, forKey: userDefaults.key(.alreadyAskedReview))
         }
     }
 

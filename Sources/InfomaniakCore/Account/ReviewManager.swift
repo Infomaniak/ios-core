@@ -22,7 +22,7 @@ import SwiftUI
 
 extension UserDefaults.Keys {
     static let actionUntilReview = UserDefaults.Keys(rawValue: "actionUntilReview")
-    static let alreadyAsked = UserDefaults.Keys(rawValue: "alreadyAsked")
+    static let alreadyAskedReview = UserDefaults.Keys(rawValue: "alreadyAskedReview")
 }
 
 public extension UserDefaults {
@@ -37,13 +37,13 @@ public extension UserDefaults {
 
     var alreadyAskedReview: Bool {
         get {
-            if object(forKey: key(.alreadyAsked)) == nil {
+            if object(forKey: key(.alreadyAskedReview)) == nil {
                 return false
             }
-            return bool(forKey: key(.alreadyAsked))
+            return bool(forKey: key(.alreadyAskedReview))
         }
         set {
-            set(newValue, forKey: key(.alreadyAsked))
+            set(newValue, forKey: key(.alreadyAskedReview))
         }
     }
 }

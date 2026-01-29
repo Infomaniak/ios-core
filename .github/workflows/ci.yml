@@ -29,7 +29,7 @@ jobs:
 
   build_and_test_macOS:
     name: Build and Test project on macOS
-    runs-on: [ self-hosted, macOS ]
+    runs-on: [ self-hosted, iOS ]
 
     steps:
       - name: Checkout

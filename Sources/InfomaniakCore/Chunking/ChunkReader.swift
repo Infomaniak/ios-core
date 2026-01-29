@@ -22,10 +22,8 @@ public final class ChunkReader: Sendable {
     let fileHandle: FileHandlable
 
     deinit {
-        do {
-            // For the sake of consistency
-            try fileHandle.close()
-        } catch {}
+        // For the sake of consistency
+        try? fileHandle.close()
     }
 
     public init?(fileURL: URL) {

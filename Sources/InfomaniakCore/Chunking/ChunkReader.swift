@@ -44,9 +44,12 @@ public final class ChunkReader: Sendable {
     public func readChunk(range: DataRange) throws -> Data? {
         let offset = range.lowerBound
         try fileHandle.seek(toOffset: offset)
-
         let byteCount = Int(range.upperBound - range.lowerBound) + 1
-        let chunk = try fileHandle.read(upToCount: byteCount)
+
+        var chunk: Data?
+        try autoreleasepool {
+            chunk = try fileHandle.read(upToCount: byteCount)
+        }
         return chunk
     }
 }

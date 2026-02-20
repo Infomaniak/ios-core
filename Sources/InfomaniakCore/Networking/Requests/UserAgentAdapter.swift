@@ -19,7 +19,7 @@
 import Alamofire
 import Foundation
 
-public struct UserAgentAdapter: RequestAdapter {
+public struct UserAgentAdapter: RequestAdapter, Sendable {
     public static let userAgentKey = "User-Agent"
     let userAgentValue: String
 
@@ -29,7 +29,7 @@ public struct UserAgentAdapter: RequestAdapter {
 
     public func adapt(
         _ urlRequest: URLRequest,
-        for session: Alamofire.Session,
+        for _: Alamofire.Session,
         completion: @escaping (Result<URLRequest, Error>) -> Void
     ) {
         var adaptedRequest = urlRequest

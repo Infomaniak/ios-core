@@ -22,7 +22,7 @@ import UIKit
 #endif
 
 /// Something to construct a standard Infomaniak User-Agent
-public struct UserAgentBuilder {
+public struct UserAgentBuilder: Sendable {
     private let metadataReader = MetadataReader()
 
     public init() {

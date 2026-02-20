@@ -19,12 +19,12 @@
 import Alamofire
 import Foundation
 
-/// Something to set the user agent for AF requests
-public class UserAgentAdapter: RequestAdapter {
+public struct UserAgentAdapter: RequestAdapter {
     public static let userAgentKey = "User-Agent"
+    let userAgentValue: String
 
     public init() {
-        // META: keep sonar cloud happy
+        userAgentValue = UserAgentBuilder().userAgent
     }
 
     public func adapt(
@@ -34,7 +34,7 @@ public class UserAgentAdapter: RequestAdapter {
     ) {
         var adaptedRequest = urlRequest
         adaptedRequest.headers.remove(name: Self.userAgentKey)
-        adaptedRequest.headers.add(name: Self.userAgentKey, value: UserAgentBuilder().userAgent)
+        adaptedRequest.headers.add(name: Self.userAgentKey, value: userAgentValue)
 
         completion(.success(adaptedRequest))
     }

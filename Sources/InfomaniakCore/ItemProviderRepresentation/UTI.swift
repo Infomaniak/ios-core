@@ -110,6 +110,7 @@ public struct UTI: RawRepresentable {
             .bmp,
             .ico,
             .rawImage,
+            .dng,
             .svg,
             .livePhoto,
             .heic,
@@ -329,6 +330,8 @@ public struct UTI: RawRepresentable {
     public static let ico = UTI(rawValue: kUTTypeICO)
 
     public static let rawImage = UTI(rawValue: kUTTypeRawImage)
+
+    public static let dng = UTI(rawValue: "com.adobe.raw-image" as CFString)
 
     public static let svg = UTI(rawValue: kUTTypeScalableVectorGraphics)
 

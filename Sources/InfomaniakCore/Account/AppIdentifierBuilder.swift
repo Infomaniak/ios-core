@@ -23,8 +23,7 @@ public extension AppIdentifierBuilder {
     static let driveKeychainIdentifier = ikAppIdentifierBuilder.keychainAccessGroupFor(identifier: "com.infomaniak.drive")
     static let mailKeychainIdentifier = ikAppIdentifierBuilder.keychainAccessGroupFor(identifier: "com.infomaniak.mail")
     static let euriaKeychainIdentifier = ikAppIdentifierBuilder.keychainAccessGroupFor(identifier: "com.infomaniak.euria")
-    static let authenticatorKeychainIdentifier = ikAppIdentifierBuilder
-        .keychainAccessGroupFor(identifier: "com.infomaniak.authenticator")
+    static let authenticatorKeychainIdentifier = ikAppIdentifierBuilder.keychainAccessGroupFor(identifier: "com.infomaniak.auth")
     static let swissTransferKeychainIdentifier = ikAppIdentifierBuilder
         .keychainAccessGroupFor(identifier: "com.infomaniak.swisstransfer")
 

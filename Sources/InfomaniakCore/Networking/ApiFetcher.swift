@@ -247,8 +247,6 @@ open class ApiFetcher {
 
 /// - Tag: OAuthAuthenticator
 open class OAuthAuthenticator: Authenticator {
-    @InjectService var networkLogin: InfomaniakNetworkLoginable
-
     public typealias Credential = ApiToken
 
     public weak var refreshTokenDelegate: RefreshTokenDelegate?
@@ -261,7 +259,12 @@ open class OAuthAuthenticator: Authenticator {
         urlRequest.headers.add(.authorization(bearerToken: credential.accessToken))
     }
 
-    open func refresh(_ credential: Credential, for session: Session, completion: @escaping (Result<Credential, Error>) -> Void) {
+    open func refresh(
+        _ credential: Credential,
+        for session: Session,
+        completion: @escaping @Sendable (Result<Credential, Error>) -> Void
+    ) {
+        @InjectService var networkLogin: InfomaniakNetworkLoginable
         networkLogin.refreshToken(token: credential) { result in
             switch result {
             case .success(let token):

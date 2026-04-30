@@ -43,9 +43,7 @@ public actor UserProfileStore {
     public func updateUserProfile(with apiFetcher: ApiFetcher) async throws -> UserProfile {
         await loadIfNeeded()
         let user = try await apiFetcher.userProfile(ignoreDefaultAvatar: true, dateFormat: .iso8601)
-        profiles?[user.id] = user
-
-        await save()
+        await addUserProfile(user)
 
         return user
     }
@@ -53,6 +51,11 @@ public actor UserProfileStore {
     public func getUserProfile(id: UserId) async -> UserProfile? {
         await loadIfNeeded()
         return profiles?[id]
+    }
+
+    public func addUserProfile(_ userProfile: UserProfile) async {
+        profiles?[userProfile.id] = userProfile
+        await save()
     }
 
     public func removeUserProfile(id: UserId) async {

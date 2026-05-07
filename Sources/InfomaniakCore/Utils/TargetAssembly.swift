@@ -24,6 +24,15 @@ extension [Factory] {
     }
 }
 
+/// Something that can associate a custom identifier with a `Factory`
+public typealias FactoryWithIdentifier = (factory: Factory, identifier: String?)
+
+extension [FactoryWithIdentifier] {
+    func registerFactoriesInDI() {
+        forEach { SimpleResolver.sharedResolver.store(factory: $0.0, forCustomTypeIdentifier: $0.1) }
+    }
+}
+
 /// Each target should subclass `TargetAssembly` and override `getTargetServices` to provide additional, target related, services.
 open class TargetAssembly {
     public init() {
@@ -39,7 +48,12 @@ open class TargetAssembly {
         return []
     }
 
+    open class func getServicesWithIdentifier() -> [FactoryWithIdentifier] {
+        return []
+    }
+
     public static func setupDI() {
         (getCommonServices() + getTargetServices()).registerFactoriesInDI()
+        getServicesWithIdentifier().registerFactoriesInDI()
     }
 }

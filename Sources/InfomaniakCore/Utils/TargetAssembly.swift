@@ -29,11 +29,12 @@ public typealias FactoryWithIdentifier = (factory: Factory, identifier: String?)
 
 extension [FactoryWithIdentifier] {
     func registerFactoriesInDI() {
-        forEach { SimpleResolver.sharedResolver.store(factory: $0.0, forCustomTypeIdentifier: $0.1) }
+        forEach { SimpleResolver.sharedResolver.store(factory: $0.factory, forCustomTypeIdentifier: $0.identifier) }
     }
 }
 
-/// Each target should subclass `TargetAssembly` and override `getTargetServices` to provide additional, target related, services.
+/// Each target should subclass `TargetAssembly` and override `getTargetServices` and/or
+/// `getServicesWithIdentifier()` to provide additional target-related services.
 open class TargetAssembly {
     public init() {
         // setup DI ASAP

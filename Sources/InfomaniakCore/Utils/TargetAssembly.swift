@@ -18,7 +18,7 @@
 
 import InfomaniakDI
 
-extension [Factory] {
+public extension [Factory] {
     func registerFactoriesInDI() {
         forEach { SimpleResolver.sharedResolver.store(factory: $0) }
     }
@@ -27,7 +27,7 @@ extension [Factory] {
 /// Something that can associate a custom identifier with a `Factory`
 public typealias FactoryWithIdentifier = (factory: Factory, identifier: String?)
 
-extension [FactoryWithIdentifier] {
+public extension [FactoryWithIdentifier] {
     func registerFactoriesInDI() {
         forEach { SimpleResolver.sharedResolver.store(factory: $0.factory, forCustomTypeIdentifier: $0.identifier) }
     }

@@ -127,26 +127,19 @@ public extension Endpoint {
         ])
     }
 
-    static func profile(ignoreDefaultAvatar: Bool) -> Endpoint {
+    static func profile(ignoreDefaultAvatar: Bool, with: ProfileWithOptionSet = [.emails, .phones]) -> Endpoint {
+        let queryItems = [noAvatarDefault(ignoreDefaultAvatar), with.queryItem].compactMap(\.self)
+
         switch ApiEnvironment.current {
         case .prod, .preprod:
-            return .baseV2.appending(path: "/profile", queryItems: [
-                noAvatarDefault(ignoreDefaultAvatar),
-                URLQueryItem(name: "with", value: "emails,phones")
-            ])
+            return .baseV2.appending(path: "/profile", queryItems: queryItems)
 
         case .customHost(let host):
             if host.contains("orphan") || host.contains("mail-mr") {
-                return Endpoint(host: ApiEnvironment.preprod.apiHost, path: "/2/profile", queryItems: [
-                    noAvatarDefault(ignoreDefaultAvatar),
-                    URLQueryItem(name: "with", value: "emails,phones")
-                ])
+                return Endpoint(host: ApiEnvironment.preprod.apiHost, path: "/2/profile", queryItems: queryItems)
             }
 
-            return .baseV2.appending(path: "/profile", queryItems: [
-                noAvatarDefault(ignoreDefaultAvatar),
-                URLQueryItem(name: "with", value: "emails,phones")
-            ])
+            return .baseV2.appending(path: "/profile", queryItems: queryItems)
         }
     }
 }

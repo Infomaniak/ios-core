@@ -25,6 +25,7 @@ import Foundation
     public let email: String
     public let avatar: String?
     public let isStaff: Bool?
+    public let preferences: UserProfilePreferences?
 
     private enum OldCodingKeys: String, CodingKey {
         case id
@@ -43,6 +44,7 @@ import Foundation
         var email: String
         var avatar: String?
         var isStaff: Bool
+        var preferences: UserProfilePreferences?
 
         // Custom decoder to allow decoding old model (for account decoding)
         do {
@@ -54,6 +56,7 @@ import Foundation
             email = try container.decode(String.self, forKey: .email)
             avatar = try container.decodeIfPresent(String.self, forKey: .avatar)
             isStaff = try container.decodeIfPresent(Bool.self, forKey: .isStaff) ?? false
+            preferences = try? container.decodeIfPresent(UserProfilePreferences.self, forKey: .preferences)
         } catch DecodingError.keyNotFound {
             // Try old coding keys
             let container = try decoder.container(keyedBy: OldCodingKeys.self)
@@ -64,6 +67,7 @@ import Foundation
             email = try container.decode(String.self, forKey: .email)
             avatar = try container.decodeIfPresent(String.self, forKey: .avatar)
             isStaff = false
+            preferences = nil
         }
 
         self.id = id
@@ -73,6 +77,7 @@ import Foundation
         self.email = email
         self.avatar = avatar
         self.isStaff = isStaff
+        self.preferences = preferences
     }
 
     public init(
@@ -82,7 +87,8 @@ import Foundation
         lastName: String,
         email: String,
         avatar: String? = nil,
-        isStaff: Bool? = nil
+        isStaff: Bool? = nil,
+        preferences: UserProfilePreferences? = nil
     ) {
         self.id = id
         self.displayName = displayName
@@ -91,5 +97,6 @@ import Foundation
         self.email = email
         self.avatar = avatar
         self.isStaff = isStaff
+        self.preferences = preferences
     }
 }

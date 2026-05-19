@@ -40,7 +40,8 @@ public actor UserProfileStore {
     }
 
     @discardableResult
-    public func updateUserProfile(with apiFetcher: ApiFetcher, options: ProfileWithOptionSet = [.emails, .phones]) async throws -> UserProfile {
+    public func updateUserProfile(with apiFetcher: ApiFetcher,
+                                  options: ProfileWithOptionSet = [.emails, .phones]) async throws -> UserProfile {
         await loadIfNeeded()
         let user = try await apiFetcher.userProfile(ignoreDefaultAvatar: true, dateFormat: .iso8601, with: options)
         await addUserProfile(user)

@@ -247,6 +247,10 @@ open class ApiFetcher {
             headers: ["X-Date-Format": dateFormat.rawValue]
         ))
     }
+
+    public func userProfile(ignoreDefaultAvatar: Bool = false, dateFormat: DateFormat = .json) async throws -> UserProfile {
+        try await userProfile(ignoreDefaultAvatar: ignoreDefaultAvatar, dateFormat: dateFormat, with: [.emails, .phones])
+    }
 }
 
 /// - Tag: OAuthAuthenticator

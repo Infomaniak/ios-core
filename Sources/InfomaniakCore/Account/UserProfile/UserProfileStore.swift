@@ -55,6 +55,7 @@ public actor UserProfileStore {
     }
 
     public func addUserProfile(_ userProfile: UserProfile) async {
+        await loadIfNeeded()
         profiles?[userProfile.id] = userProfile
         await save()
     }

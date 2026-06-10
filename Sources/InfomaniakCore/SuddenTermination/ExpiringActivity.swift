@@ -17,6 +17,7 @@
  */
 
 import Foundation
+import OSLog
 
 /// Delegation mechanism to notify the end of an `ExpiringActivity`
 public protocol ExpiringActivityDelegate: AnyObject {
@@ -56,6 +57,8 @@ public final class ExpiringActivity: ExpiringActivityable {
 
     private let processInfo = ProcessInfo.processInfo
 
+    private static let logger = Logger(category: "ExpiringActivity")
+
     var locks = [TolerantDispatchGroup]()
 
     let id: String
@@ -63,6 +66,8 @@ public final class ExpiringActivity: ExpiringActivityable {
     public var shouldTerminate = false
 
     weak var delegate: ExpiringActivityDelegate?
+
+    private var isEnded = false
 
     // MARK: Lifecycle
 
@@ -86,6 +91,9 @@ public final class ExpiringActivity: ExpiringActivityable {
     public func start() {
         let group = TolerantDispatchGroup(qos: qos)
 
+        TestClass.shared.increment()
+        ExpiringActivity.logger.error("ExpiringActivity :\(TestClass.shared.getCounter())")
+
         queue.sync {
             self.locks.append(group)
         }
@@ -102,9 +110,7 @@ public final class ExpiringActivity: ExpiringActivityable {
         #else
         // Make sure to not lock an unexpected thread that would deinit()
         processInfo.performExpiringActivity(withReason: id) { [weak self] shouldTerminate in
-            guard let self else {
-                return
-            }
+            guard let self else { return }
 
             if shouldTerminate {
                 self.shouldTerminate = true
@@ -124,11 +130,38 @@ public final class ExpiringActivity: ExpiringActivityable {
 
     public func endAll() {
         queue.sync {
+            guard !isEnded else { return }
+            isEnded = true
+            TestClass.shared.decrement()
             // Release locks, oldest first
             for group in locks.reversed() {
                 group.leave()
             }
             locks.removeAll()
         }
+    }
+}
+
+public class TestClass {
+    public static let shared = TestClass()
+
+    var counter = 0
+
+    init() {}
+
+    func increment() {
+        counter += 1
+    }
+
+    func decrement() {
+        counter -= 1
+    }
+
+    func reset() {
+        counter = 0
+    }
+
+    func getCounter() -> Int {
+        return counter
     }
 }

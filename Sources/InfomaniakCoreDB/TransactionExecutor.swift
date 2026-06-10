@@ -63,16 +63,29 @@ public struct TransactionExecutor: Transactionable {
     }
 
     public func writeTransaction(withRealm realmClosure: (Realm) throws -> Void) throws {
-        try autoreleasepool {
-            let expiringActivity = ExpiringActivity()
-            expiringActivity.start()
-            defer {
-                expiringActivity.endAll()
-            }
+        try writeTransaction(withExpiringActivity: true, withRealm: realmClosure)
+    }
 
-            let realm = realmAccessible.getRealm()
-            try realm.safeWrite {
-                try realmClosure(realm)
+    public func writeTransaction(withExpiringActivity expiration: Bool, withRealm realmClosure: (Realm) throws -> Void) throws {
+        if expiration {
+            try autoreleasepool {
+                let expiringActivity = ExpiringActivity()
+                expiringActivity.start()
+                defer {
+                    expiringActivity.endAll()
+                }
+
+                let realm = realmAccessible.getRealm()
+                try realm.safeWrite {
+                    try realmClosure(realm)
+                }
+            }
+        } else {
+            try autoreleasepool {
+                let realm = realmAccessible.getRealm()
+                try realm.safeWrite {
+                    try realmClosure(realm)
+                }
             }
         }
     }

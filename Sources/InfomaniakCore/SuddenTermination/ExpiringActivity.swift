@@ -91,9 +91,6 @@ public final class ExpiringActivity: ExpiringActivityable {
     public func start() {
         let group = TolerantDispatchGroup(qos: qos)
 
-        TestClass.shared.increment()
-        ExpiringActivity.logger.error("ExpiringActivity :\(TestClass.shared.getCounter())")
-
         queue.sync {
             self.locks.append(group)
         }
@@ -132,36 +129,11 @@ public final class ExpiringActivity: ExpiringActivityable {
         queue.sync {
             guard !isEnded else { return }
             isEnded = true
-            TestClass.shared.decrement()
             // Release locks, oldest first
             for group in locks.reversed() {
                 group.leave()
             }
             locks.removeAll()
         }
-    }
-}
-
-public class TestClass {
-    public static let shared = TestClass()
-
-    var counter = 0
-
-    init() {}
-
-    func increment() {
-        counter += 1
-    }
-
-    func decrement() {
-        counter -= 1
-    }
-
-    func reset() {
-        counter = 0
-    }
-
-    func getCounter() -> Int {
-        return counter
     }
 }

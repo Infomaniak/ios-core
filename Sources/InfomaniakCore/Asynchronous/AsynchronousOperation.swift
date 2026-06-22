@@ -81,13 +81,10 @@ open class AsynchronousOperation: Operation {
     /// Something to enqueue async await tasks in a serial manner.
     let asyncAwaitQueue = TaskQueue()
 
-    open func operationDidCancel() {}
-
     override public final func start() {
         super.start()
 
         if isCancelled {
-            operationDidCancel()
             finish()
             return
         }
@@ -98,13 +95,6 @@ open class AsynchronousOperation: Operation {
             try await asyncAwaitQueue.enqueue {
                 await self.execute()
             }
-        }
-    }
-
-    override public func cancel() {
-        super.cancel()
-        if isExecuting {
-            operationDidCancel()
         }
     }
 

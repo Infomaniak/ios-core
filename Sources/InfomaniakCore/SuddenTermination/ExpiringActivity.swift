@@ -57,8 +57,6 @@ public final class ExpiringActivity: ExpiringActivityable {
 
     private let processInfo = ProcessInfo.processInfo
 
-    private static let logger = Logger(category: "ExpiringActivity")
-
     var locks = [TolerantDispatchGroup]()
 
     let id: String

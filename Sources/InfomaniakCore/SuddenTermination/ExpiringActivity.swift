@@ -102,9 +102,7 @@ public final class ExpiringActivity: ExpiringActivityable {
         #else
         // Make sure to not lock an unexpected thread that would deinit()
         processInfo.performExpiringActivity(withReason: id) { [weak self] shouldTerminate in
-            guard let self else {
-                return
-            }
+            guard let self else { return }
 
             if shouldTerminate {
                 self.shouldTerminate = true

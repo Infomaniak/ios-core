@@ -63,4 +63,6 @@ public protocol Transactionable {
     ///
     /// - Parameter realmClosure: The closure to put the transaction into
     func writeTransaction(withRealm realmClosure: (Realm) throws -> Void) throws
+
+    func writeTransaction(withExpiringActivity expiration: Bool, withRealm realmClosure: (Realm) throws -> Void) throws
 }

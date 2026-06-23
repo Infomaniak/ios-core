@@ -24,7 +24,7 @@ import RealmSwift
 ///
 ///  Only write transactions are protected from sudden termination, will extend to read if required.
 public struct TransactionExecutor: Transactionable {
-    public let realmAccessible: RealmAccessible
+    let realmAccessible: RealmAccessible
 
     public init(realmAccessible: RealmAccessible) {
         self.realmAccessible = realmAccessible
@@ -63,12 +63,14 @@ public struct TransactionExecutor: Transactionable {
     }
 
     public func writeTransaction(withRealm realmClosure: (Realm) throws -> Void) throws {
+        try writeTransaction(withExpiringActivity: true, withRealm: realmClosure)
+    }
+
+    public func writeTransaction(withExpiringActivity enabled: Bool, withRealm realmClosure: (Realm) throws -> Void) throws {
         try autoreleasepool {
-            let expiringActivity = ExpiringActivity()
-            expiringActivity.start()
-            defer {
-                expiringActivity.endAll()
-            }
+            let expiringActivity: ExpiringActivity? = enabled ? ExpiringActivity() : nil
+            expiringActivity?.start()
+            defer { expiringActivity?.endAll() }
 
             let realm = realmAccessible.getRealm()
             try realm.safeWrite {

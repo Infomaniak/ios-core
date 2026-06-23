@@ -24,8 +24,6 @@ import RealmSwift
 /// Still using Realm types, but this "seam" would be a perfect place to abstract DB vendor.
 ///
 public protocol Transactionable {
-    var realmAccessible: RealmAccessible { get }
-
     /// Fetches one object form a DB from primary key.
     ///
     /// The realm is now completely hidden.
@@ -65,4 +63,6 @@ public protocol Transactionable {
     ///
     /// - Parameter realmClosure: The closure to put the transaction into
     func writeTransaction(withRealm realmClosure: (Realm) throws -> Void) throws
+
+    func writeTransaction(withExpiringActivity expiration: Bool, withRealm realmClosure: (Realm) throws -> Void) throws
 }

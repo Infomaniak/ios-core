@@ -17,7 +17,6 @@
  */
 
 import Foundation
-import OSLog
 
 /// Delegation mechanism to notify the end of an `ExpiringActivity`
 public protocol ExpiringActivityDelegate: AnyObject {

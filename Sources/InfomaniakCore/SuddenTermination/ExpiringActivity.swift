@@ -65,8 +65,6 @@ public final class ExpiringActivity: ExpiringActivityable {
 
     weak var delegate: ExpiringActivityDelegate?
 
-    private var isEnded = false
-
     // MARK: Lifecycle
 
     public init(id: String, qos: DispatchQoS, delegate: ExpiringActivityDelegate?) {
@@ -125,8 +123,6 @@ public final class ExpiringActivity: ExpiringActivityable {
 
     public func endAll() {
         queue.sync {
-            guard !isEnded else { return }
-            isEnded = true
             // Release locks, oldest first
             for group in locks.reversed() {
                 group.leave()

@@ -82,8 +82,6 @@ open class AsynchronousOperation: Operation {
     let asyncAwaitQueue = TaskQueue()
 
     override public final func start() {
-        super.start()
-
         if isCancelled {
             finish()
             return

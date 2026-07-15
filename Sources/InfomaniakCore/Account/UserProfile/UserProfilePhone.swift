@@ -17,9 +17,9 @@
  */
 
 public struct UserProfilePhone: Codable, Sendable, Hashable, Equatable {
-    public let phone: String?
+    public let phone: String
 
-    public init(phone: String? = nil) {
+    public init(phone: String) {
         self.phone = phone
     }
 }

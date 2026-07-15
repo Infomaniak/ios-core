@@ -26,6 +26,8 @@ import Foundation
     public let avatar: String?
     public let isStaff: Bool?
     public let preferences: UserProfilePreferences?
+    public let phones: [UserProfilePhone]?
+    public let emails: [UserProfileEmail]?
 
     private enum OldCodingKeys: String, CodingKey {
         case id
@@ -45,6 +47,8 @@ import Foundation
         var avatar: String?
         var isStaff: Bool
         var preferences: UserProfilePreferences?
+        var phones: [UserProfilePhone]?
+        var emails: [UserProfileEmail]?
 
         // Custom decoder to allow decoding old model (for account decoding)
         do {
@@ -57,6 +61,8 @@ import Foundation
             avatar = try container.decodeIfPresent(String.self, forKey: .avatar)
             isStaff = try container.decodeIfPresent(Bool.self, forKey: .isStaff) ?? false
             preferences = try? container.decodeIfPresent(UserProfilePreferences.self, forKey: .preferences)
+            phones = try? container.decodeIfPresent([UserProfilePhone].self, forKey: .phones)
+            emails = try? container.decodeIfPresent([UserProfileEmail].self, forKey: .emails)
         } catch DecodingError.keyNotFound {
             // Try old coding keys
             let container = try decoder.container(keyedBy: OldCodingKeys.self)
@@ -68,6 +74,8 @@ import Foundation
             avatar = try container.decodeIfPresent(String.self, forKey: .avatar)
             isStaff = false
             preferences = nil
+            phones = nil
+            emails = nil
         }
 
         self.id = id
@@ -78,6 +86,8 @@ import Foundation
         self.avatar = avatar
         self.isStaff = isStaff
         self.preferences = preferences
+        self.phones = phones
+        self.emails = emails
     }
 
     public init(
@@ -88,7 +98,9 @@ import Foundation
         email: String,
         avatar: String? = nil,
         isStaff: Bool? = nil,
-        preferences: UserProfilePreferences? = nil
+        preferences: UserProfilePreferences? = nil,
+        phones: [UserProfilePhone]? = nil,
+        emails: [UserProfileEmail]? = nil
     ) {
         self.id = id
         self.displayName = displayName
@@ -98,5 +110,7 @@ import Foundation
         self.avatar = avatar
         self.isStaff = isStaff
         self.preferences = preferences
+        self.phones = phones
+        self.emails = emails
     }
 }

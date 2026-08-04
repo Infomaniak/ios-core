@@ -23,4 +23,15 @@ public extension String {
     var initials: String {
         return NameFormatter(fullName: self).initials
     }
+
+    var safeLastPathComponent: String? {
+        let safeLastPathComponent = (self as NSString).lastPathComponent
+        guard !safeLastPathComponent.isEmpty,
+              safeLastPathComponent != ".",
+              safeLastPathComponent != "..",
+              safeLastPathComponent != "/" else {
+            return nil
+        }
+        return safeLastPathComponent
+    }
 }

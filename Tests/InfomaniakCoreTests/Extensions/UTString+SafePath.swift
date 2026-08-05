@@ -43,6 +43,13 @@ struct UTStringSafePathExtension {
         #expect("./path/%2E%2E/evil.txt".safeLastPathComponent == "evil.txt")
     }
 
+    @Test("Control characters return nil")
+    func safeLastPathComponentReturnsNilForControlCharacters() {
+        #expect("invoice\u{0000}.pdf".safeLastPathComponent == nil)
+        #expect("invoice%0A.pdf".safeLastPathComponent == nil)
+        #expect("invoice\n.pdf".safeLastPathComponent == nil)
+    }
+
     @Test("Escape char are cleaned")
     func safeLastPathComponentStripsEscaped() {
         #expect("..\\/..\\/..\\/evil.txt".safeLastPathComponent == "evil.txt")

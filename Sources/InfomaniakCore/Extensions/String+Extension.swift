@@ -33,6 +33,10 @@ public extension String {
             return nil
         }
 
+        guard percentDecoded.rangeOfCharacter(from: .controlCharacters) == nil else {
+            return nil
+        }
+
         let safeLastPathComponent = URL(string: percentDecoded)?.lastPathComponent
         guard let safeLastPathComponent = safeLastPathComponent else {
             return nil

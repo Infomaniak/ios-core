@@ -25,7 +25,19 @@ public extension String {
     }
 
     var safeLastPathComponent: String? {
-        let safeLastPathComponent = (self as NSString).lastPathComponent
+        guard count < PATH_MAX else {
+            return nil
+        }
+
+        guard let percentDecoded = removingPercentEncoding else {
+            return nil
+        }
+
+        let safeLastPathComponent = URL(string: percentDecoded)?.lastPathComponent
+        guard let safeLastPathComponent = safeLastPathComponent else {
+            return nil
+        }
+
         guard !safeLastPathComponent.isEmpty,
               safeLastPathComponent != ".",
               safeLastPathComponent != "..",

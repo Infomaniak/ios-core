@@ -37,6 +37,24 @@ struct UTStringSafePathExtension {
         #expect("../../../evil.txt".safeLastPathComponent == "evil.txt")
     }
 
+    @Test("Percent encoded segments are cleaned")
+    func safeLastPathComponentStripsPercentEncoded() {
+        #expect("./path/Capture%20d%27%C3%A9cran.png".safeLastPathComponent == "Capture d'écran.png")
+        #expect("./path/%2E%2E/evil.txt".safeLastPathComponent == "evil.txt")
+    }
+
+    @Test("Escape char are cleaned")
+    func safeLastPathComponentStripsEscaped() {
+        #expect("..\\/..\\/..\\/evil.txt".safeLastPathComponent == "evil.txt")
+    }
+
+    @Test("Path exceeding PATH_MAX returns nil")
+    func safeLastPathComponentReturnsNilForPathThatIsTooLong() {
+        let path = String(repeating: "a", count: Int(PATH_MAX))
+
+        #expect(path.safeLastPathComponent == nil)
+    }
+
     @Test("Directory traversal component returns nil")
     func safeLastPathComponentReturnsNilForParentDirectory() {
         #expect("..".safeLastPathComponent == nil)

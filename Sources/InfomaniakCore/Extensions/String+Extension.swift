@@ -23,4 +23,31 @@ public extension String {
     var initials: String {
         return NameFormatter(fullName: self).initials
     }
+
+    var safeLastPathComponent: String? {
+        guard count < PATH_MAX else {
+            return nil
+        }
+
+        guard let percentDecoded = removingPercentEncoding else {
+            return nil
+        }
+
+        guard percentDecoded.rangeOfCharacter(from: .controlCharacters) == nil else {
+            return nil
+        }
+
+        let safeLastPathComponent = URL(string: percentDecoded)?.lastPathComponent
+        guard let safeLastPathComponent = safeLastPathComponent else {
+            return nil
+        }
+
+        guard !safeLastPathComponent.isEmpty,
+              safeLastPathComponent != ".",
+              safeLastPathComponent != "..",
+              safeLastPathComponent != "/" else {
+            return nil
+        }
+        return safeLastPathComponent
+    }
 }

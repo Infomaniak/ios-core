@@ -33,19 +33,18 @@ public extension String {
             return nil
         }
 
-        guard percentDecoded.rangeOfCharacter(from: .controlCharacters) == nil else {
+        let safeLastPathComponent = URL(string: percentDecoded)?.lastPathComponent
+        guard let safeLastPathComponent else {
             return nil
         }
 
-        let safeLastPathComponent = URL(string: percentDecoded)?.lastPathComponent
-        guard let safeLastPathComponent = safeLastPathComponent else {
-            return nil
-        }
+        let invalidCharacters = CharacterSet.controlCharacters.union(CharacterSet(charactersIn: "/%\\"))
 
         guard !safeLastPathComponent.isEmpty,
               safeLastPathComponent != ".",
               safeLastPathComponent != "..",
-              safeLastPathComponent != "/" else {
+              safeLastPathComponent.rangeOfCharacter(from: invalidCharacters) == nil
+        else {
             return nil
         }
         return safeLastPathComponent

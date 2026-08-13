@@ -38,7 +38,7 @@ public enum KDriveFileSharing {
 public struct DeeplinkService {
     @LazyInjectService private var urlOpener: URLOpenable
 
-    private let kdriveAppStore = "https://itunes.apple.com/app/id1482778676"
+    private let kdriveAppStore = URL(string: "https://itunes.apple.com/app/id1482778676")!
 
     public init() { /* Empty on purpose */ }
 
@@ -65,7 +65,7 @@ public struct DeeplinkService {
         if let targetAppUrl = targetUrl.url, urlOpener.canOpen(url: targetAppUrl) {
             urlOpener.openUrl(targetAppUrl)
         } else {
-            urlOpener.openUrl(URL(string: kdriveAppStore)!)
+            urlOpener.openUrl(kdriveAppStore)
         }
     }
 }

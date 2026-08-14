@@ -19,24 +19,70 @@
 import Foundation
 
 enum GroupContainerService {
-    static func writeToGroupContainer(group: String, file: URL) throws -> URL? {
-        guard let sharedContainerURL: URL = FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: group) else { return nil }
+    enum Error: Swift.Error, Equatable {
+        case invalidFileCount
+        case invalidFileName
+        case unavailableGroupContainer
+        case unsupportedFile
+        case unsafeHandoffDirectory
+    }
 
-        let groupContainer = sharedContainerURL.appendingPathComponent(
-            "Library/Caches/file-sharing/\(UUID().uuidString)/",
-            isDirectory: true
-        )
-        let destination = groupContainer.appendingPathComponent(file.lastPathComponent)
-
-        if FileManager.default.fileExists(atPath: groupContainer.path) {
-            try FileManager.default.removeItem(at: groupContainer)
+    static func writeToGroupContainer(group: String, file: URL) throws -> URL {
+        let fileManager = FileManager.default
+        guard let sharedContainerURL = fileManager
+            .containerURL(forSecurityApplicationGroupIdentifier: group) else {
+            throw Error.unavailableGroupContainer
         }
-        try FileManager.default.createDirectory(at: groupContainer, withIntermediateDirectories: true)
-        try FileManager.default.copyItem(
-            at: file,
-            to: destination
+
+        return try writeToGroupContainer(
+            sharedContainerURL: sharedContainerURL,
+            file: file,
+            fileManager: fileManager
         )
-        return destination
+    }
+
+    static func writeToGroupContainer(
+        sharedContainerURL: URL,
+        file: URL,
+        fileManager: FileManager = .default,
+        makeIdentifier: () -> String = { UUID().uuidString }
+    ) throws -> URL {
+        let sourceURL = file.standardizedFileURL
+        guard sourceURL.isFileURL,
+              let safeFileName = sourceURL.lastPathComponent.safeLastPathComponent else {
+            throw Error.invalidFileName
+        }
+
+        let sourceValues = try sourceURL.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
+        guard sourceValues.isRegularFile == true, sourceValues.isSymbolicLink != true else {
+            throw Error.unsupportedFile
+        }
+
+        let handoffDirectoryURL = KDriveFileSharingConstants.handoffDirectoryURL(in: sharedContainerURL)
+        let groupContainerURL = handoffDirectoryURL.appendingPathComponent(makeIdentifier(), isDirectory: true)
+        let destinationURL = groupContainerURL.appendingPathComponent(safeFileName, isDirectory: false)
+
+        var createdContainer = false
+        do {
+            try fileManager.createDirectory(at: handoffDirectoryURL, withIntermediateDirectories: true)
+            let handoffValues = try handoffDirectoryURL.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+            guard handoffValues.isDirectory == true, handoffValues.isSymbolicLink != true else {
+                throw Error.unsafeHandoffDirectory
+            }
+            try fileManager.createDirectory(at: groupContainerURL, withIntermediateDirectories: false)
+            createdContainer = true
+            try fileManager.copyItem(at: sourceURL, to: destinationURL)
+
+            let destinationValues = try destinationURL.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
+            guard destinationValues.isRegularFile == true, destinationValues.isSymbolicLink != true else {
+                throw Error.unsupportedFile
+            }
+            return destinationURL
+        } catch {
+            if createdContainer {
+                try? fileManager.removeItem(at: groupContainerURL)
+            }
+            throw error
+        }
     }
 }

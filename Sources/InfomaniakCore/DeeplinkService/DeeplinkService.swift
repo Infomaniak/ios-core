@@ -20,11 +20,25 @@ import Foundation
 import InfomaniakDI
 import Sentry
 
+public enum KDriveFileSharingConstants {
+    public static let appGroupIdentifier = "group.com.infomaniak"
+    public static let scheme = "kdrive-file-sharing"
+    public static let host = "file"
+    public static let urlQueryItemName = "url"
+    public static let handoffPathComponents = ["Library", "Caches", "file-sharing"]
+    public static let maximumFileCount = 100
+
+    public static func handoffDirectoryURL(in sharedContainerURL: URL) -> URL {
+        return handoffPathComponents.reduce(sharedContainerURL) { url, component in
+            url.appendingPathComponent(component, isDirectory: true)
+        }
+    }
+}
+
 public struct DeeplinkService {
     @LazyInjectService private var urlOpener: URLOpenable
 
-    private let group = "group.com.infomaniak"
-    private let kdriveAppStore = "https://itunes.apple.com/app/id1482778676"
+    private let kdriveAppStore = URL(string: "https://itunes.apple.com/app/id1482778676")!
 
     public init() { /* Empty on purpose */ }
 
@@ -34,18 +48,24 @@ public struct DeeplinkService {
     }
 
     public func shareFilesToKdrive(_ urls: [URL]) throws {
-        let destinations = try urls.compactMap { url in
-            try GroupContainerService.writeToGroupContainer(group: group, file: url)
-        }
-        var targetUrl = URLComponents(string: "kdrive-file-sharing://file")
-        targetUrl?.queryItems = destinations.map { destination in
-            URLQueryItem(name: "url", value: destination.path)
+        guard !urls.isEmpty, urls.count <= KDriveFileSharingConstants.maximumFileCount else {
+            throw GroupContainerService.Error.invalidFileCount
         }
 
-        if let targetAppUrl = targetUrl?.url, urlOpener.canOpen(url: targetAppUrl) {
+        let destinations = try urls.map { url in
+            try GroupContainerService.writeToGroupContainer(group: KDriveFileSharingConstants.appGroupIdentifier, file: url)
+        }
+        var targetUrl = URLComponents()
+        targetUrl.scheme = KDriveFileSharingConstants.scheme
+        targetUrl.host = KDriveFileSharingConstants.host
+        targetUrl.queryItems = destinations.map { destination in
+            URLQueryItem(name: KDriveFileSharingConstants.urlQueryItemName, value: destination.path)
+        }
+
+        if let targetAppUrl = targetUrl.url, urlOpener.canOpen(url: targetAppUrl) {
             urlOpener.openUrl(targetAppUrl)
         } else {
-            urlOpener.openUrl(URL(string: "https://itunes.apple.com/app/id1482778676")!)
+            urlOpener.openUrl(kdriveAppStore)
         }
     }
 }

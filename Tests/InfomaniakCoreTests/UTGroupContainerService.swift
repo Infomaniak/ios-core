@@ -18,26 +18,24 @@
 
 import Foundation
 @testable import InfomaniakCore
-import XCTest
+import Testing
 
-final class UTGroupContainerService: XCTestCase {
+@Suite("GroupContainerService Tests")
+struct UTGroupContainerService {
     private let fileManager = FileManager.default
-    private var testRootURL: URL!
-    private var sharedContainerURL: URL!
+    private let testRootURL: URL
+    private let sharedContainerURL: URL
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    init() throws {
         testRootURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         sharedContainerURL = testRootURL.appendingPathComponent("shared", isDirectory: true)
         try fileManager.createDirectory(at: sharedContainerURL, withIntermediateDirectories: true)
     }
 
-    override func tearDownWithError() throws {
-        try? fileManager.removeItem(at: testRootURL)
-        try super.tearDownWithError()
-    }
+    @Test("Regular files are copied to the expected handoff directory")
+    func writesRegularFileToExpectedHandoffDirectory() throws {
+        defer { try? fileManager.removeItem(at: testRootURL) }
 
-    func testWritesRegularFileToExpectedHandoffDirectory() throws {
         let sourceURL = testRootURL.appendingPathComponent("file.txt")
         let content = Data("content".utf8)
         try content.write(to: sourceURL)
@@ -50,23 +48,29 @@ final class UTGroupContainerService: XCTestCase {
 
         let expectedDirectoryURL = KDriveFileSharing.handoffDirectoryURL(in: sharedContainerURL)
             .appendingPathComponent(identifier, isDirectory: true)
-        XCTAssertEqual(destinationURL.deletingLastPathComponent(), expectedDirectoryURL)
-        XCTAssertEqual(destinationURL.lastPathComponent, sourceURL.lastPathComponent)
-        XCTAssertEqual(try Data(contentsOf: destinationURL), content)
+        #expect(destinationURL.deletingLastPathComponent() == expectedDirectoryURL)
+        #expect(destinationURL.lastPathComponent == sourceURL.lastPathComponent)
+        #expect(try Data(contentsOf: destinationURL) == content)
     }
 
-    func testRejectsInvalidFileCount() {
-        XCTAssertThrowsError(try DeeplinkService().shareFilesToKdrive([])) { error in
-            XCTAssertEqual(error as? GroupContainerService.Error, .invalidFileCount)
+    @Test("Empty and excessive file lists are rejected")
+    func rejectsInvalidFileCount() {
+        defer { try? fileManager.removeItem(at: testRootURL) }
+
+        #expect(throws: GroupContainerService.Error.invalidFileCount) {
+            try DeeplinkService().shareFilesToKdrive([])
         }
 
         let files = Array(repeating: URL(fileURLWithPath: "/tmp/file"), count: KDriveFileSharing.maximumFileCount + 1)
-        XCTAssertThrowsError(try DeeplinkService().shareFilesToKdrive(files)) { error in
-            XCTAssertEqual(error as? GroupContainerService.Error, .invalidFileCount)
+        #expect(throws: GroupContainerService.Error.invalidFileCount) {
+            try DeeplinkService().shareFilesToKdrive(files)
         }
     }
 
-    func testRejectsDirectoryAndSymlink() throws {
+    @Test("Directories and symbolic links are rejected")
+    func rejectsDirectoryAndSymlink() throws {
+        defer { try? fileManager.removeItem(at: testRootURL) }
+
         let directoryURL = testRootURL.appendingPathComponent("directory", isDirectory: true)
         try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: false)
 
@@ -76,32 +80,34 @@ final class UTGroupContainerService: XCTestCase {
         try fileManager.createSymbolicLink(at: symlinkURL, withDestinationURL: sourceURL)
 
         for unsupportedURL in [directoryURL, symlinkURL] {
-            XCTAssertThrowsError(
+            #expect(throws: GroupContainerService.Error.unsupportedFile) {
                 try GroupContainerService.writeToGroupContainer(
                     sharedContainerURL: sharedContainerURL,
                     file: unsupportedURL
                 )
-            ) { error in
-                XCTAssertEqual(error as? GroupContainerService.Error, .unsupportedFile)
             }
         }
     }
 
-    func testRejectsUnsafeFileName() throws {
+    @Test("Unsafe file names are rejected")
+    func rejectsUnsafeFileName() throws {
+        defer { try? fileManager.removeItem(at: testRootURL) }
+
         let sourceURL = testRootURL.appendingPathComponent("unsafe%name.txt")
         try Data().write(to: sourceURL)
 
-        XCTAssertThrowsError(
+        #expect(throws: GroupContainerService.Error.invalidFileName) {
             try GroupContainerService.writeToGroupContainer(
                 sharedContainerURL: sharedContainerURL,
                 file: sourceURL
             )
-        ) { error in
-            XCTAssertEqual(error as? GroupContainerService.Error, .invalidFileName)
         }
     }
 
-    func testRejectsSymlinkedHandoffDirectory() throws {
+    @Test("A symbolic link cannot replace the handoff directory")
+    func rejectsSymlinkedHandoffDirectory() throws {
+        defer { try? fileManager.removeItem(at: testRootURL) }
+
         let actualHandoffURL = testRootURL.appendingPathComponent("actual-handoff", isDirectory: true)
         try fileManager.createDirectory(at: actualHandoffURL, withIntermediateDirectories: true)
 
@@ -112,13 +118,11 @@ final class UTGroupContainerService: XCTestCase {
         let sourceURL = testRootURL.appendingPathComponent("file.txt")
         try Data().write(to: sourceURL)
 
-        XCTAssertThrowsError(
+        #expect(throws: GroupContainerService.Error.unsafeHandoffDirectory) {
             try GroupContainerService.writeToGroupContainer(
                 sharedContainerURL: sharedContainerURL,
                 file: sourceURL
             )
-        ) { error in
-            XCTAssertEqual(error as? GroupContainerService.Error, .unsafeHandoffDirectory)
         }
     }
 }

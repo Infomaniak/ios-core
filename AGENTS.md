@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## Code Style
+
+- When wrapping constants in an enum type, the type name should end in `Constants`. Example: `KDriveFileSharingConstants`.
+
 ## Testing
 
 - Write all new tests with Swift Testing (`import Testing`, `@Suite`, `@Test`, and `#expect`).

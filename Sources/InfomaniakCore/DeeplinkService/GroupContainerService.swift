@@ -58,7 +58,7 @@ enum GroupContainerService {
             throw Error.unsupportedFile
         }
 
-        let handoffDirectoryURL = KDriveFileSharing.handoffDirectoryURL(in: sharedContainerURL)
+        let handoffDirectoryURL = KDriveFileSharingConstants.handoffDirectoryURL(in: sharedContainerURL)
         let groupContainerURL = handoffDirectoryURL.appendingPathComponent(makeIdentifier(), isDirectory: true)
         let destinationURL = groupContainerURL.appendingPathComponent(safeFileName, isDirectory: false)
 

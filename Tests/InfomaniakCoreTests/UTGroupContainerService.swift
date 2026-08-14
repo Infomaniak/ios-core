@@ -46,7 +46,7 @@ struct UTGroupContainerService {
             file: sourceURL
         ) { identifier }
 
-        let expectedDirectoryURL = KDriveFileSharing.handoffDirectoryURL(in: sharedContainerURL)
+        let expectedDirectoryURL = KDriveFileSharingConstants.handoffDirectoryURL(in: sharedContainerURL)
             .appendingPathComponent(identifier, isDirectory: true)
         #expect(destinationURL.deletingLastPathComponent() == expectedDirectoryURL)
         #expect(destinationURL.lastPathComponent == sourceURL.lastPathComponent)
@@ -61,7 +61,7 @@ struct UTGroupContainerService {
             try DeeplinkService().shareFilesToKdrive([])
         }
 
-        let files = Array(repeating: URL(fileURLWithPath: "/tmp/file"), count: KDriveFileSharing.maximumFileCount + 1)
+        let files = Array(repeating: URL(fileURLWithPath: "/tmp/file"), count: KDriveFileSharingConstants.maximumFileCount + 1)
         #expect(throws: GroupContainerService.Error.invalidFileCount) {
             try DeeplinkService().shareFilesToKdrive(files)
         }
@@ -111,7 +111,7 @@ struct UTGroupContainerService {
         let actualHandoffURL = testRootURL.appendingPathComponent("actual-handoff", isDirectory: true)
         try fileManager.createDirectory(at: actualHandoffURL, withIntermediateDirectories: true)
 
-        let handoffURL = KDriveFileSharing.handoffDirectoryURL(in: sharedContainerURL)
+        let handoffURL = KDriveFileSharingConstants.handoffDirectoryURL(in: sharedContainerURL)
         try fileManager.createDirectory(at: handoffURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         try fileManager.createSymbolicLink(at: handoffURL, withDestinationURL: actualHandoffURL)
 

@@ -20,7 +20,7 @@ import Foundation
 import InfomaniakDI
 import Sentry
 
-public enum KDriveFileSharing {
+public enum KDriveFileSharingConstants {
     public static let appGroupIdentifier = "group.com.infomaniak"
     public static let scheme = "kdrive-file-sharing"
     public static let host = "file"
@@ -48,18 +48,18 @@ public struct DeeplinkService {
     }
 
     public func shareFilesToKdrive(_ urls: [URL]) throws {
-        guard !urls.isEmpty, urls.count <= KDriveFileSharing.maximumFileCount else {
+        guard !urls.isEmpty, urls.count <= KDriveFileSharingConstants.maximumFileCount else {
             throw GroupContainerService.Error.invalidFileCount
         }
 
         let destinations = try urls.map { url in
-            try GroupContainerService.writeToGroupContainer(group: KDriveFileSharing.appGroupIdentifier, file: url)
+            try GroupContainerService.writeToGroupContainer(group: KDriveFileSharingConstants.appGroupIdentifier, file: url)
         }
         var targetUrl = URLComponents()
-        targetUrl.scheme = KDriveFileSharing.scheme
-        targetUrl.host = KDriveFileSharing.host
+        targetUrl.scheme = KDriveFileSharingConstants.scheme
+        targetUrl.host = KDriveFileSharingConstants.host
         targetUrl.queryItems = destinations.map { destination in
-            URLQueryItem(name: KDriveFileSharing.urlQueryItemName, value: destination.path)
+            URLQueryItem(name: KDriveFileSharingConstants.urlQueryItemName, value: destination.path)
         }
 
         if let targetAppUrl = targetUrl.url, urlOpener.canOpen(url: targetAppUrl) {

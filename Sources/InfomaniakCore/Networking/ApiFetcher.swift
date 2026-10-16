@@ -259,7 +259,7 @@ open class OAuthAuthenticator: Authenticator {
 
     public weak var refreshTokenDelegate: RefreshTokenDelegate?
 
-    public init(refreshTokenDelegate: RefreshTokenDelegate) {
+    public init(refreshTokenDelegate: RefreshTokenDelegate?) {
         self.refreshTokenDelegate = refreshTokenDelegate
     }
 
@@ -284,6 +284,9 @@ open class OAuthAuthenticator: Authenticator {
                 if let error = error as NSError?, error.domain == "invalid_grant" {
                     self.refreshTokenDelegate?.didFailRefreshToken(credential)
                     completion(.failure(error))
+                } else if let loginError = error as? InfomaniakLoginError,
+                          case .noRefreshToken = loginError {
+                    completion(.failure(loginError))
                 } else {
                     // Couldn't refresh the token, keep the old token and fetch it later. Maybe because of bad network ?
                     completion(.success(credential))

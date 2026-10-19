@@ -17,13 +17,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Build
-        run: xcodebuild -scheme InfomaniakCore build -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest"
+        run: xcodebuild -scheme InfomaniakCore build -destination "platform=iOS Simulator,name=${{ vars.LATEST_IPHONE_SIMULATOR }},OS=latest"
       - name: Test
-        run: Scripts/prepareForTesting.sh && xcodebuild -scheme InfomaniakCore-Package test -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" -enableCodeCoverage YES -resultBundlePath ResultBundle.xcresult
+        run: Scripts/prepareForTesting.sh && xcodebuild -scheme InfomaniakCore-Package test -destination "platform=iOS Simulator,name=${{ vars.LATEST_IPHONE_SIMULATOR }},OS=latest" -enableCodeCoverage YES -resultBundlePath ResultBundle.xcresult
       - name: Convert Coverage Report
         run: ./Scripts/xccov-to-generic.sh ResultBundle.xcresult > coverage.xml
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 #6.0.0
+        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 #8.3.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 

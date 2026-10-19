@@ -208,6 +208,7 @@ struct UTDeviceManager_getOrCreateCurrentDevice {
     @Test("get a userDevice from the public interface and check stability",
           arguments: [Int.random(in: 1 ... 100), Int.random(in: 1 ... 100)])
     func currentDevice(userId: Int) async throws {
+        #if os(iOS)
         // GIVEN
         let deviceManager = DeviceManager(appGroupIdentifier: "group.infomaniak.deviceassociation",
                                           appMarketingVersion: "1.0.0",
@@ -226,5 +227,6 @@ struct UTDeviceManager_getOrCreateCurrentDevice {
         } catch {
             Issue.record("unable to fetch current device twice: \(error)")
         }
+        #endif
     }
 }

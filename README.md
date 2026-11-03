@@ -7,6 +7,17 @@ A library with helper functions and shared code to help boostraping developement
 1. In your Xcode project, go to: File > Swift Packages > Add Package Dependency…
 2. Enter the package URL: `git@github.com:Infomaniak/ios-core.git` or `https://github.com/Infomaniak/ios-core`
 
+## Data chunking migration (breaking change)
+
+Data chunking now lives in [InfomaniakFoundation](https://github.com/Infomaniak/swift-foundation).
+Add its package and the `InfomaniakFoundation` product to targets using `DataRange`, `RangeProvider`,
+`RangeProvidable`, `RangeProviderGuts`, `RangeProviderGutsable`, `ChunkReader`, `ChunkProvider`, or
+`ChunkProvidable`, and import `InfomaniakFoundation` at those call sites.
+
+Update both libraries together: the foundation version introducing chunking conflicts with older
+`ios-core` versions that still contain the `FileHandle.description` override, causing duplicate symbols.
+This removal must be released as a breaking change.
+
 ## License
 
     Copyright 2021 Infomaniak

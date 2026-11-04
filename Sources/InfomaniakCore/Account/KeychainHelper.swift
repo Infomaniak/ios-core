@@ -42,6 +42,7 @@ public class KeychainHelper {
         }
 
         let query: [String: Any] = [
+            kSecUseDataProtectionKeychain as String: true,
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: lockedKey,
             kSecAttrAccessGroup as String: accessGroup,
@@ -73,6 +74,7 @@ public class KeychainHelper {
     func initKeychainAccessibility() {
         accessibilityValueWritten = true
         let queryAdd: [String: Any] = [
+            kSecUseDataProtectionKeychain as String: true,
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccessGroup as String: accessGroup,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
@@ -88,6 +90,7 @@ public class KeychainHelper {
     public func deleteToken(for userId: Int) {
         keychainQueue.sync {
             let queryDelete: [String: Any] = [
+                kSecUseDataProtectionKeychain as String: true,
                 kSecClass as String: kSecClassGenericPassword,
                 kSecAttrService as String: tag,
                 kSecAttrAccessGroup as String: accessGroup,
@@ -101,6 +104,7 @@ public class KeychainHelper {
     public func deleteAllTokens() {
         keychainQueue.sync {
             let queryDelete: [String: Any] = [
+                kSecUseDataProtectionKeychain as String: true,
                 kSecClass as String: kSecClassGenericPassword,
                 kSecAttrService as String: tag,
                 kSecAttrAccessGroup as String: accessGroup
@@ -127,6 +131,7 @@ public class KeychainHelper {
         if let savedToken = getSavedToken(for: token.userId)?.apiToken {
             keychainQueue.sync {
                 let queryUpdate: [String: Any] = [
+                    kSecUseDataProtectionKeychain as String: true,
                     kSecClass as String: kSecClassGenericPassword,
                     kSecAttrAccount as String: "\(token.userId)",
                     kSecAttrAccessGroup as String: accessGroup
@@ -158,6 +163,7 @@ public class KeychainHelper {
             deleteToken(for: token.userId)
             keychainQueue.sync {
                 let queryAdd: [String: Any] = [
+                    kSecUseDataProtectionKeychain as String: true,
                     kSecClass as String: kSecClassGenericPassword,
                     kSecAttrAccessGroup as String: accessGroup,
                     kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
@@ -183,6 +189,7 @@ public class KeychainHelper {
 
         keychainQueue.sync {
             let queryFindOne: [String: Any] = [
+                kSecUseDataProtectionKeychain as String: true,
                 kSecClass as String: kSecClassGenericPassword,
                 kSecAttrService as String: tag,
                 kSecAttrAccessGroup as String: accessGroup,
@@ -215,6 +222,7 @@ public class KeychainHelper {
         var values = [AssociatedApiToken]()
         keychainQueue.sync {
             let query: [String: Any] = [
+                kSecUseDataProtectionKeychain as String: true,
                 kSecClass as String: kSecClassGenericPassword,
                 kSecAttrService as String: tag,
                 kSecAttrAccessGroup as String: accessGroup,

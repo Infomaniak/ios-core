@@ -20,7 +20,7 @@ import Alamofire
 import Foundation
 import InfomaniakDI
 import InfomaniakLogin
-import Sentry
+import SentrySwift
 
 public typealias EncodableParameters = [String: Encodable & Sendable]
 

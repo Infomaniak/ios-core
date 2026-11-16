@@ -17,7 +17,7 @@
  */
 
 import Foundation
-import Sentry
+import SentrySwift
 
 public enum SentryDebug {
     enum Category {

@@ -54,7 +54,7 @@ let package = Package(
                 "Alamofire",
                 .product(name: "InfomaniakDI", package: "ios-dependency-injection"),
                 .product(name: "InfomaniakLogin", package: "ios-login"),
-                .product(name: "Sentry-Dynamic", package: "sentry-cocoa"),
+                .product(name: "SentrySPM", package: "sentry-cocoa"),
                 .product(name: "OSInfo", package: "OSInfo")
             ]
         ),

@@ -19,7 +19,7 @@
 import Foundation
 import InfomaniakLogin
 import OSLog
-import SentrySwift
+import Sentry
 
 public class KeychainHelper {
     private let logger = Logger(category: "KeychainHelper")

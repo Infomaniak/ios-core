@@ -18,7 +18,7 @@
 
 import Alamofire
 import Foundation
-import SentrySwift
+import Sentry
 
 public class RequestContextIdAdaptor: RequestAdapter {
     public static let requestContextIdHeader = "x-infomaniak-request-context-id"

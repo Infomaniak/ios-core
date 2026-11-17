@@ -18,7 +18,7 @@
 
 import Foundation
 import InfomaniakDI
-import SentrySwift
+import Sentry
 
 public enum KDriveFileSharingConstants {
     public static let appGroupIdentifier = "group.com.infomaniak"

@@ -36,9 +36,16 @@ public class NetworkMonitor: ObservableObject {
             monitor?.start(queue: queue)
         }
         monitor?.pathUpdateHandler = { [weak self] path in
+            let isConnected = path.status == .satisfied
+            let isCellular = path.usesInterfaceType(.cellular)
             DispatchQueue.main.async {
-                self?.isConnected = path.status == .satisfied
-                self?.isCellular = path.usesInterfaceType(.cellular)
+                guard let self else { return }
+                if self.isConnected != isConnected {
+                    self.isConnected = isConnected
+                }
+                if self.isCellular != isCellular {
+                    self.isCellular = isCellular
+                }
             }
         }
     }

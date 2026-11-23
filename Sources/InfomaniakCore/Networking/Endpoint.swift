@@ -76,6 +76,7 @@ public struct Endpoint {
         components.host = host
         components.path = path
         components.queryItems = queryItems
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
 
         guard let url = components.url else {
             fatalError("Invalid endpoint URL: \(self)")

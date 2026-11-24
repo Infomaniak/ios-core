@@ -66,6 +66,8 @@ public enum ApiEnvironment: Equatable, Hashable {
 }
 
 public struct Endpoint {
+    private static let queryValueAllowedCharacters = CharacterSet.urlQueryAllowed.subtracting(CharacterSet(charactersIn: "&=+;"))
+
     public let host: String
     public let path: String
     public let queryItems: [URLQueryItem]?
@@ -76,6 +78,15 @@ public struct Endpoint {
         components.host = host
         components.path = path
         components.queryItems = queryItems
+        if let queryItems,
+           let encodedQueryItems = components.percentEncodedQueryItems {
+            components.percentEncodedQueryItems = zip(encodedQueryItems, queryItems).map { encodedItem, item in
+                URLQueryItem(
+                    name: encodedItem.name,
+                    value: item.value?.addingPercentEncoding(withAllowedCharacters: Self.queryValueAllowedCharacters)
+                )
+            }
+        }
 
         guard let url = components.url else {
             fatalError("Invalid endpoint URL: \(self)")

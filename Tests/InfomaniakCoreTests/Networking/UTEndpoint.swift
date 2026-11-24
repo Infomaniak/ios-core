@@ -22,17 +22,26 @@ import Testing
 
 @Suite("Endpoint Tests")
 struct UTEndpoint {
-    @Test("Plus sign in query values is percent-encoded", arguments: [
+    @Test("Ambiguous characters in query values are percent-encoded", arguments: [
         ("john+tag@example.com", "john%2Btag@example.com"),
         ("2026-11-23T10:00:00+01:00", "2026-11-23T10:00:00%2B01:00"),
-        ("hello world", "hello%20world")
+        ("hello world", "hello%20world"),
+        ("a&b=c;d#e", "a%26b%3Dc%3Bd%23e"),
+        ("logo,name", "logo,name")
     ])
-    func plusSignIsPercentEncoded(value: String, expectedQueryValue: String) throws {
+    func ambiguousCharactersArePercentEncoded(value: String, expectedQueryValue: String) throws {
         let endpoint = Endpoint(host: "example.com", path: "/api", queryItems: [URLQueryItem(name: "value", value: value)])
 
         let components = try #require(URLComponents(url: endpoint.url, resolvingAgainstBaseURL: false))
         #expect(components.percentEncodedQuery == "value=\(expectedQueryValue)")
         #expect(components.queryItems?.first?.value == value)
+    }
+
+    @Test("Query names keep default encoding")
+    func queryNamesKeepDefaultEncoding() {
+        let endpoint = Endpoint(host: "example.com", path: "/api", queryItems: [URLQueryItem(name: "a+b;c", value: "1+2")])
+
+        #expect(endpoint.url.query(percentEncoded: true) == "a+b;c=1%2B2")
     }
 
     @Test("Endpoint without query items has no query")
